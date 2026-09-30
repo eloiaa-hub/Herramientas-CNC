@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramientas CNC — Por Eloi A.A.</title>
+<meta name="description" content="Herramientas para aprender y enseñar programación CNC en código ISO: Calcador de contornos, Generador de G-Code y Simulador 3D. Funcionan en el navegador, sin instalar nada.">
+<style>
+  :root {
+    --acento: #005A9C; --acento-suave: rgba(0,90,156,.10); --fondo: #eef2f6; --panel: #ffffff; --texto: #1d2733; --texto-sec: #5b6878;
+    --borde: #d7dee7; --sombra: 0 6px 22px rgba(20,40,70,.10); --verde: #00897b; --naranja: #c8741a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --acento: #5aa9e6; --acento-suave: rgba(90,169,230,.14); --fondo: #14181d; --panel: #1d232a; --texto: #e6ebf0; --texto-sec: #9aa7b5; --borde: #2e3843; --sombra: 0 6px 22px rgba(0,0,0,.35); --verde: #4dd0c4; --naranja: #f0a35e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; }
+  .envoltura { max-width: 1120px; margin: 0 auto; padding: 32px 22px 40px; }
+  header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .logo { width: 54px; height: 54px; flex: 0 0 auto; }
+  h1 { margin: 0; font-size: clamp(22px, 3.2vw, 32px); letter-spacing: -.01em; }
+  .sub { margin: 2px 0 0; color: var(--texto-sec); font-size: 15px; }
+  .flujo { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 26px 0 30px; padding: 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--borde); box-shadow: var(--sombra); font-size: 14px; }
+  .paso { display: flex; flex-direction: column; align-items: center; padding: 6px 12px; border-radius: 10px; background: var(--acento-suave); min-width: 118px; text-align: center; }
+  .paso b { color: var(--acento); } .paso small { color: var(--texto-sec); font-size: 12px; }
+  .flecha { color: var(--texto-sec); font-size: 18px; }
+  .archivo { font-family: Consolas, 'Courier New', monospace; font-size: 12px; padding: 2px 8px; border-radius: 6px; border: 1px dashed var(--borde); color: var(--texto-sec); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--texto-sec); margin: 30px 0 12px; }
+  .fichas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .fase { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-sec); }
+  .ficha { background: var(--panel); border: 1px solid var(--borde); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--sombra); transition: transform .12s, border-color .12s; }
+  .ficha:hover { transform: translateY(-2px); border-color: var(--acento); }
+  .cab { display: flex; align-items: center; gap: 12px; }
+  .icono { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 11px; background: var(--acento-suave); display: flex; align-items: center; justify-content: center; }
+  .icono svg { width: 26px; height: 26px; stroke: var(--acento); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .nombre { font-size: 17px; font-weight: 700; margin: 0; }
+  .ver { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 9px; background: var(--acento-suave); color: var(--acento); margin-left: 6px; vertical-align: middle; }
+  .para { font-size: 11.5px; font-weight: 600; color: var(--texto-sec); }
+  .para.prof { color: var(--naranja); } .para.alum { color: var(--verde); }
+  .desc { margin: 0; font-size: 14px; color: var(--texto-sec); flex: 1; }
+  .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+  .boton { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--acento); color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; }
+  .boton.sec { background: transparent; color: var(--acento); border: 1px solid var(--acento); }
+  .boton:hover { filter: brightness(1.08); }
+  .avisos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 30px; }
+  .aviso { background: var(--panel); border: 1px solid var(--borde); border-radius: 12px; padding: 14px 16px; font-size: 13.5px; color: var(--texto-sec); }
+  .aviso b { color: var(--texto); display: block; margin-bottom: 3px; }
+  footer { margin-top: 34px; text-align: center; font-size: 12.5px; color: var(--texto-sec); }
+</style>
+</head>
+<body>
+<div class="envoltura">
+  <header>
+    <svg class="logo" viewBox="0 0 54 54" aria-hidden="true"><rect x="1" y="1" width="52" height="52" rx="13" fill="#005A9C"/><path d="M12 38 L12 20 L24 20 L24 28 A6 6 0 0 0 36 28 L36 20 L42 20 L42 38 Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><circle cx="18" cy="31" r="2.6" fill="#fff"/></svg>
+    <div>
+      <h1>Herramientas CNC</h1>
+      <p class="sub">Para aprender y enseñar a programar en código ISO (G-code) · Por Eloi A.A.</p>
+    </div>
+  </header>
+
+  <div class="flujo" aria-label="Flujo de trabajo">
+    <div class="paso"><b>Calcador</b><small>dibujar la pieza</small></div>
+    <span class="archivo">.json</span><span class="flecha">→</span>
+    <div class="paso"><b>Generador</b><small>preparar el mecanizado</small></div>
+    <span class="archivo">.nc</span><span class="flecha">→</span>
+    <div class="paso"><b>Simulador 3D</b><small>comprobar el programa</small></div>
+  </div>
+
+  <h2>Las herramientas</h2>
+  <div class="fichas">
+    <div class="ficha">
+      <span class="fase">1 · Diseñar y corregir</span>
+      <div class="cab"><div class="icono"><svg viewBox="0 0 24 24"><path d="M4 18 L4 7 L11 7 L11 11 A3 3 0 0 0 17 11 L17 7 L20 7 L20 18 Z"/><path d="M4 21 h16" stroke-dasharray="2 2"/></svg></div>
+        <div><p class="nombre">Calcador de contornos<span class="ver">v47</span></p><span class="para prof">Profesorado</span></div></div>
+      <p class="desc">Dibuja o calca la pieza sobre un plano, acótala y prepara la hoja de ejercicio y la de soluciones. Corrige los programas de los alumnos, uno a uno o toda la clase a la vez, y guarda tus ejercicios en la biblioteca.</p>
+      <div class="acciones"><a class="boton" href="calcador.html">Abrir</a><a class="boton sec" href="manual_calcador.html">📖 Manual</a><a class="boton sec" href="manual_calcador.pdf">PDF</a></div>
+    </div>
+
+    <div class="ficha">
+      <span class="fase">2 · Generar el G-code</span>
+      <div class="cab"><div class="icono"><svg viewBox="0 0 24 24"><path d="M5 19 L5 5 L19 5 L19 19 Z"/><path d="M8 9 h5 M8 12 h8 M8 15 h6"/></svg></div>
+        <div><p class="nombre">Generador de G‑Code<span class="ver">v70</span></p><span class="para prof">Profesorado</span></div></div>
+      <p class="desc">Convierte los contornos (del Calcador, de un DXF o de un SVG) en un programa ISO: estrategia de corte, pasadas, entradas y salidas, puentes y grabados.</p>
+      <div class="acciones"><a class="boton" href="generador.html">Abrir</a></div>
+    </div>
+
+    <div class="ficha">
+      <span class="fase">3 · Simular</span>
+      <div class="cab"><div class="icono"><svg viewBox="0 0 24 24"><path d="M12 3 L20 7.5 L20 16.5 L12 21 L4 16.5 L4 7.5 Z"/><path d="M12 12 L20 7.5 M12 12 L4 7.5 M12 12 L12 21"/></svg></div>
+        <div><p class="nombre">Simulador 3D<span class="ver">V23</span></p><span class="para alum">Alumnado</span></div></div>
+      <p class="desc">Abre un programa ISO (G‑code) y mira cómo se mecaniza la pieza en 3D, bloque a bloque.</p>
+      <div class="acciones"><a class="boton" href="simulador3d.html">Abrir</a></div>
+    </div>
+    <div class="ficha">
+      <span class="fase">3 · Simular</span>
+      <div class="cab"><div class="icono"><svg viewBox="0 0 24 24"><path d="M12 3 L20 7.5 L20 16.5 L12 21 L4 16.5 L4 7.5 Z"/><path d="M8.5 13.5 l2.5 2.5 l4.5-5"/></svg></div>
+        <div><p class="nombre">Simulador 3D del profesor<span class="ver">V23</span></p><span class="para prof">Profesorado</span></div></div>
+      <p class="desc">El mismo simulador con editor de código, para retocar el programa sobre la marcha y explicarlo en clase.</p>
+      <div class="acciones"><a class="boton" href="simulador3d_profesor.html">Abrir</a></div>
+    </div>
+  </div>
+
+  <div class="avisos">
+    <div class="aviso"><b>Sin instalar nada</b>Cada herramienta es un único archivo que funciona en el navegador (Chrome, Edge o Firefox), también sin conexión a internet.</div>
+    <div class="aviso"><b>Tus datos no salen de tu ordenador</b>Todo se procesa en el navegador: los dibujos, los programas y las correcciones de los alumnos no se envían a ningún sitio.</div>
+    <div class="aviso"><b>Guarda tus archivos</b>Cada herramienta recuerda tu último trabajo en este navegador, pero lo seguro es guardarlo en archivos (.json, .nc) con los botones de cada programa.</div>
+  </div>
+
+  <footer>Herramientas CNC · Por Eloi A.A. · <a href="licencias.html" style="color:inherit">Créditos y licencias</a></footer>
+</div>
+</body>
+</html>
