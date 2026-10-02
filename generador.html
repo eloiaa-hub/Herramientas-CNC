@@ -28,6 +28,8 @@
             display: flex; justify-content: space-between; align-items: center; user-select: none; gap: 10px; }
         .top-bar-title { font-weight: 700; font-size: 14px; }
         .top-bar-right { display: flex; align-items: center; gap: 10px; }
+        /* Título a la izquierda, junto al ⌂, como en el Simulador; los botones, a la derecha */
+        .top-bar { justify-content: flex-start; } .top-bar-right { margin-left: auto; }
         .project-name { background: var(--bg-app); border: 1px solid var(--border-color); border-radius: 4px;
             padding: 3px 8px; font-size: 12px; color: var(--text-main); outline: none; width: 140px; }
         .project-name:focus { border-color: var(--accent); }
@@ -712,7 +714,7 @@
 <div class="app-window">
 
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v71</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v74</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="perfil_sin_nombre" placeholder="Nombre del proyecto">
             <span class="icon-gear" id="helpIcon" onclick="toggleAyuda()" title="Ayuda">❓</span>
@@ -745,6 +747,7 @@
             <button class="exp-btn" onclick="document.getElementById('fileNCbar').click()" title="Cargar G-code (.nc/.gcode) como polígono editable">📥 NC</button>
             <input type="file" id="fileNCbar" accept=".nc,.gcode,.tap,.txt" style="display:none" onchange="cargarNC(this)">
             <div class="exp-sep"></div>
+            <button class="exp-btn" id="btnDevolver" style="display:none" onclick="devolverAlCalcador()" title="Devuelve el proyecto (con el mecanizado y la entrada que hayas cambiado) a la pestaña del Calcador">⬅ CALCADOR</button>
             <button class="exp-btn" onclick="window.open('Editor_Gcode.html', '_blank')" title="Abrir el editor/simulador de G-code independiente">EDITOR</button>
         </div>
     </div>
@@ -1738,7 +1741,8 @@ function mecDe(t) {
     return { op: esAbierto(t) ? 'grabado' : (['grabado', 'cajera', 'isla'].includes(m.op) ? m.op : 'corte'),
              caj: { estr: c.estr === 'zigzag' ? 'zigzag' : 'concentrica', paso: Math.min(100, Math.max(5, isFinite(+c.paso) && +c.paso > 0 ? +c.paso : 50)), entrada: c.entrada === 'rampa' ? 'rampa' : 'vertical' },
              prof: (typeof m.prof === 'number' && isFinite(m.prof) && m.prof < 0) ? m.prof : null,
-             puentes: { n: Math.max(0, Math.round(+p.n || 0)), ancho: Math.max(0, +p.ancho || 0), alto: Math.max(0, +p.alto || 0) } };
+             puentes: { n: Math.max(0, Math.round(+p.n || 0)), ancho: Math.max(0, +p.ancho || 0), alto: Math.max(0, +p.alto || 0),
+                        pts: Array.isArray(p.pts) ? p.pts.filter(q => q && isFinite(+q.x) && isFinite(+q.y)).slice(0, 50).map(q => ({ x:+q.x, y:+q.y })) : [] } };
 }
 
 // ── Edición de vértice ──
@@ -2770,9 +2774,10 @@ function actualizarMecBox() {
         : m.op === 'grabado' ? 'Grabado: la fresa va sobre la línea (G40) y en el sentido dibujado. Se hace antes que los cortes.'
         : m.op === 'cajera' ? 'Cajera: se vacía por dentro (G40, trayectoria calculada con el radio de la herramienta), antes que los cortes. Las islas que tenga dentro no se tocan.'
         : m.op === 'isla' ? 'Isla: no se mecaniza; la cajera que la rodea la respeta.'
-        : m.puentes.n ? `${m.puentes.n} puente(s): en las pasadas más profundas la fresa sube al pasar por ellos.` : 'Corte con la corrección y la estrategia elegidas.';
+        : m.puentes.n ? `${m.puentes.n} puente(s)${m.puentes.pts && m.puentes.pts.length ? ' situados en el Calcador' : ''}: el ancho es el puente que queda en la pieza; la fresa se levanta ancho + Ø en las pasadas más profundas.` : 'Corte con la corrección y la estrategia elegidas.';
 }
 function cambiarMec() {
+    const mecPrevio = mecActual;
     const num = id => { const v = parseFloat(document.getElementById(id).value); return isFinite(v) ? v : null; };
     const prof = num('mecProf');
     mecActual = {
@@ -2781,6 +2786,9 @@ function cambiarMec() {
         prof: prof !== null && prof < 0 ? realDeCampo(prof) : null,
         puentes: { n: Math.max(0, Math.round(num('mecPN') || 0)), ancho: Math.max(0, realDeCampo(num('mecPW') || 0)), alto: Math.max(0, realDeCampo(num('mecPH') || 0)) }
     };
+    // los puentes situados en el Calcador se conservan mientras no cambie su número
+    const prevPts = mecPrevio && mecPrevio.puentes && Array.isArray(mecPrevio.puentes.pts) ? mecPrevio.puentes.pts : [];
+    if (prevPts.length && prevPts.length === mecActual.puentes.n) mecActual.puentes.pts = prevPts;
     actualizarMecBox(); actualizarListaTrazados(); redibujarTrazadosFinalizados();
 }
 // Actualiza el panel lateral con la lista de trazados (activo + finalizados)
@@ -4582,12 +4590,48 @@ function generarGcode() {
             if (sg.recta) { const f = sg.L > 0 ? d / sg.L : 0; return { x: sg.p1.x + (sg.p2.x - sg.p1.x) * f, y: sg.p1.y + (sg.p2.y - sg.p1.y) * f }; }
             const a = sg.a1 + sg.dir * d / sg.r; return { x: sg.c.x + sg.r * Math.cos(a), y: sg.c.y + sg.r * Math.sin(a) };
         };
-        // Puentes: repartidos a lo largo del contorno, lejos de la entrada
+        // Puentes: el ANCHO es el puente que queda en la madera; la fresa se levanta ancho + Ø.
+        // Posición: la que llega del Calcador (puntos) o, si no hay, repartidos evitando esquinas, arcos pequeños y la entrada.
         const Ltot = segM.reduce((a, sg) => a + sg.L, 0);
         const pz = mec.puentes, zTab = zTotalT + pz.alto;
-        const tabs = (!grabar && !abierto && pz.n > 0 && pz.ancho > 0 && pz.alto > 0 && zTab < 0 && Ltot > 0)
-            ? Array.from({ length: pz.n }, (_, k) => { const m = (k + 0.5) * Ltot / pz.n, h = Math.min(pz.ancho, Ltot / pz.n * 0.8) / 2; return [m - h, m + h]; }) : [];
-        if (tabs.length) nc += `; Puentes: ${tabs.length} × ${fmtNum(pz.ancho)} de ancho, hasta Z${fmtNum(zTab)} (en las pasadas más profundas)\n`;
+        const quiere = !grabar && !abierto && pz.n > 0 && pz.ancho > 0 && pz.alto > 0 && Ltot > 0;
+        let tabs = [];
+        if (quiere && zTab >= 0) nc += `; ⚠ Puentes omitidos: su alto (${fmtNum(pz.alto)}) no es menor que la profundidad del corte\n`;
+        else if (quiere) {
+            if (!(toolR > 0)) nc += `; ⚠ Sin radio de herramienta: los puentes quedarán más estrechos que su ancho (falta sumar el Ø de la fresa)\n`;
+            const w = pz.ancho + 2 * Math.max(0, toolR);
+            const s0s = []; let acc = 0; segM.forEach(sg => { s0s.push(acc); acc += sg.L; });
+            const tangente = (sg, d) => { if (sg.recta) { const L = sg.L || 1; return { x:(sg.p2.x - sg.p1.x) / L, y:(sg.p2.y - sg.p1.y) / L }; } const a = sg.a1 + sg.dir * d / sg.r; return sg.dir > 0 ? { x:-Math.sin(a), y:Math.cos(a) } : { x:Math.sin(a), y:-Math.cos(a) }; };
+            const proyectar = q => {          // posición a lo largo del recorrido del punto más cercano a q
+                let mejor = null;
+                segM.forEach((sg, i) => {
+                    let d0, p;
+                    if (sg.recta) { const L = sg.L || 1e-9, t = Math.max(0, Math.min(1, ((q.x - sg.p1.x) * (sg.p2.x - sg.p1.x) + (q.y - sg.p1.y) * (sg.p2.y - sg.p1.y)) / (L * L))); p = { x:sg.p1.x + (sg.p2.x - sg.p1.x) * t, y:sg.p1.y + (sg.p2.y - sg.p1.y) * t }; d0 = t * sg.L; }
+                    else { let th = Math.atan2(q.y - sg.c.y, q.x - sg.c.x) - sg.a1; th = sg.dir > 0 ? ((th % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) : -((((-th) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)); const sw = sg.L / sg.r; let u = Math.abs(th); if (u > sw) u = (u - sw < 2 * Math.PI - u) ? sw : 0; p = puntoEn(sg, u * sg.r); d0 = u * sg.r; }
+                    const d = Math.hypot(p.x - q.x, p.y - q.y); if (!mejor || d < mejor.d) mejor = { d, s: s0s[i] + d0 };
+                });
+                return mejor ? mejor.s : 0;
+            };
+            let centros;
+            if (pz.pts && pz.pts.length) centros = pz.pts.map(q => proyectar({ x: q.x * S - wOffX, y: (ALTO - q.y) * S - wOffY }));
+            else {
+                const h = w / 2 + 1, malos = [];
+                segM.forEach((sg, i) => {
+                    const prev = segM[(i - 1 + segM.length) % segM.length], t1 = tangente(prev, prev.L), t2 = tangente(sg, 0);
+                    const ang = Math.acos(Math.max(-1, Math.min(1, t1.x * t2.x + t1.y * t2.y)));
+                    if (i === 0) malos.push([s0s[i] - h - 5, s0s[i] + h + 5]);
+                    else if (ang > 15 * Math.PI / 180) malos.push([s0s[i] - h, s0s[i] + h]);
+                    if (!sg.recta && sg.r < Math.max(10, w)) malos.push([s0s[i] - h, s0s[i] + sg.L + h]);
+                });
+                const malo = v => malos.some(([a, b]) => [v, v + Ltot, v - Ltot].some(x => x > a && x < b));
+                centros = Array.from({ length: pz.n }, (_, k) => { const m0 = (k + 0.5) * Ltot / pz.n; if (!malo(m0)) return m0;
+                    for (let d = 0.5; d <= Ltot / (2 * pz.n); d += 0.5) { if (!malo(m0 + d)) return m0 + d; if (!malo(m0 - d)) return m0 - d; } return m0; });
+            }
+            // intervalos a lo largo del recorrido (un puente que cruza el inicio se parte en dos)
+            centros.sort((a, b) => a - b).forEach(m => { const a = m - w / 2, b = m + w / 2;
+                if (a < 0) { tabs.push([0, b]); tabs.push([Ltot + a, Ltot]); } else if (b > Ltot) { tabs.push([a, Ltot]); tabs.push([0, b - Ltot]); } else tabs.push([a, b]); });
+            if (centros.length) nc += `; Puentes: ${centros.length} de ${fmtNum(pz.ancho)} de ancho en la pieza (la fresa se levanta ${fmtNum(w)}), hasta Z${fmtNum(zTab)}, en las pasadas más profundas${pz.pts && pz.pts.length ? ' · situados en el Calcador' : ''}\n`;
+        }
 
         // ── Pasadas Z para este trazado ──
         zDepthsT.forEach((zPass, passIdx) => {
@@ -4710,6 +4754,29 @@ function guardarJSON() {
     if (bloqueCalcador && !calcadorVigente()) snack('JSON guardado · la geometría ha cambiado en el Generador: el archivo ya no conserva los datos del Calcador (textos editables, formas y cotas)', 7000);
     else snack(bloqueCalcador ? 'JSON guardado (con los datos del Calcador: se puede volver a abrir en él sin perder nada)' : 'JSON guardado');
 }
+
+// ── Proyecto enviado por el Calcador («➜ Abrir en el Generador») y vuelta ──
+function devolverAlCalcador() {
+    if (!window.opener || window.opener.closed) { snack('La pestaña del Calcador ya no está abierta: guarda el JSON y ábrelo en él'); return; }
+    window.opener.postMessage({ tipo:'proyecto-generador', json: JSON.stringify(estadoActual()) }, '*');
+    snack('Proyecto devuelto al Calcador'); try { window.opener.focus(); } catch (e) {}
+}
+window.addEventListener('load', () => setTimeout(() => {
+    if (location.hash !== '#desdeCalcador' && location.hash !== '#desdeCorrector') return;
+    const conVuelta = location.hash === '#desdeCalcador';        // el Corrector no edita: no hay vuelta
+    let recibido = false;
+    const cargar = json => {
+        if (recibido) return; recibido = true;
+        try { const d = JSON.parse(json); restaurarEstado(d); snack(`Proyecto «${d.nombre || 'sin nombre'}» recibido del ${conVuelta ? 'Calcador' : 'Corrector'}`); } catch (e) { snack('No se pudo leer el proyecto recibido'); }
+        try { localStorage.removeItem('suiteCNC:paraGenerador'); } catch (e) {}
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+        if (conVuelta && window.opener && !window.opener.closed) document.getElementById('btnDevolver').style.display = '';
+    };
+    window.addEventListener('message', e => { const d = e.data; if (d && d.tipo === 'proyecto-calcador' && typeof d.json === 'string') cargar(d.json); });
+    if (window.opener) try { window.opener.postMessage({ tipo:'generador-listo' }, '*'); } catch (e) {}
+    // respaldo: el proyecto también queda en el almacenamiento local unos minutos
+    setTimeout(() => { if (recibido) return; try { const x = JSON.parse(localStorage.getItem('suiteCNC:paraGenerador') || 'null'); if (x && Date.now() - x.t < 120000) cargar(x.json); } catch (e) {} }, 1200);
+}, 250));
 
 function cargarJSON(input) {
     const file = input.files[0]; if (!file) return;

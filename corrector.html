@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-visor="1">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calcador de contornos — Por Eloi A.A.</title>
+<title>Corrector — Por Eloi A.A.</title>
 <style>
     :root {
         --bg-app: #eef1f5; --bg-panel: #f8f9fa; --border-color: #d1d5db;
@@ -397,7 +397,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v55</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v55)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v3</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -4810,11 +4810,11 @@ function guardarAuto() {
     try {
         const conDatos = JSON.parse(JSON.stringify(base));
         if (fondo) conDatos.fondo.datos = fondo.tipo === 'dxf' ? fondo.dxfText : fondo.dataUrl;
-        localStorage.setItem('calcador_estado', JSON.stringify(conDatos));
+        localStorage.setItem('corrector_estado', JSON.stringify(conDatos));
     } catch (e) {
         // Sin espacio: se guarda sin el fondo, y se avisa una sola vez
         try {
-            localStorage.setItem('calcador_estado', JSON.stringify(base));
+            localStorage.setItem('corrector_estado', JSON.stringify(base));
             if (fondo && !avisoFondoGrande) { avisoFondoGrande = true; snack('El fondo es demasiado grande para el guardado automático: tus contornos sí se guardan, pero al recargar tendrás que volver a cargar el fondo'); }
         } catch (e2) {
             if (!avisoSinGuardado) { avisoSinGuardado = true; snack('No queda espacio para el guardado automático: exporta el JSON para no perder el trabajo'); }
@@ -4884,14 +4884,14 @@ function cargarAuto() {
     catch (e) {
         // Estado guardado dañado: se aparta una copia y se arranca limpio
         console.warn('Autoguardado dañado', e);
-        try { localStorage.setItem('calcador_estado_danado', localStorage.getItem('calcador_estado') || ''); localStorage.removeItem('calcador_estado'); } catch (e2) {}
+        try { localStorage.setItem('corrector_estado_danado', localStorage.getItem('corrector_estado') || ''); localStorage.removeItem('corrector_estado'); } catch (e2) {}
         contornos = []; aux = []; cotasManuales = []; cotasAjuste = {}; fondo = null; undoStack = []; redoStack = [];
         setTimeout(() => snack('El trabajo guardado estaba dañado y no se ha podido recuperar: se empieza de cero (se guardó una copia aparte)'), 600);
         return false;
     }
 }
 function cargarAutoInterno() {
-    let d; try { d = JSON.parse(localStorage.getItem('calcador_estado') || 'null'); } catch (e) { d = null; }
+    let d; try { d = JSON.parse(localStorage.getItem('corrector_estado') || 'null'); } catch (e) { d = null; }
     if (!esObj(d)) return false;
     if (typeof d.nombre === 'string') document.getElementById('projectName').value = d.nombre;
     contornos = sanearContornos(d.contornos);

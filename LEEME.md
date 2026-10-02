@@ -7,9 +7,10 @@ sin instalar nada y también sin conexión a internet.
 | Archivo | Herramienta | Versión |
 |---|---|---|
 | `index.html` | Portada con enlaces a todo | — |
-| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v48 |
+| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v55 |
+| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v3 |
 | `manual_calcador.html` / `.pdf` | Manual del Calcador | — |
-| `generador.html` | Generador de G-Code 2D (cortes, grabados y cajeras) | v71 |
+| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras y puentes) | v74 |
 | `simulador3d.html` | Simulador G-Code 3D (alumnado) | V23 |
 | `simulador3d_profesor.html` | Simulador G-Code 3D con editor (profesorado) | V23 |
 | `licencias.html` | Créditos y licencias (fuentes y bibliotecas de terceros) | — |
