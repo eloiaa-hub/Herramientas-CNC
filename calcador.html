@@ -397,12 +397,12 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v55</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v58</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
                 <button onclick="simPlanoInicio()" title="Al principio y vista normal (Mayús + ←)">⏮</button>
-                <button onclick="simPlanoPaso(-1)" title="Bloque anterior (←)">◀</button>
+                <button onclick="simPlanoPaso(-1)" title="Bloque anterior (←)">▏◀</button>
                 <button id="spPlay" onclick="simPlanoPlay()" title="Reproducir (↑)">▶</button>
                 <button id="spPausa" onclick="simPlanoPausa()" title="Pausa (↓)">⏸</button>
                 <button onclick="simPlanoPaso(1)" title="Bloque siguiente (→)">▶▏</button>
@@ -552,6 +552,7 @@
                             <select id="cmTipo"><option value="auto">Automática</option><option value="lineal">Lineal (H o V)</option><option value="alineada">Alineada</option><option value="angulo">Ángulo</option><option value="radio">Radio</option><option value="diametro">Diámetro</option></select>
                         </div>
                         <div class="ctx-nota"><strong>Automática</strong>: clic en un lado = su longitud (también inclinada); en un arco = radio; en un círculo = diámetro; en un vértice o centro = cota entre dos puntos. Queda ligada a la pieza (la sigue al moverla y se borra con ella) y se ve aunque las cotas automáticas estén desactivadas.</div>
+                        <button class="btn-action sec" id="cmBorrarTodas" onclick="borrarTodasCotasManuales()" title="Quita todas las cotas manuales del plano (Ctrl+Z las recupera)">🗑 Borrar todas las cotas manuales</button>
                     </div>
                     <div id="fmTang" style="display:none; flex-direction:column; gap:7px">
                         <div class="param-line">Tangencia <select id="tgModo"><option value="recta">Recta tangente</option><option value="arco">Arco de radio R</option></select></div>
@@ -614,9 +615,11 @@
                     <div class="ajuste-box">
                         <div class="param-line"><span title="Al terminar cada contorno (y al vectorizar), vértices y radios se ajustan a múltiplos del paso">Ajuste automático de medidas</span><input type="checkbox" id="ajAuto"></div>
                         <div class="param-line">Paso <select id="ajPaso"><option value="1">1 mm (enteros)</option><option value="0.5" selected>0,5 mm (enteros o ,5)</option><option value="0.1">0,1 mm</option></select></div>
+                        <div class="param-line">Arcos <select id="ajArcos" title="Con el centro en la rejilla, las distancias del centro a los extremos del arco (I, J) salen exactas, aunque el radio no sea redondo"><option value="centro">Centro en la rejilla (I, J exactos)</option><option value="radio">Radio redondo</option></select></div>
                         <button class="btn-action sec" onclick="ajustarMedidasBoton()" title="Ajusta ahora los contornos seleccionados (o todos si no hay selección)">📐 Ajustar medidas</button>
                     </div>
                     <div class="param-line"><span>Centros de arcos</span><input type="checkbox" id="chkCentros" checked title="Marca y posición del centro de los arcos que no son empalmes"></div>
+                    <div class="param-line"><span>Cotas en cadena</span><input type="checkbox" id="chkCadena" checked title="Las cotas parciales se alinean en filas por fuera de la pieza (una por lado) y se evita que sus números se pisen"></div>
                     <div class="param-line"><span>Mostrar cotas ocultas</span><input type="checkbox" id="chkVerOcultas" title="Las enseña atenuadas en pantalla para poder recuperarlas (clic derecho → Mostrar)"></div>
                     <button class="btn-action sec" onclick="restaurarCotas()" title="Devuelve todas las cotas a su posición automática y muestra las ocultas">↺ Restaurar cotas</button>
                     <div class="btn-row">
@@ -1169,7 +1172,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                 <div class="cr-sim" id="crSimBarra" style="display:none">
                     <div class="cr-sim-ctrl">
                         <button class="sim-b" onclick="pausarSim(); sim.t = 0; sim.parados.clear(); pintarSim()" title="Al principio (Inicio)">⏮</button>
-                        <button class="sim-b" onclick="pasoSim(-1)" title="Bloque anterior (←)">◀</button>
+                        <button class="sim-b" onclick="pasoSim(-1)" title="Bloque anterior (←)">▏◀</button>
                         <button class="sim-b sim-play" id="crSimPlay" onclick="alternarSim()" title="Reproducir / pausa (espacio)">▶</button>
                         <button class="sim-b" onclick="pasoSim(1)" title="Bloque siguiente (→)">▶▏</button>
                         <button class="sim-b" onclick="pausarSim(); sim.t = sim.T; pintarSim()" title="Al final (Fin)">⏭</button>
@@ -1609,7 +1612,7 @@ let auxPend = null;
 let cfgAux = { modo:'2p', ang:0, dist:10, radio:0 };
 let cfgFresa = { ver:false, d:6 };
 let fresaRes = null;
-let cfgCotas = { ver:false, nivel:'todo', incl:'proy', cero:true, entrada:true, sentido:true, centros:true, verOcultas:false };
+let cfgCotas = { ver:false, nivel:'todo', incl:'proy', cero:true, entrada:true, sentido:true, centros:true, cadena:true, verOcultas:false };
 let cotasAjuste = {};   // clave de cota → { oculta, dn, dt, v } (posición manual u ocultación)
 let cotasPantalla = [];   // cajas de los textos de cota en pantalla (para el doble clic)
 let cotaEdit = null, cotaHover = null;
@@ -2495,6 +2498,7 @@ document.getElementById('chkSvgColor').addEventListener('change', e => { cfgExpo
 ['txFuente', 'txAlin'].forEach(id => document.getElementById(id).addEventListener('change', leerPanelTexto));
 document.getElementById('ajAuto').addEventListener('change', e => { cfgAjuste.auto = e.target.checked; guardarAutoPronto(); snack(cfgAjuste.auto ? `Ajuste automático activado: cada contorno terminado se ajusta a múltiplos de ${fmt(cfgAjuste.paso)} mm` : 'Ajuste automático desactivado'); });
 document.getElementById('ajPaso').addEventListener('change', e => { cfgAjuste.paso = +e.target.value; guardarAutoPronto(); });
+document.getElementById('ajArcos').addEventListener('change', e => { cfgAjuste.arcos = e.target.value; guardarAutoPronto(); });
 document.getElementById('eqD').addEventListener('input', e => { const v = numES(e.target.value); if (v > 0) { cfgEqui.d = v; equiCache = null; render(); guardarAutoPronto(); } });
 document.getElementById('eqCopias').addEventListener('input', e => { const v = numES(e.target.value); if (v >= 1) { cfgEqui.copias = Math.round(v); equiCache = null; render(); guardarAutoPronto(); } });
 [['eqEsq', 'esquinas'], ['eqAbierto', 'abierto']].forEach(([id, k]) => document.getElementById(id).addEventListener('change', e => { cfgEqui[k] = e.target.value; equiCache = null; render(); guardarAutoPronto(); }));
@@ -3500,8 +3504,9 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         const sy = nOut.y >= 0 ? 1 : -1, sx = nOut.x >= 0 ? 1 : -1;
         const yL = (sy > 0 ? Math.max(t.p1.y, t.p2.y) : Math.min(t.p1.y, t.p2.y)) + sy*sep;
         const xL = (sx > 0 ? Math.max(t.p1.x, t.p2.x) : Math.min(t.p1.x, t.p2.x)) + sx*sep;
-        if (ponX) cotaEntre(t.p1, t.p2, { x:t.p1.x, y:yL }, { x:t.p2.x, y:yL }, fmt(dx), { tipo:'proy', eje:'x', ci:i, si:t.i, valor:dx });
-        if (ponY) cotaEntre(t.p1, t.p2, { x:xL, y:t.p1.y }, { x:xL, y:t.p2.y }, fmt(dy), { tipo:'proy', eje:'y', ci:i, si:t.i, valor:dy });
+        const refX = { tipo:'proy', eje:'x', ci:i, si:t.i, valor:dx }, refY = { tipo:'proy', eje:'y', ci:i, si:t.i, valor:dy };
+        if (ponX && !cotaCadena(t.p1, t.p2, 'x', sy > 0 ? 't' : 'b', fmt(dx), refX)) cotaEntre(t.p1, t.p2, { x:t.p1.x, y:yL }, { x:t.p2.x, y:yL }, fmt(dx), refX);
+        if (ponY && !cotaCadena(t.p1, t.p2, 'y', sx > 0 ? 'r' : 'l', fmt(dy), refY)) cotaEntre(t.p1, t.p2, { x:xL, y:t.p1.y }, { x:xL, y:t.p2.y }, fmt(dy), refY);
     };
     const anguloTramo = (t, i) => {
         const A = t.p1.x <= t.p2.x ? t.p1 : t.p2, B = A === t.p1 ? t.p2 : t.p1;
@@ -3548,6 +3553,43 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         if (vert && Math.abs(l - H) < tolM && (Math.abs(t.p1.x - bb.x0) < tolM || Math.abs(t.p1.x - bb.x1) < tolM)) return true;
         return false;
     };
+    // ── Acotación en cadena: las cotas parciales de tramos rectos se alinean en filas por fuera
+    //    de la pieza (abajo, arriba, izquierda, derecha), si sus líneas de referencia no la cruzan ──
+    const enCadena = cfgCotas.cadena !== false && !!bb && !opts.sinAuto;
+    const polisCruce = enCadena ? lista.filter(c => c.pts.length >= 2 && !c.texto && !c.deTexto).map(c => { const m = muestrearContorno(c); return c.cerrado ? m.concat([m[0]]) : m; }) : [];
+    const cortaSeg = (p, q, a, b) => {
+        const d1 = cross(sub(q, p), sub(a, p)), d2 = cross(sub(q, p), sub(b, p)), d3 = cross(sub(b, a), sub(p, a)), d4 = cross(sub(b, a), sub(q, a));
+        const eps = 1e-9 * Math.max(1, dist(p, q) * dist(a, b));
+        if (Math.abs(d1) < eps && Math.abs(d2) < eps) {      // alineados: ¿se superponen? (la referencia iría sobre el borde)
+            const e = norm(sub(q, p)), t0 = 0, t1 = dist(p, q), ta = dot(sub(a, p), e), tb = dot(sub(b, p), e);
+            return Math.max(Math.min(ta, tb), t0) < Math.min(Math.max(ta, tb), t1) - 1e-9;
+        }
+        return ((d1 > eps && d2 < -eps) || (d1 < -eps && d2 > eps) || Math.abs(d1) <= eps || Math.abs(d2) <= eps) && ((d3 > eps && d4 < -eps) || (d3 < -eps && d4 > eps) || Math.abs(d3) <= eps || Math.abs(d4) <= eps);
+    };
+    const cruzaPieza = (P, Q) => {
+        const d = dist(P, Q); if (d < 1e-9) return false;
+        const P2 = add(P, mulv(norm(sub(Q, P)), Math.min(0.5*u, d / 3)));        // empieza justo fuera del punto de la pieza
+        return polisCruce.some(m => { for (let k = 0; k + 1 < m.length; k++) if (cortaSeg(P2, Q, m[k], m[k + 1])) return true; return false; });
+    };
+    const filasCadena = { b:[], t:[], l:[], r:[] };
+    const nivelCadena = (lado, a, b) => {
+        const lo = Math.min(a, b), hi = Math.max(a, b), F = filasCadena[lado];
+        for (let k = 0; ; k++) { F[k] = F[k] || []; if (!F[k].some(([x, y]) => lo < y - 1e-6 && hi > x + 1e-6)) { F[k].push([lo, hi]); return k; } }
+    };
+    const lineaCadena = (lado, k) => lado === 'b' ? bb.y0 - sep * (1 + k) : lado === 't' ? bb.y1 + sep * (1 + k) : lado === 'l' ? bb.x0 - sep * (1 + k) : bb.x1 + sep * (1 + k);
+    // Cota de A a B en la fila de su lado; false si no se puede (y entonces se acota junto al tramo)
+    const cotaCadena = (A, B, eje, lado, str, ref) => {
+        if (!enCadena || dist(A, B) < 1.6*h) return false;
+        const w0 = lineaCadena(lado, 0);
+        const PA = eje === 'x' ? { x:A.x, y:w0 } : { x:w0, y:A.y }, PB = eje === 'x' ? { x:B.x, y:w0 } : { x:w0, y:B.y };
+        if (cruzaPieza(A, PA) || cruzaPieza(B, PB)) return false;
+        // referencias demasiado largas recargan el plano: entonces, junto al tramo
+        const largoMax = Math.max(3 * sep, 0.35 * Math.max(bb.x1 - bb.x0, bb.y1 - bb.y0));
+        if (Math.max(dist(A, PA), dist(B, PB)) > largoMax) return false;
+        const w = lineaCadena(lado, nivelCadena(lado, eje === 'x' ? A.x : A.y, eje === 'x' ? B.x : B.y));
+        cotaEntre(A, B, eje === 'x' ? { x:A.x, y:w } : { x:w, y:A.y }, eje === 'x' ? { x:B.x, y:w } : { x:w, y:B.y }, str, ref);
+        return true;
+    };
     // ── Posición de centros: taladros, ranuras y arcos que no son empalmes ──
     const exteriores = lista.map((c, i) => ({ c, i })).filter(o => o.c.cerrado && tipos[o.i] !== 'interior' && !esCirculoContorno(o.c) && !esRanuraContorno(o.c))
         .map(o => { const m = muestrearContorno(o.c); return { i:o.i, m, bb:bboxPts(m), area:Math.abs(areaFirmada(m)) }; });
@@ -3567,11 +3609,11 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         const clave = cont ? cont.i : 'g';
         if (Math.abs(C.x - R.x0) > 1e-6 && franjaNueva(clave, 'hx', R.x0, C.x)) {
             const yL = nivelLibre('x', C.y - sepY, clave);
-            cotaEntre({ x:R.x0, y:yL }, C, { x:R.x0, y:yL }, { x:C.x, y:yL }, fmt(C.x - R.x0), Object.assign({ eje:'x', valor:C.x - R.x0, borde:'izquierdo' }, refX), true);
+            cotaEntre({ x:R.x0, y:yL }, C, { x:R.x0, y:yL }, { x:C.x, y:yL }, fmt(Math.abs(C.x - R.x0)), Object.assign({ eje:'x', valor:Math.abs(C.x - R.x0), borde:'izquierdo' }, refX), true);
         }
         if (Math.abs(C.y - R.y0) > 1e-6 && franjaNueva(clave, 'hy', R.y0, C.y)) {
             const xL = nivelLibre('y', C.x - sepX, clave);
-            cotaEntre({ x:xL, y:R.y0 }, C, { x:xL, y:R.y0 }, { x:xL, y:C.y }, fmt(C.y - R.y0), Object.assign({ eje:'y', valor:C.y - R.y0, borde:'inferior' }, refY), true);
+            cotaEntre({ x:xL, y:R.y0 }, C, { x:xL, y:R.y0 }, { x:xL, y:C.y }, fmt(Math.abs(C.y - R.y0)), Object.assign({ eje:'y', valor:Math.abs(C.y - R.y0), borde:'inferior' }, refY), true);
         }
     };
     const ejes = (C, e) => { linea(add(C, { x:-e, y:0 }), add(C, { x:e, y:0 })); linea(add(C, { x:0, y:-e }), add(C, { x:0, y:e })); };
@@ -3609,7 +3651,10 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
                 const modoIncl = cfgCotas.incl || 'proy';
                 if (inclinada && modoIncl === 'proy') proyecciones(t, nOut, i);
                 else {
-                    alineada(t.p1, t.p2, nOut, sep, fmt(l), { tipo:'lin', ci:i, si:t.i, valor:l });
+                    const refL = { tipo:'lin', ci:i, si:t.i, valor:l };
+                    const horiz = Math.abs(v.y) < 1e-6, vert = Math.abs(v.x) < 1e-6;
+                    const enFila = horiz ? cotaCadena(t.p1, t.p2, 'x', nOut.y < 0 ? 'b' : 't', fmt(l), refL) : vert ? cotaCadena(t.p1, t.p2, 'y', nOut.x < 0 ? 'l' : 'r', fmt(l), refL) : false;
+                    if (!enFila) alineada(t.p1, t.p2, nOut, sep, fmt(l), refL);
                     if (inclinada && modoIncl === 'ang') anguloTramo(t, i);
                 }
                 return;
@@ -3630,11 +3675,15 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         });
         radios.forEach(({ a, n, sis }) => conHombro(a.apice, norm(sub(a.apice, a.c)), (n > 1 ? n + '×' : '') + 'R' + fmt(a.r), { tipo:'rad', ci:i, sis, valor:a.r }));
     });
+    const totalesFuera = { x:0, y:0 };
     if (bb && !opts.sinAuto) {
         const dT = sep * (nivel === 'todo' ? 2.4 : 1.2);
+        const dTx = enCadena && filasCadena.b.length ? Math.max(sep * 1.2, sep * (filasCadena.b.length + 1)) : dT;
+        const dTy = enCadena && filasCadena.l.length ? Math.max(sep * 1.2, sep * (filasCadena.l.length + 1)) : dT;
+        totalesFuera.x = dTx; totalesFuera.y = dTy;
         const piv = { x:bb.x0, y:bb.y0 };
-        alineada({ x:bb.x0, y:bb.y0 }, { x:bb.x1, y:bb.y0 }, { x:0, y:-1 }, dT, fmt(bb.x1 - bb.x0), { tipo:'tot', eje:'x', piv, valor:bb.x1 - bb.x0 });
-        alineada({ x:bb.x0, y:bb.y0 }, { x:bb.x0, y:bb.y1 }, { x:-1, y:0 }, dT, fmt(bb.y1 - bb.y0), { tipo:'tot', eje:'y', piv, valor:bb.y1 - bb.y0 });
+        alineada({ x:bb.x0, y:bb.y0 }, { x:bb.x1, y:bb.y0 }, { x:0, y:-1 }, dTx, fmt(bb.x1 - bb.x0), { tipo:'tot', eje:'x', piv, valor:bb.x1 - bb.x0 });
+        alineada({ x:bb.x0, y:bb.y0 }, { x:bb.x0, y:bb.y1 }, { x:-1, y:0 }, dTy, fmt(bb.y1 - bb.y0), { tipo:'tot', eje:'y', piv, valor:bb.y1 - bb.y0 });
     }
     // ── Cero pieza y cotas de situación ──
     if (cfgCotas.cero !== false) {
@@ -3649,12 +3698,13 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
             const pX = muestras.reduce((m, q) => q.x < m.x ? q : m, muestras[0]);
             const pY = muestras.reduce((m, q) => q.y < m.y ? q : m, muestras[0]);
             const extra = sep * (nivel === 'todo' ? 3.6 : 2.4);
+            const extraX = enCadena ? Math.max(extra, totalesFuera.x + sep * 1.2) : extra, extraY = enCadena ? Math.max(extra, totalesFuera.y + sep * 1.2) : extra;
             if (Math.abs(bb.x0 - O.x) > 1e-6) {
-                const yL = Math.min(O.y, bb.y0) - extra;
+                const yL = Math.min(O.y, bb.y0) - extraX;
                 cotaEntre(O, pX, { x:O.x, y:yL }, { x:pX.x, y:yL }, fmt(Math.abs(bb.x0 - O.x)), { tipo:'sit', eje:'x', valor:Math.abs(bb.x0 - O.x), signo:Math.sign(bb.x0 - O.x) });
             }
             if (Math.abs(bb.y0 - O.y) > 1e-6) {
-                const xL = Math.min(O.x, bb.x0) - extra;
+                const xL = Math.min(O.x, bb.x0) - extraY;
                 cotaEntre(O, pY, { x:xL, y:O.y }, { x:xL, y:pY.y }, fmt(Math.abs(bb.y0 - O.y)), { tipo:'sit', eje:'y', valor:Math.abs(bb.y0 - O.y), signo:Math.sign(bb.y0 - O.y) });
             }
         }
@@ -3722,7 +3772,26 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
             });
         }
     });
+    if (cfgCotas.cadena !== false) evitarSolapesTextos(V.T.filter(t => !t.oculta), h, u);
     return { L:V.L, T:V.T, F:V.F, ocultas:Hc };
+}
+// Si dos números de cota se pisan, el segundo se desplaza a lo largo de su línea de cota (o hacia arriba
+// si es un rótulo con hombro) hasta un hueco libre
+function evitarSolapesTextos(T, h, u) {
+    const caja = (t, p) => { const w = 0.6 * t.h * t.s.length + 2 * u, hh = t.h + 1.5 * u, c = Math.cos(t.a), s = Math.sin(t.a);
+        return [[-w / 2, -0.75 * u], [w / 2, -0.75 * u], [w / 2, hh], [-w / 2, hh]].map(([x, y]) => ({ x: p.x + x * c - y * s, y: p.y + x * s + y * c })); };
+    const separadas = (A, B) => { for (const P of [A, B]) for (let i = 0; i < 4; i++) { const p = P[i], q = P[(i + 1) % 4], e = { x: -(q.y - p.y), y: q.x - p.x };
+        const pa = A.map(z => z.x * e.x + z.y * e.y), pb = B.map(z => z.x * e.x + z.y * e.y); if (Math.max(...pa) <= Math.min(...pb) || Math.max(...pb) <= Math.min(...pa)) return true; } return false; };
+    const puestas = [];
+    T.forEach(t => {
+        let cj = caja(t, t.p);
+        if (puestas.some(o => !separadas(cj, o))) {
+            const dir = t.dir ? norm(t.dir) : { x: Math.cos(t.a), y: Math.sin(t.a) }, paso = 0.6 * t.h * t.s.length * 0.55 + 3 * u;
+            const opciones = t.kind === 'hombro' ? [1, -1, 2, -2, 3].map(k => ({ x: 0, y: k * 1.3 * t.h })) : [1, -1, 2, -2, 3, -3, 4, -4].map(k => mulv(dir, k * paso));
+            for (const d of opciones) { const p2 = add(t.p, d), c2 = caja(t, p2); if (!puestas.some(o => !separadas(c2, o))) { t.p = p2; cj = c2; break; } }
+        }
+        puestas.push(cj);
+    });
 }
 // Solo las cotas manuales (cuando las automáticas están desactivadas)
 // Sin cotas automáticas: solo las manuales y, si están marcados, el cero pieza,
@@ -6765,6 +6834,7 @@ function mostrarCamposFormas() {
     if (h === 'tangente') { document.getElementById('tgModo').value = cfgTang.modo; document.getElementById('tgR').value = cfgTang.R; document.getElementById('tgCortar').checked = cfgTang.cortar; document.getElementById('tgRLinea').style.display = cfgTang.modo === 'arco' ? '' : 'none'; }
     if (h !== 'tangente') tng = null;
     document.getElementById('fmCota').style.display = h === 'cotaman' ? 'flex' : 'none';
+    if (h === 'cotaman') actualizarBotonBorrarCotas();
     document.getElementById('fmTexto').style.display = h === 'texto' ? 'flex' : 'none';
     if (h === 'texto') sincronizarPanelTexto();
     document.getElementById('fmNada').style.display = (HERR_FORMAS.includes(h) || h === 'equidistante' || h === 'cotaman' || h === 'texto' || h === 'tangente') ? 'none' : '';
@@ -7472,7 +7542,7 @@ function clicCotaMan(p) {
         guardarUndo();
         m.id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         fijarPosRel(m);
-        cotasManuales.push(m); cotaPend = null;
+        cotasManuales.push(m); cotaPend = null; actualizarBotonBorrarCotas();
         if (!cfgCotas.ver) snack('Cota añadida (las manuales se ven aunque las automáticas estén desactivadas)');
         actualizarEstado(); render(); guardarAutoPronto(); return;
     }
@@ -7495,7 +7565,7 @@ function clicCotaMan(p) {
     guardarUndo();
     m.id = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     fijarPosRel(m);
-    cotasManuales.push(m);
+    cotasManuales.push(m); actualizarBotonBorrarCotas();
     cotaPend = null;
     if (!cfgCotas.ver) snack('Cota añadida (las manuales se ven aunque las automáticas estén desactivadas)');
     actualizarEstado(); render(); guardarAutoPronto();
@@ -7532,9 +7602,20 @@ function anclaCota(m) {
 }
 function posCota(m) { if (m.posRel) { const a = anclaCota(m); if (a) return add(a, m.posRel); } return m.pos; }
 function fijarPosRel(m) { const a = anclaCota(m); if (a) m.posRel = sub(m.pos, a); else delete m.posRel; }
+function borrarTodasCotasManuales() {
+    const n = cotasManuales.length;
+    if (!n) { snack('No hay cotas manuales'); return; }
+    if (!confirm(`¿Borrar las ${n} cotas manuales? (Ctrl+Z las recupera)`)) return;
+    guardarUndo(); cotasManuales = []; cotaPend = null; refrescar(); actualizarBotonBorrarCotas();
+    snack(`${n} cota(s) manual(es) borrada(s) · Ctrl+Z para recuperarlas`);
+}
+function actualizarBotonBorrarCotas() {
+    const b = document.getElementById('cmBorrarTodas'); if (!b) return;
+    const n = cotasManuales.length; b.disabled = !n; b.textContent = n ? `🗑 Borrar todas las cotas manuales (${n})` : '🗑 Borrar todas las cotas manuales';
+}
 function borrarCotaManual(id) {
     const i = cotasManuales.findIndex(m => m.id === id); if (i < 0) return;
-    guardarUndo(); cotasManuales.splice(i, 1); delete cotasAjuste['man|' + id]; render(); guardarAutoPronto();
+    guardarUndo(); cotasManuales.splice(i, 1); delete cotasAjuste['man|' + id]; render(); guardarAutoPronto(); actualizarBotonBorrarCotas();
 }
 
 // ════════════════════════════════════════════════
@@ -8468,7 +8549,20 @@ function abrirArchivoCorr(input) {
 //  a múltiplos del paso. Los empalmes (arco tangente a dos rectas) se
 //  reconstruyen: esquina redondeada + radio redondeado, sin perder tangencia.
 // ════════════════════════════════════════════════
-let cfgAjuste = { auto:false, paso:0.5 };
+let cfgAjuste = { auto:false, paso:0.5, arcos:'centro' };
+// Centro de un arco en la rejilla (múltiplos de p) y a la misma distancia de sus dos extremos: así I y J
+// salen exactos. Se busca cerca del centro actual, en el mismo lado de la cuerda; null si no hay ninguno.
+function centroEnRejilla(A, B, c0, p, lado) {
+    const K = 14, gx = Math.round(c0.x / p), gy = Math.round(c0.y / p), ab = sub(B, A);
+    let mejor = null, md = Infinity;
+    for (let i = -K; i <= K; i++) for (let j = -K; j <= K; j++) {
+        const g = { x: +((gx + i) * p).toFixed(9), y: +((gy + j) * p).toFixed(9) };
+        if (Math.abs(dist(g, A) - dist(g, B)) > 1e-7) continue;
+        const s = cross(ab, sub(g, A)); if (lado !== 0 && Math.abs(s) > 1e-9 && Math.sign(s) !== lado) continue;
+        const d = dist(g, c0); if (d < md) { md = d; mejor = g; }
+    }
+    return mejor;
+}
 const redPaso = (v, p) => Math.round(v / p) * p;
 const redPt = (q, p) => ({ x: +redPaso(q.x, p).toFixed(6), y: +redPaso(q.y, p).toFixed(6) });
 function interseccionRectas(A, u, B, v) {
@@ -8533,7 +8627,9 @@ function ajustarContorno(c, p) {
             if (C) { p0 = C; rEmp = arcoDeBulge(e.p1, e.p2, e.b).r; }
             else { nodos.push({ p:e.p1, b:e.b }); }
         }
-        nodos.push({ p:p0, b:t.b, rEmp, r0: t.b ? arcoDeBulge(t.p1, t.p2, t.b).r : 0, mayor: Math.abs(t.b) > 1 + 1e-7 });
+        const arc0 = t.b ? arcoDeBulge(t.p1, t.p2, t.b) : null;
+        nodos.push({ p:p0, b:t.b, rEmp, r0: arc0 ? arc0.r : 0, c0: arc0 ? arc0.c : null, mayor: Math.abs(t.b) > 1 + 1e-7,
+            lado: arc0 ? (Math.abs(cross(sub(t.p2, t.p1), sub(arc0.c, t.p1))) < 1e-9 * Math.max(1, arc0.r * arc0.r) ? 0 : Math.sign(cross(sub(t.p2, t.p1), sub(arc0.c, t.p1)))) : 0 });
     }
     if (!cerr) nodos.push({ p:ts[n - 1].p2, b:0 });
     // Nodo del primer vértice si el primer tramo es un empalme (se añadió como esquina al procesar el siguiente)
@@ -8558,9 +8654,53 @@ function ajustarContorno(c, p) {
     }
     // 4) Radios de los arcos normales: múltiplo del paso, conservando extremos
     const nn = nodos.length, pts = [], b = [];
+    const centroRejilla = cfgAjuste.arcos !== 'radio';
+    info.centros = 0; info.sinCentro = 0;
     nodos.forEach((o, k) => {
         if (!o.b) return;
         const q = nodos[(k + 1) % nn].p, d = dist(o.p, q);
+        // Modo «centro en la rejilla»: I y J exactos (el radio puede no ser redondo)
+        if (centroRejilla && d > 1e-9 && o.c0) {
+            // si con estos extremos no hay centro posible en la rejilla (paridad), se permite mover un paso el
+            // extremo final del arco; no el del cierre del contorno, que ya es el inicio del primer tramo
+            const kk = (k + 1) % nn, fijo = (cerr && kk === 0) || (!cerr && kk === nn - 1 && false);
+            let g = null, qq = q, coste = Infinity;
+            // dirección con la que llega el tramo anterior (para no romper la tangencia más de lo necesario)
+            const ant = nodos[(k - 1 + nn) % nn], llega = k === 0 && !cerr ? null
+                : ant.b && ant.gFin ? (() => { const r = sub(o.p, ant.gFin); return ant.b > 0 ? norm({ x:-r.y, y:r.x }) : norm({ x:r.y, y:-r.x }); })()
+                : !ant.b ? norm(sub(o.p, ant.p)) : null;
+            const desplaz = [];
+            for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) if (!fijo || (!i && !j)) desplaz.push([i, j]);
+            for (const [i, j] of desplaz) {
+                const B2 = { x: +(q.x + i * p).toFixed(9), y: +(q.y + j * p).toFixed(9) };
+                // el extremo no puede caer sobre el inicio del arco ni sobre el vértice siguiente (tramos de longitud cero)
+                if (dist(B2, o.p) < p * 0.999 || ((i || j) && dist(B2, nodos[(k + 2) % nn].p) < 1e-9)) continue;
+                const g2 = centroEnRejilla(o.p, B2, o.c0, p, o.lado);
+                if (!g2) continue;
+                const ang = (u, v) => Math.acos(Math.max(-1, Math.min(1, dot(u, v)))) * 180 / Math.PI;
+                const tg = P => { const r = sub(P, g2); return o.b > 0 ? norm({ x:-r.y, y:r.x }) : norm({ x:r.y, y:-r.x }); };
+                let quiebro = llega ? ang(llega, tg(o.p)) : 0;
+                const sig = nodos[(k + 1) % nn], tras = nodos[(k + 2) % nn];          // tramo siguiente, si es recto
+                if (!sig.b && (cerr || k + 2 < nn) && dist(tras.p, B2) > 1e-9) quiebro += ang(tg(B2), norm(sub(tras.p, B2)));
+                // lo principal: mover lo menos posible el centro y el extremo; la tangencia desempata
+                const cc = dist(g2, o.c0) + 1.5 * dist(B2, q) + 0.12 * quiebro;
+                if (cc < coste - 1e-9) { coste = cc; g = g2; qq = B2; }
+            }
+            if (g && dist(qq, q) > 1e-9) { nodos[kk].p = qq; }
+            const q2 = qq;
+            let sw = 0;
+            if (g) {
+                const a1 = Math.atan2(o.p.y - g.y, o.p.x - g.x), a2 = Math.atan2(q2.y - g.y, q2.x - g.x);
+                sw = a2 - a1; if (o.b > 0) { while (sw <= 1e-9) sw += TAU; } else { while (sw >= -1e-9) sw -= TAU; }
+                // seguridad: un arco válido, del mismo tipo (menor o mayor de 180°) que el original
+                if (!isFinite(Math.tan(sw / 4)) || Math.abs(sw) > TAU - 1e-6 || (Math.abs(sw) > Math.PI + 1e-7) !== o.mayor) { if (dist(q2, q) > 1e-9) nodos[kk].p = q; g = null; }
+            }
+            if (g) {
+                info.radios.push([o.r0, dist(g, o.p), 'R']); info.centros++; o.gFin = g;
+                o.b = Math.tan(sw / 4); return;
+            }
+            info.sinCentro++;
+        }
         let r = redPaso(o.r0, p);
         if (r < d / 2 - 1e-9) r = Math.ceil((d / 2 - 1e-9) / p) * p;
         const nb = d > 1e-9 ? bulgeDeRadio(d, r, o.mayor, Math.sign(o.b)) : 0;
@@ -8584,7 +8724,7 @@ function ajustarMedidas(ids, silencioso) {
     const p = cfgAjuste.paso || 0.5;
     if (!ids.length) { if (!silencioso) snack('No hay contornos que ajustar'); return 0; }
     if (!silencioso) guardarUndo();
-    let cambiados = 0, empalmes = 0, saltados = 0; const radios = [];
+    let cambiados = 0, empalmes = 0, saltados = 0, centrosR = 0, sinCentroR = 0; const radios = [];
     ids.forEach(ci => {
         const c = contornos[ci]; if (!c || c.pts.length < 2 || c.texto || c.deTexto) return;
         // Formas paramétricas: el rectángulo se ajusta por sus esquinas y radios; las demás ya son exactas
@@ -8609,12 +8749,13 @@ function ajustarMedidas(ids, silencioso) {
         contornos[ci] = Object.assign(nc, { uid: c.uid, tipo: c.tipo, mec: c.mec });
         if (!nc.forma) delete contornos[ci].forma;
         if (!contornos[ci].mec) delete contornos[ci].mec;
-        cambiados++; empalmes += r.info.empalmes; radios.push(...r.info.radios.filter(([a, b2]) => Math.abs(a - b2) > 1e-6));
+        cambiados++; empalmes += r.info.empalmes; centrosR += r.info.centros || 0; sinCentroR += r.info.sinCentro || 0; radios.push(...r.info.radios.filter(([a, b2]) => Math.abs(a - b2) > 1e-6));
     });
     if (!silencioso) {
         if (!cambiados) { undoStack.pop(); snack(saltados ? 'No había nada que ajustar (polígonos, estrellas y elipses se ajustan desde sus parámetros)' : 'Las medidas ya eran múltiplos de ' + fmt(p) + ' mm'); refrescar(); return 0; }
         const ej = radios.slice(0, 3).map(([a, b2, t]) => `${t}${fmt(a, 2)}→${t}${fmt(b2, 2)}`).join(', ');
-        snack(`Medidas ajustadas a múltiplos de ${fmt(p)} mm: ${cambiados} contorno(s)` + (empalmes ? `, ${empalmes} empalme(s) conservado(s)` : '') + (ej ? ` · ${ej}${radios.length > 3 ? '…' : ''}` : '') + (saltados ? ` · ${saltados} forma(s) paramétrica(s) sin tocar` : ''));
+        snack(`Medidas ajustadas a múltiplos de ${fmt(p)} mm: ${cambiados} contorno(s)` + (empalmes ? `, ${empalmes} empalme(s) conservado(s)` : '')
+            + (centrosR ? `, ${centrosR} arco(s) con el centro en la rejilla (I, J exactos)` : '') + (sinCentroR ? ` · ${sinCentroR} arco(s) sin centro posible en la rejilla: radio redondo` : '') + (ej ? ` · ${ej}${radios.length > 3 ? '…' : ''}` : '') + (saltados ? ` · ${saltados} forma(s) paramétrica(s) sin tocar` : ''));
     }
     refrescar();
     return cambiados;
@@ -9775,7 +9916,7 @@ document.getElementById('selEscala').addEventListener('change', () => { actualiz
 document.getElementById('chkCotas').addEventListener('change', e => { cfgCotas.ver = e.target.checked; encuadrar(); });
 document.getElementById('selNivelCotas').addEventListener('change', e => { cfgCotas.nivel = e.target.value; render(); guardarAuto(); });
 document.getElementById('selIncl').addEventListener('change', e => { cfgCotas.incl = e.target.value; render(); guardarAuto(); });
-[['chkCero', 'cero'], ['chkEntrada', 'entrada'], ['chkSentido', 'sentido'], ['chkCentros', 'centros'], ['chkVerOcultas', 'verOcultas']].forEach(([id, k]) =>
+[['chkCero', 'cero'], ['chkEntrada', 'entrada'], ['chkSentido', 'sentido'], ['chkCentros', 'centros'], ['chkCadena', 'cadena'], ['chkVerOcultas', 'verOcultas']].forEach(([id, k]) =>
     document.getElementById(id).addEventListener('change', e => { cfgCotas[k] = e.target.checked; render(); guardarAuto(); }));
 
 // Quita los contornos de menos de 2 puntos que no sean el que se está dibujando
@@ -9795,6 +9936,7 @@ function limpiarDegenerados() {
     return cambio;
 }
 function refrescar() {
+    if (herramienta === 'cotaman') actualizarBotonBorrarCotas();
     limpiarDegenerados();
     asegurarUids();
     if (purgarCotasHuerfanas()) snack('Se han borrado las cotas manuales de la forma eliminada');
@@ -9816,6 +9958,7 @@ function sincronizarControlesCotas() {
     document.getElementById('chkEntrada').checked = cfgCotas.entrada !== false;
     document.getElementById('chkSentido').checked = cfgCotas.sentido !== false;
     document.getElementById('chkCentros').checked = cfgCotas.centros !== false;
+    document.getElementById('chkCadena').checked = cfgCotas.cadena !== false;
     document.getElementById('chkVerOcultas').checked = !!cfgCotas.verOcultas;
 }
 document.getElementById('chkCotas').checked = cfgCotas.ver;
@@ -9832,12 +9975,13 @@ document.getElementById('chkCero').checked = cfgCotas.cero !== false;
 document.getElementById('chkEntrada').checked = cfgCotas.entrada !== false;
 document.getElementById('chkSentido').checked = cfgCotas.sentido !== false;
 document.getElementById('chkCentros').checked = cfgCotas.centros !== false;
+document.getElementById('chkCadena').checked = cfgCotas.cadena !== false;
 actualizarNotaEscala();
 document.getElementById('vecUmbral').value = cfgVec.umbral;
 document.getElementById('fmLados').value = cfgFormas.lados;
 document.getElementById('cmTipo').value = cfgCotaMan.tipo;
 document.getElementById('chkSvgColor').checked = !!cfgExport.svgColor;
-document.getElementById('ajAuto').checked = !!cfgAjuste.auto; document.getElementById('ajPaso').value = String(cfgAjuste.paso);
+document.getElementById('ajAuto').checked = !!cfgAjuste.auto; document.getElementById('ajPaso').value = String(cfgAjuste.paso); document.getElementById('ajArcos').value = cfgAjuste.arcos === 'radio' ? 'radio' : 'centro';
 document.getElementById('eqD').value = cfgEqui.d; document.getElementById('eqEsq').value = cfgEqui.esquinas;
 document.getElementById('eqCopias').value = cfgEqui.copias; document.getElementById('eqAbierto').value = cfgEqui.abierto;
 document.getElementById('fmPuntas').value = cfgFormas.puntas;
