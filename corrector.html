@@ -43,6 +43,7 @@
     .sim-plano button { border: none; background: transparent; min-width: 30px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text-color, #333); }
     .sim-plano button:hover { background: rgba(0,90,156,.10); }
     .sim-plano button.activo { background: #005A9C; color: #fff; }
+    .sim-plano select { border: none; background: transparent; font-size: 12px; font-weight: 600; color: #8e44ad; cursor: pointer; padding: 0 2px; }
     .cr-progsim { flex: 1; min-height: 180px; overflow-y: auto; font-family: Consolas, 'Courier New', monospace; font-size: 12.5px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-panel); padding: 4px 0; }
     .cr-pl { padding: 1px 8px; white-space: pre; cursor: pointer; }
     .cr-pl:hover { background: rgba(0,90,156,.06); }
@@ -397,7 +398,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v58)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v5</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v63)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v10</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -407,6 +408,7 @@
                 <button id="spPausa" onclick="simPlanoPausa()" title="Pausa (↓)">⏸</button>
                 <button onclick="simPlanoPaso(1)" title="Bloque siguiente (→)">▶▏</button>
                 <button onclick="simPlanoFin()" title="Al final (Mayús + →)">⏭</button>
+                <select id="spComp" onchange="cambiarCompSimPlano()" title="Compensación de radio (con el diámetro de la sección Fresa): G40 la fresa va por el contorno; «Según el trazado» elige G41 o G42 en cada trazado para que vaya por fuera de los exteriores y por dentro de los interiores; G41 a la izquierda del avance y G42 a la derecha en todos"><option value="40">G40</option><option value="auto">G41/G42 según el trazado</option><option value="41">G41 en todos</option><option value="42">G42 en todos</option></select>
             </div>
             <button class="btn-manual" onclick="abrirBiblioteca()" title="Tus ejercicios: buscar, abrir e imprimir sus hojas">🗂 Biblioteca</button>
             <a class="btn-manual" href="manual_calcador.html" target="_blank" rel="noopener" title="Manual completo paso a paso (se abre en otra pestaña; debe estar en la misma carpeta que el programa)">📖 Manual</a>
@@ -1118,6 +1120,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                     <label>Programación <select id="mvProg" onchange="cambiarRequisitosMasiva()"><option value="libre">Cualquiera</option><option value="g90">G90</option><option value="g91">G91</option><option value="mix">Mixta</option><option value="polar">Polares</option></select></label>
                     <label><input type="checkbox" id="mvEntrada" onchange="cambiarRequisitosMasiva()"> Exigir entrada</label>
                     <label><input type="checkbox" id="mvSentido" onchange="cambiarRequisitosMasiva()"> Exigir sentido</label>
+
                     <label>Tolerancia <select id="mvTol" onchange="cambiarRequisitosMasiva()"><option value="0.01">0,01 mm</option><option value="0.02">0,02 mm</option><option value="0.05">0,05 mm</option><option value="0.1">0,1 mm</option></select></label>
                 </div>
                 <div class="cr-req" title="La nota se calcula sobre 10 con estos pesos">
@@ -1161,11 +1164,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                     <label title="La misma que en la hoja de ejercicio: se guarda con el ejercicio">Programación <select id="crProg" onchange="cambiarRequisitos()"><option value="libre">Cualquiera</option><option value="g90">G90</option><option value="g91">G91</option><option value="mix">Mixta</option><option value="polar">Polares</option></select></label>
                     <label title="Cada contorno debe empezar a mecanizarse en su punto de entrada (E1, E2…) del plano"><input type="checkbox" id="crEntrada" onchange="cambiarRequisitos()"> Exigir entrada</label>
                     <label title="Cada contorno debe recorrerse en el sentido de la flecha del plano"><input type="checkbox" id="crSentido" onchange="cambiarRequisitos()"> Exigir sentido</label>
+
                 </div>
                 <div id="crProgSim" class="cr-progsim" style="display:none"></div>
                 <textarea id="crTexto" spellcheck="false" placeholder="Pega aquí el programa ISO del alumno…&#10;&#10;N10 G90 G0 X0 Y0&#10;N20 G1 Z-2 F200&#10;N30 G1 X80&#10;…"></textarea>
                 <div class="btn-row"><button class="btn-action" onclick="if (sim && sim.activa) cerrarSimulacion(); ejecutarCorreccion()">✅ Corregir</button><button class="btn-action sec" id="crBtnSimular" style="display:none" onclick="abrirSimulacion()" title="Recorre el programa bloque a bloque sobre el plano">▶ Simular</button></div>
-                <div class="ctx-nota">Se compara el recorrido de corte con la pieza dibujada, desde su cero pieza. Da igual cómo esté escrito: absolutas e incrementales mezcladas, polares, arcos con I-J o con R, en cualquier orden y sentido. T, S, F, M y la compensación (G41/G42) se leen pero no cambian la comparación.</div>
+                <div class="ctx-nota">Se compara el recorrido de corte con la pieza dibujada, desde su cero pieza. Da igual cómo esté escrito: absolutas e incrementales mezcladas, polares, arcos con I-J o con R, en cualquier orden y sentido. T, S, F y M se leen pero no cambian la comparación. Con G41/G42 se comprueba el lado (con el diámetro de la sección Fresa) y dónde se activa y se anula; en G40 vale programar el contorno o el centro de la fresa.</div>
             </div>
             <div class="cr-der">
                 <canvas id="crLienzo"></canvas>
@@ -5254,6 +5258,7 @@ function abrirJSONDatos(d) {
             requisitosPorDefecto();
             if (esObj(d.calcador.cfgHoja)) asignarCfg(cfgHoja, d.calcador.cfgHoja);
             if (!['libre', 'g90', 'g91', 'mix', 'polar'].includes(cfgHoja.prog)) cfgHoja.prog = 'libre';
+            if (!['cualquiera', 'g4142', 'contorno40', 'centro40'].includes(cfgHoja.comp)) cfgHoja.comp = 'cualquiera';
             sincronizarDesdeGenerador(d);
         }
         if (d.nombre) document.getElementById('projectName').value = d.nombre;
@@ -5727,7 +5732,7 @@ function datosTabla() {
                 nota: `R${fmt(a.r, dec)} · ${fmt(Math.abs(a.theta) * 180 / Math.PI, 2)}°` + (grande ? ' (más de 180°)' : '') + (c.cerrado && idx === total - 1 ? ' · cierre' : '') });
         });
         if (c.cerrado && total && filas[filas.length - 1].mov === 'G1') filas[filas.length - 1].nota = 'Cierre en la entrada';
-        return { titulo:`C${i + 1} · ${tipos[i] === 'abierto' ? 'abierto' : tipos[i]}`, filas };
+        return { titulo:`C${i + 1} · ${tipos[i] === 'abierto' ? 'abierto' : tipos[i]}`, filas, ci:i };
     });
     return { grupos, formato, prog, verAbs, dec };
 }
@@ -5770,11 +5775,18 @@ function textoTabla(modo) {
     const d = datosTabla();
     if (modo === 'iso') {
         const sinTildes = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const lineas = [`(${sinTildes(nombreProyecto().toUpperCase())} - COORDENADAS ${sinTildes(PROG_TXT[d.prog]).toUpperCase()})`, '(GEOMETRIA DEL CONTORNO, SIN Z NI COMPENSACION DE RADIO)'];
+        // Alturas: se sube a la de seguridad antes de ir a cada contorno y se baja a su profundidad en la entrada
+        // (sin ellas, el paso de un contorno a otro arrastraría la fresa por la pieza)
+        const zSeg = 20, espesor = parseFloat(String(cfgHoja.espesor || '').replace(',', '.'));
+        const profDe = ci => { const m = contornos[ci] && contornos[ci].mec; return m && +m.prof > 0 ? +m.prof : espesor > 0 ? espesor : 3; };
+        const lineas = [`(${sinTildes(nombreProyecto().toUpperCase())} - COORDENADAS ${sinTildes(PROG_TXT[d.prog]).toUpperCase()})`, `(ALTURA DE SEGURIDAD Z${zSeg} ENTRE CONTORNOS; SIN COMPENSACION DE RADIO)`];
         let modal = null;
+        const zLinea = t => { if (modal === 'G91') { lineas.push('G90 ' + t); modal = 'G90'; } else lineas.push(t); };
         d.grupos.forEach(g => {
             lineas.push(`(${sinTildes(g.titulo.replace(' · ', ' ')).toUpperCase()})`);
-            g.filas.forEach(r => {
+            zLinea(`G0 Z${zSeg}`);
+            g.filas.forEach((r, k) => {
+                if (k === 1) zLinea(`G1 Z-${fmt(profDe(g.ci), 3)} F300`);
                 let pal = '';
                 if (r.modo === 'G16') { if (modal !== 'G16') pal = 'G90 G16 '; }
                 else if (r.modo !== modal) pal = r.modo + ' ';
@@ -5784,6 +5796,7 @@ function textoTabla(modo) {
                 lineas.push(l);
             });
         });
+        if (d.grupos.length) zLinea(`G0 Z${zSeg}`);
         if (modal === 'G16') lineas.push('G15');
         return lineas.join('\n') + '\n';
     }
@@ -7625,8 +7638,13 @@ let cfgHoja = { titulo:'', num:'', grupo:'', fecha:'', material:'Madera', espeso
                 prog:'libre', reqEntrada:false, reqSentido:false, enunciado:'Programa en código ISO el contorno de la pieza tomando como origen el cero pieza indicado en el plano.', tabla:true, rayado:false };
 const CAMPOS_HOJA = ['titulo', 'num', 'grupo', 'fecha', 'material', 'espesor', 'herramienta', 'centro', 'orient', 'prog', 'enunciado', 'tabla', 'rayado'];
 // Requisitos del ejercicio para la corrección (propios de cada ejercicio, como la programación pedida)
-function requisitoValido() { if (!['libre', 'g90', 'g91', 'mix', 'polar'].includes(cfgHoja.prog)) cfgHoja.prog = 'libre'; if (!['h', 'v'].includes(cfgHoja.orient)) cfgHoja.orient = 'h'; }
-function requisitosPorDefecto() { cfgHoja.prog = 'libre'; cfgHoja.reqEntrada = false; cfgHoja.reqSentido = false; }
+function requisitoValido() { if (!['libre', 'g90', 'g91', 'mix', 'polar'].includes(cfgHoja.prog)) cfgHoja.prog = 'libre'; if (!['cualquiera', 'g4142', 'contorno40', 'centro40'].includes(cfgHoja.comp)) cfgHoja.comp = 'cualquiera'; if (!['h', 'v'].includes(cfgHoja.orient)) cfgHoja.orient = 'h'; }
+function requisitosPorDefecto() { cfgHoja.prog = 'libre'; cfgHoja.reqEntrada = false; cfgHoja.reqSentido = false; cfgHoja.comp = 'cualquiera'; }
+const COMP_TXT = { cualquiera:'', g4142:'con compensación G41/G42', contorno40:'sin compensación (G40), sobre el contorno', centro40:'sin compensación (G40), el centro de la fresa' };
+function textoPide() {
+    return `${cfgHoja.prog === 'libre' ? 'programación libre' : PROG_TXT[cfgHoja.prog]}${cfgHoja.reqEntrada ? ' · respetar las entradas' : ''}${cfgHoja.reqSentido ? ' · respetar el sentido' : ''}`;
+}
+function hayRequisitos() { return cfgHoja.prog !== 'libre' || cfgHoja.reqEntrada || cfgHoja.reqSentido; }
 function abrirHoja() {
     if (!contornos.some(c => c.pts.length >= 2)) { snack('No hay ninguna pieza dibujada'); return; }
     const hoy = new Date(), dd = n => String(n).padStart(2, '0');
@@ -7865,7 +7883,7 @@ let corr = null; // último resultado { segs, hallazgos, ... }
 function interpretarISO(texto) {
     const segs = [], notas = [], ignorados = new Map(), movZ = [];
     let orden = 0;                 // orden de cada movimiento (para la simulación)
-    const est = { mov:null, abs:true, polar:false, pulg:false, plano:17 };
+    const est = { mov:null, abs:true, polar:false, pulg:false, plano:17, comp:40, compPend:null, compRun:0 };
     let pos = { x:0, y:0 }, z = null, hayZ = /(^|[^A-Z(])Z\s*[-+.\d]/i.test(texto.replace(/\([^)]*\)/g, '').replace(/;.*$/gm, ''));
     let hayF = false, avisoF = false;
     const lineas = texto.replace(/\r/g, '').split('\n');
@@ -7889,7 +7907,14 @@ function interpretarISO(texto) {
             else if (g === 70) { est.pulg = true; nota('aviso', li, `${etiqueta}: G70 — el programa está en pulgadas; se convierte a mm para compararlo.`); }
             else if (g === 17) est.plano = 17;
             else if (g === 18 || g === 19) { est.plano = g; nota('aviso', li, `${etiqueta}: G${g} — solo se corrige el plano XY (G17); los arcos en otro plano no se comparan.`); }
-            else if ([40, 41, 42, 43, 44, 49, 54, 55, 56, 57, 58, 59, 94, 95, 97, 96, 80, 4, 64, 61].includes(g)) { /* no cambian la geometría programada */ }
+            else if (g === 40 || g === 41 || g === 42) {
+                // compensación de radio: se aplica en el siguiente movimiento en XY
+                if (!est.compPend) est.compPend = { de:est.comp, a:g, linea:li, etiqueta }; else est.compPend.a = g;
+                if (est.compPend.de === est.compPend.a) est.compPend = null;
+                if (est.comp !== g) est.compRun++;
+                est.comp = g;
+            }
+            else if ([43, 44, 49, 54, 55, 56, 57, 58, 59, 94, 95, 97, 96, 80, 4, 64, 61].includes(g)) { /* no cambian la geometría programada */ }
             else if (g >= 81 && g <= 89) { ignorar('G' + g + ' (ciclo fijo)', li, etiqueta); est.ciclo = true; }
             else if (g === 92) ignorar('G92 (cambio de origen)', li, etiqueta);
             else if (g === 28 || g === 30) ignorar('G' + g + ' (vuelta a referencia)', li, etiqueta);
@@ -7908,7 +7933,7 @@ function interpretarISO(texto) {
         if (!hayXY) {
             if (Z !== undefined) {
                 if (est.mov === 0 && z1 < -1e-9 && (z0 === null || z1 < z0 - 1e-9)) nota('error', li, `${etiqueta}: bajada en rápido (G0) hasta Z${fmt(z1, 3)}, por debajo de la superficie de la pieza.`, { cat:'seguridad' });
-                if (z1 !== z0) movZ.push({ ord: orden++, p:{ ...pos }, z0, z1, linea:li, etiqueta, texto:original.trim(), rapido: est.mov === 0, abs:est.abs, mov:est.mov });
+                if (z1 !== z0) movZ.push({ ord: orden++, p:{ ...pos }, z0, z1, linea:li, etiqueta, texto:original.trim(), rapido: est.mov === 0, abs:est.abs, mov:est.mov, comp:est.comp });
                 z = z1;
             }
             return;
@@ -7922,7 +7947,8 @@ function interpretarISO(texto) {
             p1 = { x:r * Math.cos(a), y:r * Math.sin(a) };
         } else if (est.abs) p1 = { x: X !== undefined ? X * k : pos.x, y: Y !== undefined ? Y * k : pos.y };
         else p1 = { x: pos.x + (X || 0) * k, y: pos.y + (Y || 0) * k };
-        const base = { linea:li, etiqueta, texto:original.trim(), z0, z1, abs:est.abs, polar:est.polar && est.plano === 17, mov:est.mov, w:{ X, Y, I, J, R }, k, ord: orden++ };
+        const base = { linea:li, etiqueta, texto:original.trim(), z0, z1, abs:est.abs, polar:est.polar && est.plano === 17, mov:est.mov, w:{ X, Y, I, J, R }, k, ord: orden++, comp:est.comp, compRun:est.compRun };
+        if (est.compPend) { base.cambioComp = est.compPend; est.compPend = null; }
         const corta = hayZ ? (Math.min(z0 === null ? 1 : z0, z1 === null ? 1 : z1) < -1e-9) : est.mov !== 0;
         if (est.mov === 0) {
             if (hayZ && corta && dist(pos, p1) > 1e-9) nota('error', li, `${etiqueta}: desplazamiento en rápido (G0) con la herramienta por debajo de la superficie (Z${fmt(Math.min(z0, z1), 3)}).`, { cat:'seguridad' });
@@ -7959,7 +7985,7 @@ function interpretarISO(texto) {
         pos = p1; z = z1;
     });
     ignorados.forEach((donde, cod) => nota('aviso', null, `${cod} no se interpreta (${donde.slice(0, 4).join(', ')}${donde.length > 4 ? '…' : ''}); si define parte del recorrido, esa parte no se ha comparado.`));
-    return { segs, notas, hayZ, lineas, movZ };
+    return { segs, notas, hayZ, lineas, movZ, compFinal:est.comp };
 }
 function muestrasSeg(s, paso) {
     if (s.tipo === 'L') { const n = Math.max(1, Math.ceil(dist(s.p1, s.p2) / paso)); return Array.from({ length:n + 1 }, (_, i) => add(s.p1, mulv(sub(s.p2, s.p1), i / n))); }
@@ -8010,60 +8036,121 @@ function corregirPrograma(texto) {
     if (!cortes.length) hall.push({ tipo:'error', linea:null, msg:'El programa no tiene ningún movimiento de corte' + (prog.hayZ ? ' (ninguno por debajo de Z0).' : '.'), cat:'geometria' });
     // Tramos de la solución, en el orden de mecanizado (E1, E2…)
     const orden = piezas.sort((a, b) => (rangoMecanizado(tipos[a.i], a.c) - rangoMecanizado(tipos[b.i], b.c)) || a.i - b.i);
-    const solTramos = [];
-    orden.forEach((o, k) => tramos(o.c).forEach(t => {
-        const s = t.b ? (() => { const a = arcoDeBulge(t.p1, t.p2, t.b); return { tipo:'A', p1:t.p1, p2:t.p2, c:a.c, r:a.r, a1:a.a1, theta:a.theta }; })() : { tipo:'L', p1:t.p1, p2:t.p2 };
-        s.entrada = k + 1; s.ci = o.i; solTramos.push(s);
-    }));
-    const solSegs = solTramos;
     const paso = Math.max(0.1, Math.min(0.5, tol * 5));
-    const idxCortes = indiceSegs(cortes, tol), idxSol = indiceSegs(solSegs, tol);
-    // 1) Cada tramo del plano debe quedar cubierto por algún corte
-    const faltas = [];
-    solTramos.forEach(s => {
-        const m = muestrasSeg(s, paso);
-        const libre = m.map(q => !idxCortes.cerca(q).some(c => distASeg(q, c) <= tol));
-        // Tramos seguidos sin cubrir
-        let ini = -1;
-        for (let i = 0; i <= m.length; i++) {
-            if (i < m.length && libre[i]) { if (ini < 0) ini = i; }
-            else if (ini >= 0) {
-                const a = m[ini], b = m[i - 1];
-                let largo = 0; for (let j = ini; j < i - 1; j++) largo += dist(m[j], m[j + 1]);
-                if (largo > tol * 2 || i - ini > 1) faltas.push({ s, a, b, largo, pts:m.slice(ini, i) });
-                ini = -1;
+    // ── Con qué se compara. El programa describe el contorno (sobre la pieza, o con G41/G42 activo) o, en G40,
+    //    el camino del centro de la fresa: el contorno desplazado su radio hacia la zona que sobra ──
+    const R = Math.max(0, (+cfgFresa.d || 0) / 2);
+    const reqComp = 'cualquiera';      // el lado lo deciden los tipos INT/EXT de los trazados
+    const usaComp = cortes.some(s => s.comp === 41 || s.comp === 42);
+    const comparar = ord => {
+        const H = [];
+        const solTramos = [];
+        ord.forEach((o, k) => tramos(o.c).forEach(t => {
+            const s = t.b ? (() => { const a = arcoDeBulge(t.p1, t.p2, t.b); return { tipo:'A', p1:t.p1, p2:t.p2, c:a.c, r:a.r, a1:a.a1, theta:a.theta }; })() : { tipo:'L', p1:t.p1, p2:t.p2 };
+            s.entrada = k + 1; s.ci = o.i; solTramos.push(s);
+        }));
+        const solSegs = solTramos;
+        const idxCortes = indiceSegs(cortes, tol), idxSol = indiceSegs(solSegs, tol);
+        // 1) Cada tramo del plano debe quedar cubierto por algún corte
+        const faltas = [];
+        solTramos.forEach(s => {
+            const m = muestrasSeg(s, paso);
+            const libre = m.map(q => !idxCortes.cerca(q).some(c => distASeg(q, c) <= tol));
+            // Tramos seguidos sin cubrir
+            let ini = -1;
+            for (let i = 0; i <= m.length; i++) {
+                if (i < m.length && libre[i]) { if (ini < 0) ini = i; }
+                else if (ini >= 0) {
+                    const a = m[ini], b = m[i - 1];
+                    let largo = 0; for (let j = ini; j < i - 1; j++) largo += dist(m[j], m[j + 1]);
+                    if (largo > tol * 2 || i - ini > 1) faltas.push({ s, a, b, largo, pts:m.slice(ini, i) });
+                    ini = -1;
+                }
+            }
+        });
+        const largoTramo = s => s.tipo === 'L' ? dist(s.p1, s.p2) : s.r * Math.abs(s.theta);
+        const largoPlano = solTramos.reduce((a, s) => a + largoTramo(s), 0), largoFalta = faltas.reduce((a, f) => a + Math.min(f.largo + paso, largoTramo(f.s)), 0);
+        const desc = s => s.tipo === 'L' ? `la recta de (${fmt(s.p1.x, 3)}, ${fmt(s.p1.y, 3)}) a (${fmt(s.p2.x, 3)}, ${fmt(s.p2.y, 3)})` : `el arco R${fmt(s.r, 3)} de (${fmt(s.p1.x, 3)}, ${fmt(s.p1.y, 3)}) a (${fmt(s.p2.x, 3)}, ${fmt(s.p2.y, 3)})`;
+        faltas.forEach(f => {
+            const completo = dist(f.a, f.s.p1) <= paso * 1.5 && dist(f.b, f.s.p2) <= paso * 1.5;
+            H.push({ tipo:'error', cat:'geometria', linea:null, marca:f.pts,
+                msg: completo ? `Falta mecanizar ${desc(f.s)} (contorno E${f.s.entrada}).`
+                              : `Falta mecanizar ${fmt(f.largo, 2)} mm ${desc(f.s).replace(/^la /, 'de la ').replace(/^el /, 'del ')} (contorno E${f.s.entrada}), entre (${fmt(f.a.x, 2)}, ${fmt(f.a.y, 2)}) y (${fmt(f.b.x, 2)}, ${fmt(f.b.y, 2)}).` });
+        });
+        // 2) Cada corte debe ir sobre el contorno; si se aparta, ¿se mete en la pieza o va por la zona que sobra?
+        const enPieza = piezaSegunTipos(trazadosConTipo(ord, tipos));
+        cortes.forEach(s => {
+            const m = muestrasSeg(s, paso);
+            let maxDev = 0, danaPieza = false, fuera = false;
+            m.forEach((q, iq) => {
+                if (idxSol.cerca(q).some(t => distASeg(q, t) <= tol)) return;          // sobre el contorno (lo habitual)
+                // Se aparta: la distancia exacta (para el mensaje) solo en una de cada pocas muestras
+                if (iq % 4 === 0 || iq === m.length - 1) { let d = Infinity; for (const t of solSegs) { const e = distASeg(q, t); if (e < d) d = e; } if (d > maxDev) maxDev = d; }
+                else if (tol > maxDev) maxDev = tol * 1.0001;
+                if (!danaPieza && enPieza(q)) danaPieza = true; else if (!fuera && !enPieza(q)) fuera = true;
+            });
+            s.estado = !maxDev ? 'ok' : danaPieza ? 'mal' : 'fuera';
+            s.maxDev = maxDev;
+            if (danaPieza) H.push({ tipo:'error', cat:'geometria', linea:s.linea, seg:s, msg:`${s.etiqueta}: este corte se mete en la pieza — se aparta hasta ${fmt(maxDev, 3)} mm del contorno. «${s.texto}»` });
+            else if (fuera) H.push({ tipo:'aviso', cat:'fuera', linea:s.linea, seg:s, msg:`${s.etiqueta}: corta fuera del contorno, en la zona que sobra (hasta ${fmt(maxDev, 3)} mm). Correcto si es una entrada o una salida. «${s.texto}»` });
+        });
+        return { H, solTramos, solSegs, idxSol, faltas, largoPlano, largoFalta, errores: H.filter(h => h.tipo === 'error').length };
+    };
+    const ordenCentro = () => {
+        if (!(R > 0)) return null;
+        // el camino del centro de la pieza se calcula una vez por ejercicio (sirve para toda la clase)
+        const clave = JSON.stringify([R, orden.map(o => [o.i, o.c.pts, o.c.b, tipos[o.i]])]);
+        if (memoCentroCorr && memoCentroCorr.clave === clave) return memoCentroCorr.v;
+        const v = calcularOrdenCentro(); memoCentroCorr = { clave, v }; return v;
+    };
+    const calcularOrdenCentro = () => {
+        const out = [];
+        for (const o of orden) {
+            if (!o.c.cerrado) return null;
+            const a = areaFirmada(muestrearContorno(o.c)), interior = tipos[o.i] === 'interior';
+            const sg = interior ? (a > 0 ? 1 : -1) : (a > 0 ? -1 : 1);       // hacia la zona que sobra
+            const eq = (equidistante(o.c, R, sg, 'redondas') || []).filter(k => k.cerrado && k.pts.length >= 2);
+            if (!eq.length) return null;
+            eq.sort((x, y) => Math.abs(areaFirmada(muestrearContorno(y))) - Math.abs(areaFirmada(muestrearContorno(x))));
+            out.push({ c:eq[0], i:o.i });
+        }
+        return out;
+    };
+    let res = null, modoComp = 'contorno';
+    if (!usaComp && R > 0 && (reqComp === 'centro40' || reqComp === 'cualquiera')) {
+        const oc = ordenCentro();
+        if (oc && reqComp === 'centro40') { res = comparar(oc); modoComp = 'centro'; }
+        else if (oc) {
+            const r1 = comparar(orden);
+            if (r1.errores === 0) res = r1;      // encaja con el contorno: no hace falta probar el centro
+            else {
+                const r2 = comparar(oc);
+                if (r2.errores < r1.errores || (r2.errores === r1.errores && r2.largoFalta < r1.largoFalta - 1e-6)) { res = r2; modoComp = 'centro'; }
+                else res = comparar(orden);      // vuelve a dejar el estado de cada corte según el contorno
             }
         }
-    });
-    const largoTramo = s => s.tipo === 'L' ? dist(s.p1, s.p2) : s.r * Math.abs(s.theta);
-    const largoPlano = solTramos.reduce((a, s) => a + largoTramo(s), 0), largoFalta = faltas.reduce((a, f) => a + Math.min(f.largo + paso, largoTramo(f.s)), 0);
-    const desc = s => s.tipo === 'L' ? `la recta de (${fmt(s.p1.x, 3)}, ${fmt(s.p1.y, 3)}) a (${fmt(s.p2.x, 3)}, ${fmt(s.p2.y, 3)})` : `el arco R${fmt(s.r, 3)} de (${fmt(s.p1.x, 3)}, ${fmt(s.p1.y, 3)}) a (${fmt(s.p2.x, 3)}, ${fmt(s.p2.y, 3)})`;
-    faltas.forEach(f => {
-        const completo = dist(f.a, f.s.p1) <= paso * 1.5 && dist(f.b, f.s.p2) <= paso * 1.5;
-        hall.push({ tipo:'error', cat:'geometria', linea:null, marca:f.pts,
-            msg: completo ? `Falta mecanizar ${desc(f.s)} (contorno E${f.s.entrada}).`
-                          : `Falta mecanizar ${fmt(f.largo, 2)} mm ${desc(f.s).replace(/^la /, 'de la ').replace(/^el /, 'del ')} (contorno E${f.s.entrada}), entre (${fmt(f.a.x, 2)}, ${fmt(f.a.y, 2)}) y (${fmt(f.b.x, 2)}, ${fmt(f.b.y, 2)}).` });
-    });
-    // 2) Cada corte debe ir sobre el contorno; si se aparta, ¿se mete en la pieza o va por la zona que sobra?
-    const muestrasPieza = orden.map(o => { const m = muestrearContorno(o.c); return { m, bb:bboxPts(m), tipo:tipos[o.i], cerrado:o.c.cerrado }; });
-    const enPieza = q => { let dentro = false; muestrasPieza.forEach(o => { if (o.cerrado && q.x >= o.bb.x0 && q.x <= o.bb.x1 && q.y >= o.bb.y0 && q.y <= o.bb.y1 && puntoEnPoligono(q, o.m)) dentro = !dentro; }); return dentro; };
-    cortes.forEach(s => {
-        const m = muestrasSeg(s, paso);
-        let maxDev = 0, danaPieza = false, fuera = false;
-        m.forEach((q, iq) => {
-            if (idxSol.cerca(q).some(t => distASeg(q, t) <= tol)) return;          // sobre el contorno (lo habitual)
-            // Se aparta: la distancia exacta (para el mensaje) solo en una de cada pocas muestras
-            if (iq % 4 === 0 || iq === m.length - 1) { let d = Infinity; for (const t of solSegs) { const e = distASeg(q, t); if (e < d) d = e; } if (d > maxDev) maxDev = d; }
-            else if (tol > maxDev) maxDev = tol * 1.0001;
-            if (!danaPieza && enPieza(q)) danaPieza = true; else if (!fuera && !enPieza(q)) fuera = true;
+    }
+    if (!res) res = comparar(orden);
+    hall.push(...res.H);
+    const { solTramos, solSegs, idxSol, faltas, largoPlano, largoFalta } = res;
+    // ── Seguridad en programas sin Z: tras cortar, un rápido (G0) sin haber subido la herramienta
+    //    arrastraría la fresa a la profundidad de corte (de un trazado a otro, o al volver) ──
+    if (!prog.hayZ) {
+        let cortado = false;
+        prog.segs.forEach(sg => {
+            if (sg.corte) { cortado = true; return; }
+            if (sg.rapido && cortado && dist(sg.p1, sg.p2) > 1e-9) {
+                hall.push({ tipo:'error', cat:'seguridad', linea:sg.linea, seg:sg, msg:`${sg.etiqueta}: se desplaza en rápido (G0) después de cortar sin haber subido la herramienta: la fresa iría a la profundidad de corte${dist(sg.p1, sg.p2) > 0 ? ' atravesando lo que encuentre' : ''}. «${sg.texto}»`,
+                    pista:'antes de desplazarte en rápido, sube a la altura de seguridad (por ejemplo, G0 Z20)' });
+                cortado = false;      // una alarma por desplazamiento
+            }
         });
-        s.estado = !maxDev ? 'ok' : danaPieza ? 'mal' : 'fuera';
-        s.maxDev = maxDev;
-        if (danaPieza) hall.push({ tipo:'error', cat:'geometria', linea:s.linea, seg:s, msg:`${s.etiqueta}: este corte se mete en la pieza — se aparta hasta ${fmt(maxDev, 3)} mm del contorno. «${s.texto}»` });
-        else if (fuera) hall.push({ tipo:'aviso', cat:'fuera', linea:s.linea, seg:s, msg:`${s.etiqueta}: corta fuera del contorno, en la zona que sobra (hasta ${fmt(maxDev, 3)} mm). Correcto si es una entrada o una salida. «${s.texto}»` });
-    });
+    }
+    // ── Compensación de radio: lado, activación y anulación ──
+    const comp = comprobarCompensacion(prog, cortes, orden, tipos, R, tol, reqComp, usaComp, modoComp);
+    hall.push(...comp.fis);
     // 3) Requisitos del ejercicio: programación pedida, entrada y sentido
-    const req = comprobarRequisitos(cortes, orden, solTramos, tol, paso, idxSol);
+    const req = comprobarRequisitos(cortes, orden, solTramos, tol, paso, idxSol).concat(comp.req);
     const piezaOk = !hall.some(h => h.tipo === 'error');
     hall.push(...req);
     // 4) Pistas: en cada bloque con error se prueban las equivocaciones típicas
@@ -8102,7 +8189,7 @@ function corregirPrograma(texto) {
     }
     const errores = hall.filter(h => h.tipo === 'error').reduce((n, h) => n + (h.resumen || 1), 0), avisos = hall.filter(h => h.tipo === 'aviso').reduce((n, h) => n + (h.resumen || 1), 0);
     const zMin = prog.segs.reduce((m, s) => Math.min(m, s.z1 === null ? m : s.z1), Infinity);
-    corr = { prog, segs:prog.segs, hallazgos:hall, faltas, errores, avisos, ok: errores === 0, piezaOk, incumple: req.some(h => h.tipo === 'error'), cobertura: largoPlano > 0 ? Math.max(0, 1 - largoFalta / largoPlano) : 0,
+    corr = { prog, segs:prog.segs, hallazgos:hall, faltas, errores, avisos, ok: errores === 0, piezaOk, modoComp, R, incumple: req.some(h => h.tipo === 'error'), cobertura: largoPlano > 0 ? Math.max(0, 1 - largoFalta / largoPlano) : 0,
              resumen: { bloques: prog.lineas.filter(l => l.trim()).length, cortes: cortes.length, rapidos: prog.segs.filter(s => s.rapido).length, zMin: isFinite(zMin) ? zMin : null, hayZ: prog.hayZ } };
     return corr;
 }
@@ -8119,6 +8206,85 @@ function rangosBloques(segs, todos) {
     }
     const u = [...new Set(out)];
     return u.length > 6 ? u.slice(0, 6).join(', ') + '…' : u.join(', ');
+}
+let memoCentroCorr = null;
+// trazados cerrados con su tipo (INT/EXT, el de la lista de contornos) y su polígono
+function trazadosConTipo(lista, tipos) {
+    return lista.filter(o => o.c.cerrado && o.c.pts.length >= 2 && (tipos[o.i] === 'interior' || tipos[o.i] === 'exterior'))
+        .map(o => { const m = muestrearContorno(o.c); return { m, bb:bboxPts(m), interior: tipos[o.i] === 'interior', i:o.i }; });
+}
+// G41 o G42 que corresponde a un corte (null si no va sobre ningún trazado cerrado): la fresa va por fuera de
+// un trazado exterior y por dentro de uno interior; G41 la pone a la izquierda del avance y G42 a la derecha
+// ¿Es pieza este punto? Según los tipos: dentro de un exterior y fuera de sus interiores; un interior suelto
+// (sin exterior alrededor) es un hueco en una placa: la pieza es todo lo que queda fuera de él
+function piezaSegunTipos(trazados) {
+    const ext = trazados.filter(t => !t.interior), int = trazados.filter(t => t.interior);
+    const dentro = (q, t) => q.x >= t.bb.x0 && q.x <= t.bb.x1 && q.y >= t.bb.y0 && q.y <= t.bb.y1 && puntoEnPoligono(q, t.m);
+    const suelto = int.some(t => !ext.some(e => dentro(t.m[0], e)));
+    return q => { if (int.some(t => dentro(q, t))) return false; return ext.some(t => dentro(q, t)) || suelto; };
+}
+function compCorrespondiente(sg, trazados) {
+    const m = muestrasSeg(sg, 0.5); if (m.length < 2 || !trazados.length) return null;
+    const k = Math.floor(m.length / 2), q = m[k], tg = norm(sub(m[Math.min(m.length - 1, k + 1)], m[Math.max(0, k - 1)]));
+    let mejor = null, md = Infinity;
+    trazados.forEach(t => { for (let j = 0; j < t.m.length; j++) { const d = distASeg(q, { tipo:'L', p1:t.m[j], p2:t.m[(j + 1) % t.m.length] }); if (d < md) { md = d; mejor = t; } } });
+    if (!mejor || md > 0.5) return null;
+    const izqDentro = puntoEnPoligono(add(q, mulv({ x:-tg.y, y:tg.x }, 0.05)), mejor.m);
+    return { debe: mejor.interior ? (izqDentro ? 41 : 42) : (izqDentro ? 42 : 41), interior: mejor.interior, ci: mejor.i };
+}
+function comprobarCompensacion(prog, cortes, orden, tipos, R, tol, reqComp, usaComp, modoComp) {
+    const fis = [], req = [];
+    const polis = orden.map(o => { const m = muestrearContorno(o.c); return { m, bb:bboxPts(m), cerrado:o.c.cerrado }; });
+    const enPieza = piezaSegunTipos(trazadosConTipo(orden, tipos));
+    const eps = Math.max(tol * 3, 0.05);
+    // Lado: la fresa debe ir del lado que NO es pieza. Con G41 va a la izquierda del avance; con G42, a la derecha.
+    // Lado: lo decide el tipo de cada trazado (INT: la fresa por dentro; EXT: por fuera)
+    const trazados = trazadosConTipo(orden, tipos), porTramo = new Map();
+    cortes.forEach(sg => {
+        if (!(sg.comp === 41 || sg.comp === 42) || sg.estado !== 'ok') return;
+        const c = compCorrespondiente(sg, trazados); if (!c) return;
+        const clave = sg.compRun + '|' + c.ci, r = porTramo.get(clave) || { mal:[], debe:c.debe, interior:c.interior, ci:c.ci };
+        if (sg.comp !== c.debe) r.mal.push(sg);
+        porTramo.set(clave, r);
+    });
+    porTramo.forEach(r => {
+        if (!r.mal.length) return; const sg = r.mal[0];
+        fis.push({ tipo:'error', cat:'compensacion', linea:sg.linea, seg:sg,
+            msg:`${sg.etiqueta}: el trazado C${r.ci + 1} es ${r.interior ? 'INTERIOR: la fresa debe ir por dentro' : 'EXTERIOR: la fresa debe ir por fuera'}, y con G${sg.comp} va a la ${sg.comp === 41 ? 'izquierda' : 'derecha'} del avance, que aquí es ${r.interior ? 'fuera' : 'dentro'}: se come la pieza${R > 0 ? ` (el diámetro de la fresa, ${fmt(2 * R, 2)} mm)` : ''}${r.mal.length > 1 ? ` · ${r.mal.length} cortes con el lado equivocado` : ''}. «${sg.texto}»`,
+            pista:`en este trazado ${r.interior ? 'interior' : 'exterior'}, con el sentido en que lo recorre el programa, corresponde G${r.debe} (G41: fresa a la izquierda del avance; G42: a la derecha)` });
+    });
+    // Activación y anulación
+    const largo = sg => sg.tipo === 'A' ? Math.abs(sg.r * sg.theta) : dist(sg.p1, sg.p2);
+    prog.segs.forEach(sg => {
+        const c = sg.cambioComp; if (!c) return;
+        const activa = c.a === 41 || c.a === 42;
+        if (activa && (c.de === 41 || c.de === 42)) fis.push({ tipo:'aviso', cat:'compensacion', linea:sg.linea, seg:sg, msg:`${sg.etiqueta}: pasa de G${c.de} a G${c.a} sin anular antes con G40. Muchos controles dan alarma.`, pista:'anula con G40 al salir del contorno y activa la nueva en la aproximación del siguiente' });
+        if (sg.tipo === 'A') fis.push({ tipo:'error', cat:'compensacion', linea:sg.linea, seg:sg, msg:`${sg.etiqueta}: ${activa ? 'activa' : 'anula'} la compensación (G${c.a}) en un arco: el control lo rechaza o deja mal el arco. «${sg.texto}»`, pista:`${activa ? 'actívala' : 'anúlala'} en un G0 o G1 recto de ${activa ? 'aproximación' : 'salida'}` });
+        else if (sg.corte && sg.estado === 'ok' && R > 0) fis.push({ tipo:'aviso', cat:'compensacion', linea:sg.linea, seg:sg, msg:`${sg.etiqueta}: ${activa ? 'activa' : 'anula'} la compensación (G${c.a}) sobre el propio contorno: mientras la fresa se ${activa ? 'aparta' : 'acerca'} su radio, este tramo no queda bien. «${sg.texto}»`, pista: activa ? 'actívala en el G0 o G1 que lleva a la entrada, desde fuera de la pieza' : 'anúlala con G40 en un tramo de salida que se aleje de la pieza' });
+        else if (activa && R > 0 && sg !== prog.segs[0] && largo(sg) < R - tol) fis.push({ tipo:'aviso', cat:'compensacion', linea:sg.linea, seg:sg, msg:`${sg.etiqueta}: el tramo en que se activa la compensación mide ${fmt(largo(sg), 2)} mm, menos que el radio de la fresa (${fmt(R, 2)} mm): muchos controles dan alarma.` });
+    });
+    // Al activar o anular cortando, ¿pasa la fresa por la pieza? (con la trayectoria real de su centro)
+    if (R > 0 && prog.segs.some(sg => sg.cambioComp)) {
+        const bordes = polis.filter(o => o.cerrado).map(o => o.m);
+        const dBorde = q => { let d = Infinity; bordes.forEach(m => { for (let k = 0; k < m.length; k++) d = Math.min(d, distASeg(q, { tipo:'L', p1:m[k], p2:m[(k + 1) % m.length] })); }); return d; };
+        const { items } = itemsDePrograma(prog, R), vistas = new Set();
+        items.forEach(it => {
+            if (it.tipo !== 'xy' || !it.sg || !it.sg.cambioComp || !it.corte || !it.cg || vistas.has(it.linea)) return;
+            const activa = it.sg.cambioComp.a === 41 || it.sg.cambioComp.a === 42;
+            let peor = Infinity; for (let f = 0.02; f <= 0.98; f += 0.04) { const q = puntoItem(it, f).p, d = enPieza(q) ? -dBorde(q) : dBorde(q); if (d < peor) peor = d; }
+            if (peor < R - Math.max(tol * 5, 0.1)) {
+                vistas.add(it.linea);
+                fis.push({ tipo:'error', cat:'compensacion', linea:it.linea, seg:it.sg, msg:`${it.sg.etiqueta}: al ${activa ? 'activar' : 'anular'} la compensación cortando (Z bajo la superficie), la fresa pasa por la pieza${peor < 0 ? '' : ` (su centro se acerca a ${fmt(peor, 2)} mm del borde, menos que su radio)`}. «${it.sg.texto}»`,
+                    pista: activa ? 'actívala en el G0 de aproximación, con la fresa por encima de la pieza, y baja después' : 'sube primero la fresa (G0 Z…) y anula después con G40, o sal con una recta que se aleje de la pieza' });
+            }
+        });
+    }
+    if (prog.compFinal === 41 || prog.compFinal === 42) fis.push({ tipo:'aviso', cat:'compensacion', linea:null, msg:`El programa termina con la compensación activa (G${prog.compFinal}): anúlala con G40 en el movimiento de salida.` });
+    // Lo que se pide
+    if (reqComp === 'g4142') { const sin = cortes.filter(sg => sg.estado === 'ok' && !(sg.comp === 41 || sg.comp === 42)); if (sin.length) req.push({ tipo:'error', cat:'requisito', linea:sin[0].linea, msg:`Se pide compensación de radio (G41/G42) y hay ${sin.length} corte(s) en G40, desde ${sin[0].etiqueta}.` }); }
+    if ((reqComp === 'contorno40' || reqComp === 'centro40') && usaComp) { const c = cortes.find(sg => sg.comp === 41 || sg.comp === 42); req.push({ tipo:'error', cat:'requisito', linea:c.linea, msg:`Se pide programar sin compensación (G40) ${reqComp === 'centro40' ? 'el centro de la fresa' : 'sobre el contorno'} y el programa usa G${c.comp} desde ${c.etiqueta}.` }); }
+    if (reqComp === 'centro40' && !usaComp && modoComp !== 'centro') req.push({ tipo:'aviso', cat:'requisito', linea:null, msg:'Se pide programar el centro de la fresa, pero no se ha podido calcular su camino (falta el diámetro de la fresa o hay contornos abiertos): se ha comparado con el contorno.' });
+    return { fis, req };
 }
 function comprobarRequisitos(cortes, orden, solTramos, tol, paso, idxSol) {
     const out = [], H = cfgHoja, mov = cortes.filter(s => dist(s.p1, s.p2) > 1e-9 || s.tipo === 'A');
@@ -8240,11 +8406,13 @@ function sincronizarRequisitos() {
     p.value = cfgHoja.prog || 'libre';
     document.getElementById('crEntrada').checked = !!cfgHoja.reqEntrada;
     document.getElementById('crSentido').checked = !!cfgHoja.reqSentido;
+
 }
 function cambiarRequisitos() {
     cfgHoja.prog = document.getElementById('crProg').value;
     cfgHoja.reqEntrada = document.getElementById('crEntrada').checked;
     cfgHoja.reqSentido = document.getElementById('crSentido').checked;
+
     guardarAutoPronto();
     if (corr) ejecutarCorreccion();
 }
@@ -8274,10 +8442,10 @@ function pintarResultadoCorr() {
     if (!r) { el.innerHTML = ''; return; }
     const orden = h => (h.tipo === 'error' ? 0 : 1) * 1e6 + (h.linea === null ? 5e5 : h.linea);
     const lista = r.hallazgos.slice().sort((a, b) => orden(a) - orden(b));
-    const cat = { geometria:'Geometría', seguridad:'Seguridad', fuera:'Zona que sobra', requisito:'Lo pedido' };
+    const cat = { geometria:'Geometría', seguridad:'Seguridad', fuera:'Zona que sobra', requisito:'Lo pedido', compensacion:'Compensación' };
     el.innerHTML = `
-        <div class="cr-veredicto ${r.ok ? 'ok' : r.piezaOk ? 'medio' : 'mal'}">${r.ok ? '✅ La pieza sale bien' + (cfgHoja.prog !== 'libre' || cfgHoja.reqEntrada || cfgHoja.reqSentido ? ' y cumple lo pedido' : '') : r.piezaOk ? `⚠️ La pieza sale bien, pero no cumple lo pedido (${r.errores} incumplimiento${r.errores === 1 ? '' : 's'})` : `❌ La pieza no sale bien: ${r.errores} error${r.errores === 1 ? '' : 'es'}`}${r.avisos ? ` · ${r.avisos} aviso${r.avisos === 1 ? '' : 's'}` : ''}</div>
-        <div class="cr-datos">Se pide: ${cfgHoja.prog === 'libre' ? 'programación libre' : PROG_TXT[cfgHoja.prog]}${cfgHoja.reqEntrada ? ' · respetar las entradas' : ''}${cfgHoja.reqSentido ? ' · respetar el sentido' : ''}</div>
+        <div class="cr-veredicto ${r.ok ? 'ok' : r.piezaOk ? 'medio' : 'mal'}">${r.ok ? '✅ La pieza sale bien' + (hayRequisitos() ? ' y cumple lo pedido' : '') : r.piezaOk ? `⚠️ La pieza sale bien, pero no cumple lo pedido (${r.errores} incumplimiento${r.errores === 1 ? '' : 's'})` : `❌ La pieza no sale bien: ${r.errores} error${r.errores === 1 ? '' : 'es'}`}${r.avisos ? ` · ${r.avisos} aviso${r.avisos === 1 ? '' : 's'}` : ''}</div>
+        <div class="cr-datos">Se pide: ${textoPide()}${r.modoComp === 'centro' ? ` · comparado con el camino del centro de la fresa (Ø${fmt(2 * r.R, 2)}, en G40)` : ''}</div>
         <div class="cr-datos">${r.resumen.cortes} movimientos de corte · ${r.resumen.rapidos} rápidos${r.resumen.hayZ ? ` · profundidad máxima Z${fmt(r.resumen.zMin, 3)}` : ' · sin Z: todo G1/G2/G3 cuenta como corte'} · tolerancia ${fmt(cfgCorr.tol, 3)} mm</div>
         ${lista.map((h, k) => `<div class="cr-item ${h.tipo}" data-k="${r.hallazgos.indexOf(h)}"><span class="cr-cat">${h.tipo === 'error' ? (cat[h.cat] || 'Error') : (cat[h.cat] || 'Aviso')}</span>${h.msg.replace(/&/g, '&amp;').replace(/</g, '&lt;')}${h.pista ? `<div class="cr-pista">💡 Pista: ${h.pista.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</div>` : ''}</div>`).join('')}
         ${r.ok && !lista.length ? '<div class="cr-item ok">Todos los tramos del plano están mecanizados y ningún corte se sale del contorno.</div>' : ''}`;
@@ -8322,14 +8490,17 @@ function dibujarCorr() {
     const colorSeg = s => s.rapido ? [oscuro ? '#8a96a3' : '#8795a3', 1.2, [5, 4]] : !s.corte ? [oscuro ? '#9aa6b2' : '#a4b0bc', 1.2, [2, 3]] : [s.estado === 'mal' ? '#d84343' : s.estado === 'fuera' ? '#e67e22' : '#27ae60', 2.2];
     if (sim && sim.activa) {
         const i = sim.t <= 0 ? -1 : itemEn(Math.max(0, sim.t - 1e-9)), D = Math.max(0, +cfgFresa.d || 0);
-        const hechos = sim.items.filter((x, k) => x.tipo === 'xy' && k < i).map(x => x.sg);
+        const hechosIt = sim.items.filter((x, k) => x.tipo === 'xy' && k < i);
         const act = i >= 0 ? sim.items[i] : null, f = act ? Math.min(1, (sim.t - act.t0) / act.dur) : 0;
-        if (act && act.tipo === 'xy') hechos.push(segParcial(act.sg, f));
+        const hechos = hechosIt.filter(x => x.sg).map(x => x.sg);                                   // lo programado
+        const centros = hechosIt.map(x => ({ g: x.cg || x.sg, corte: x.corte, comp: !!x.cg && x.cg !== x.sg }));   // por donde va el centro
+        if (act && act.tipo === 'xy') { if (act.sg) hechos.push(segParcial(act.sg, f)); centros.push({ g: segParcial(act.cg || act.sg, f), corte: act.corte, comp: !!act.cg && act.cg !== act.sg }); }
         // lo que falta, muy tenue
-        sim.items.forEach((x, k) => { if (x.tipo === 'xy' && k > i) trazar(x.sg, oscuro ? 'rgba(160,170,180,.25)' : 'rgba(120,130,140,.22)', 1, [2, 4]); });
-        // huella de la fresa (franja que se lleva)
-        if (sim.huella && D > 0) hechos.filter(s => s.corte).forEach(s => { g.lineCap = 'round'; g.lineJoin = 'round'; trazar(s, oscuro ? 'rgba(230,126,34,.16)' : 'rgba(230,126,34,.14)', D * V.z); g.lineCap = 'butt'; });
+        sim.items.forEach((x, k) => { if (x.tipo === 'xy' && x.sg && k > i) trazar(x.sg, oscuro ? 'rgba(160,170,180,.25)' : 'rgba(120,130,140,.22)', 1, [2, 4]); });
+        // huella de la fresa (franja que se lleva, centrada en el camino de su centro)
+        if (sim.huella && D > 0) centros.filter(c => c.corte).forEach(c => { g.lineCap = 'round'; g.lineJoin = 'round'; trazar(c.g, oscuro ? 'rgba(230,126,34,.16)' : 'rgba(230,126,34,.14)', D * V.z); g.lineCap = 'butt'; });
         hechos.forEach(s => { const [c, w2, d] = colorSeg(s); trazar(s, c, w2, d); });
+        centros.filter(c => c.comp).forEach(c => trazar(c.g, '#8e44ad', 1.3, [4, 3]));          // con G41/G42: el camino del centro
         // la fresa
         if (act) {
             const pz = puntoItem(act, f), q = P(pz.p), rr = Math.max(4, D / 2 * V.z);
@@ -8353,16 +8524,125 @@ function dibujarCorr() {
 //  Recorre sobre el plano el programa de la tabla de soluciones.
 // ════════════════════════════════════════════════
 let simP = null;     // { items, T, t, jugando, raf, ultimo, firma, visible }
-function firmaSimPlano() { return JSON.stringify([contornos.map(c => [c.pts, c.b, c.cerrado, c.tipo]), document.getElementById('tbProg').value, document.getElementById('tbArco').value]); }
-function itemsDePrograma(prog) {
+function firmaSimPlano() { return JSON.stringify([contornos.map(c => [c.pts, c.b, c.cerrado, c.tipo]), document.getElementById('tbProg').value, document.getElementById('tbArco').value, document.getElementById('spComp').value, cfgFresa.d]); }
+function cambiarCompSimPlano() {
+    const vis = simP && simP.visible, t = simP ? simP.t : 0;
+    if (!vis) { botonesSimPlano(); return; }
+    if (!asegurarSimPlano()) return;
+    simP.visible = true; simP.t = Math.min(t, simP.T); pintarSimPlano();
+}
+// ¿Está la fresa del lado de la pieza? (con G41/G42 en el reproductor)
+function ladoMalSimPlano(it) {
+    if (!simP || !simP.trazados || !it || it.tipo !== 'xy' || it.rapido || !it.sg || !(it.comp === 41 || it.comp === 42)) return null;
+    const c = compCorrespondiente(it.sg, simP.trazados);
+    return c && it.comp !== c.debe ? c : null;
+}
+// Con G41/G42 la fresa va desplazada su radio a la izquierda (G41) o a la derecha (G42) del avance; en las
+// esquinas exteriores rodea el vértice con un arco. Cada movimiento recibe «cg», el camino de su centro.
+function compensarItems(items, R) {
+    if (!(R > 0) || !items.some(it => it.comp === 41 || it.comp === 42)) return items;
+    const tgIni = g => g.tipo === 'A' ? (g.theta > 0 ? { x:-Math.sin(g.a1), y:Math.cos(g.a1) } : { x:Math.sin(g.a1), y:-Math.cos(g.a1) }) : norm(sub(g.p2, g.p1));
+    const tgFin = g => { if (g.tipo !== 'A') return norm(sub(g.p2, g.p1)); const a = g.a1 + g.theta; return g.theta > 0 ? { x:-Math.sin(a), y:Math.cos(a) } : { x:Math.sin(a), y:-Math.cos(a) }; };
+    const izq = d => ({ x:-d.y, y:d.x });
+    const desplazar = (g, s) => {
+        if (g.tipo !== 'A') { const d = mulv(izq(norm(sub(g.p2, g.p1))), s * R); return { tipo:'L', p1:add(g.p1, d), p2:add(g.p2, d) }; }
+        const r2 = Math.max(1e-6, g.r - s * Math.sign(g.theta) * R), k = r2 / g.r;
+        return { ...g, r:r2, p1:add(g.c, mulv(sub(g.p1, g.c), k)), p2:add(g.c, mulv(sub(g.p2, g.c), k)) };
+    };
+    // cruce de dos geometrías (rectas prolongadas o circunferencias completas): el más cercano a V
+    const cruce = (A, B, V) => {
+        const cand = [];
+        const recta = g => ({ p:g.p1, d:norm(sub(g.p2, g.p1)) });
+        if (A.tipo !== 'A' && B.tipo !== 'A') {
+            const a = recta(A), b = recta(B), den = cross(a.d, b.d); if (Math.abs(den) < 1e-12) return null;
+            const t = cross(sub(b.p, a.p), b.d) / den; cand.push(add(a.p, mulv(a.d, t)));
+        } else if (A.tipo !== 'A' || B.tipo !== 'A') {
+            const L = recta(A.tipo !== 'A' ? A : B), C = A.tipo === 'A' ? A : B, w = sub(L.p, C.c), bb = dot(w, L.d), cc = dot(w, w) - C.r * C.r, D = bb * bb - cc;
+            if (D < 0) return null; [-bb - Math.sqrt(D), -bb + Math.sqrt(D)].forEach(t => cand.push(add(L.p, mulv(L.d, t))));
+        } else {
+            const d = dist(A.c, B.c); if (d < 1e-12 || d > A.r + B.r + 1e-9 || d < Math.abs(A.r - B.r) - 1e-9) return null;
+            const a = (A.r * A.r - B.r * B.r + d * d) / (2 * d), h = Math.sqrt(Math.max(0, A.r * A.r - a * a)), u = mulv(sub(B.c, A.c), 1 / d), m = add(A.c, mulv(u, a));
+            cand.push(add(m, { x:-u.y * h, y:u.x * h }), add(m, { x:u.y * h, y:-u.x * h }));
+        }
+        let X = null, md = Infinity; cand.forEach(q => { const dd = dist(q, V); if (dd < md) { md = dd; X = q; } });
+        return X && md < 4 * R + 1e-6 ? X : null;
+    };
+    const normAng = a => { while (a > Math.PI) a -= TAU; while (a <= -Math.PI) a += TAU; return a; };
+    const fijarFin = (g, X) => { if (g.tipo === 'A') { const d = normAng(Math.atan2(X.y - g.c.y, X.x - g.c.x) - (g.a1 + g.theta)); g.theta += d; } g.p2 = { ...X }; };
+    const fijarIni = (g, X) => { if (g.tipo === 'A') { const a = Math.atan2(X.y - g.c.y, X.x - g.c.x), d = normAng(a - g.a1); g.a1 = a; g.theta -= d; } g.p1 = { ...X }; };
+    const out = []; let pos = null, prevComp = 40, prevG = null, prevCg = null;
+    items.forEach((it, idx) => {
+        if (it.tipo !== 'xy') { it.pc = pos ? { ...pos } : it.p; out.push(it); return; }
+        const g = it.sg, comp = it.comp === 41 || it.comp === 42 ? it.comp : 40, s = comp === 41 ? 1 : -1;
+        let cg;
+        if (comp === 40 && prevComp === 40) cg = g;
+        else if (comp === 40) cg = { tipo:'L', p1: pos || g.p1, p2: g.p2 };                                       // anulación
+        else if (prevComp === 40 || it.reactiva) {                                                                  // activación: se aparta durante el tramo
+            const sig = items.slice(idx + 1).find(x => x.tipo === 'xy'), dir = sig && sig.comp === comp ? tgIni(sig.sg) : tgFin(g);
+            cg = { tipo:'L', p1: pos || g.p1, p2: add(g.p2, mulv(izq(dir), s * R)) };
+        } else {
+            cg = desplazar(g, s);
+            if (pos && dist(pos, cg.p1) > 1e-6 && prevG) {
+                // esquina: si es exterior, la fresa la rodea con un arco de radio R alrededor del vértice;
+                // si es interior, se para donde se cruzan los dos caminos (la esquina queda redondeada con el radio de la fresa)
+                const giro = cross(tgFin(prevG), tgIni(g)), V = g.p1;
+                if (giro * s > 0 && prevCg && prevCg !== prevG) {
+                    const X = cruce(prevCg, cg, V);
+                    if (X) { fijarFin(prevCg, X); fijarIni(cg, X); }
+                } else if (giro * s < 0) {
+                    const a1 = Math.atan2(pos.y - V.y, pos.x - V.x), a2 = Math.atan2(cg.p1.y - V.y, cg.p1.x - V.x);
+                    let sw = a2 - a1; while (sw > Math.PI) sw -= TAU; while (sw < -Math.PI) sw += TAU;
+                    out.push({ ...it, puente:true, sg:null, cg:{ tipo:'A', p1:{ ...pos }, p2:{ ...cg.p1 }, c:V, r:R, a1, theta:sw }, z1:it.z0 });
+                }
+            }
+        }
+        it.cg = cg; out.push(it); pos = { ...cg.p2 }; prevComp = comp; prevG = g; prevCg = cg;
+    });
+    // Cierre del contorno: si el último corte termina donde empezó el primero y la esquina es interior,
+    // la fresa se para en el cruce con el primer tramo (no sigue de largo mordiendo la pieza)
+    // cada contorno: los cortes seguidos entre dos rápidos (o cambios de compensación)
+    const porTramo = new Map(); let grupo = 0, compAnt = null;
+    out.forEach((it, k) => {
+        if (it.tipo !== 'xy') return;
+        if (it.rapido || it.comp !== compAnt) grupo++;
+        compAnt = it.comp;
+        if (it.puente || it.rapido || !it.cg || it.cg === it.sg || !(it.comp === 41 || it.comp === 42)) return;
+        const r = porTramo.get(grupo) || { items:[] }; r.items.push(k); porTramo.set(grupo, r);
+    });
+    porTramo.forEach(({ items:ks }) => {
+        if (ks.length < 2) return;
+        const a = out[ks[0]], z = out[ks[ks.length - 1]];
+        if (dist(z.sg.p2, a.sg.p1) > 1e-6) return;
+        const s = z.comp === 41 ? 1 : -1, giro = cross(tgFin(z.sg), tgIni(a.sg));
+        if (giro * s <= 1e-9) return;
+        const X = cruce(z.cg, a.cg, a.sg.p1); if (!X) return;
+        const viejo = { ...a.cg.p1 };
+        fijarFin(z.cg, X); fijarIni(a.cg, X);
+        // el movimiento que llevaba al inicio del primer tramo (la activación) acaba ahora en el cruce
+        const ant = out.slice(0, ks[0]).reverse().find(x => x.tipo === 'xy' && x.cg);
+        if (ant && ant.cg.tipo === 'L' && dist(ant.cg.p2, viejo) < 1e-6) ant.cg.p2 = { ...X };
+    });
+    return out;
+}
+function itemsDePrograma(prog, R, compForzado, trazados) {
     const items = [];
-    prog.segs.forEach(sg => items.push({ ord:sg.ord, tipo:'xy', sg, linea:sg.linea, etiqueta:sg.etiqueta, texto:sg.texto, z0:sg.z0, z1:sg.z1, rapido:sg.rapido, corte:sg.corte, abs:sg.abs, mov:sg.mov,
+    prog.segs.forEach(sg => items.push({ ord:sg.ord, tipo:'xy', sg, linea:sg.linea, etiqueta:sg.etiqueta, texto:sg.texto, z0:sg.z0, z1:sg.z1, rapido:sg.rapido, corte:sg.corte, abs:sg.abs, mov:sg.mov, comp:sg.comp,
         L: sg.tipo === 'A' ? Math.abs(sg.r * sg.theta) : dist(sg.p1, sg.p2) }));
     (prog.movZ || []).forEach(m => items.push({ ord:m.ord, tipo:'z', p:m.p, linea:m.linea, etiqueta:m.etiqueta, texto:m.texto, z0:m.z0, z1:m.z1, rapido:m.rapido, abs:m.abs, mov:m.mov,
         L: Math.abs((m.z1 === null ? 0 : m.z1) - (m.z0 === null ? 5 : m.z0)) }));
     items.sort((a, b) => a.ord - b.ord);
-    let t = 0; items.forEach(it => { it.t0 = t; it.dur = Math.max(0.12, it.rapido ? it.L / 4 : it.L); t += it.dur; it.t1 = t; });
-    return { items, T:t };
+    // en el reproductor, la compensación se activa en el G0 que lleva a la entrada de cada contorno
+    if (compForzado === 'auto') {
+        // cada trazado con la G que le corresponde (por fuera de los exteriores, por dentro de los interiores);
+        // la aproximación en rápido toma la del trazado al que lleva
+        items.forEach(it => { if (it.tipo === 'xy' && !it.rapido) { const c = compCorrespondiente(it.sg, trazados || []); it.comp = c ? c.debe : 40; } });
+        let sig = 40;
+        for (let k = items.length - 1; k >= 0; k--) { const it = items[k]; if (it.tipo !== 'xy') { it.comp = sig; continue; } if (it.rapido) { it.comp = sig; it.reactiva = sig !== 40; } else sig = it.comp; }
+    } else if (compForzado) items.forEach(it => { it.comp = compForzado; if (it.tipo === 'xy' && it.rapido) it.reactiva = true; });
+    const lista = compensarItems(items, R);
+    lista.forEach(it => { const g = it.cg || it.sg; if (it.tipo === 'xy' && g) it.L = g.tipo === 'A' ? Math.abs(g.r * g.theta) : dist(g.p1, g.p2); });
+    let t = 0; lista.forEach(it => { it.t0 = t; it.dur = Math.max(0.12, it.rapido ? it.L / 4 : it.L); t += it.dur; it.t1 = t; });
+    return { items:lista, T:t };
 }
 function itemEnLista(items, t) { if (!items.length) return -1; let lo = 0, hi = items.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (items[m].t1 <= t) lo = m + 1; else hi = m; } return lo; }
 function construirSimPlano() {
@@ -8371,9 +8651,15 @@ function construirSimPlano() {
     let txt;
     try { selC.innerHTML = '<option value="todos">Todos</option>'; selC.value = 'todos'; txt = textoTabla('iso'); }
     finally { selC.innerHTML = prevH; selC.value = prevV; }
-    const { items, T } = itemsDePrograma(interpretarISO(txt));
+    const valor = document.getElementById('spComp').value, comp = valor === 'auto' ? 'auto' : (+valor || 40);
+    const trazadosP = trazadosConTipo(contornos.map((c, i) => ({ c, i })).filter(o => !soloFabricar(o.c)), tiposResueltos());
+    const { items, T } = itemsDePrograma(interpretarISO(txt), Math.max(0, (+cfgFresa.d || 0) / 2), comp === 40 ? null : comp, trazadosP);
     if (!items.length) { snack('El programa de la pieza no tiene movimientos'); return false; }
-    simP = { items, T, t:0, jugando:false, raf:null, ultimo:0, firma: firmaSimPlano(), visible:false };
+    // la pieza, para saber de qué lado queda la fresa
+    const polis = contornos.filter(c => c.cerrado && c.pts.length >= 2 && !soloFabricar(c)).map(c => { const m = muestrearContorno(c); return { m, bb:bboxPts(m) }; });
+    const enPieza = q => { let d = false; polis.forEach(o => { if (q.x >= o.bb.x0 && q.x <= o.bb.x1 && q.y >= o.bb.y0 && q.y <= o.bb.y1 && puntoEnPoligono(q, o.m)) d = !d; }); return d; };
+    const trazados = trazadosConTipo(contornos.map((c, i) => ({ c, i })).filter(o => !soloFabricar(o.c)), tiposResueltos());
+    simP = { items, T, t:0, jugando:false, raf:null, ultimo:0, firma: firmaSimPlano(), visible:false, comp, enPieza, trazados };
     return true;
 }
 function asegurarSimPlano() { if (simP && simP.firma === firmaSimPlano()) return true; pausarSimPlano(); simP = null; return construirSimPlano(); }
@@ -8411,7 +8697,10 @@ function estadoSimPlano() {
     const i = simP.t <= 0 ? -1 : itemEnLista(simP.items, Math.max(0, simP.t - 1e-9)), it = i >= 0 ? simP.items[i] : null;
     if (!it) return 'Simulación: al principio · ↑ reproducir · → bloque siguiente';
     const f = Math.min(1, (simP.t - it.t0) / it.dur), pz = puntoItem(it, f);
-    return `${simP.jugando ? '▶' : '⏸'} ${it.etiqueta}  ${String(it.texto).replace(/^\s*N\d+\s*/i, '')}  ·  X${fmt(pz.p.x, 3)} Y${fmt(pz.p.y, 3)}  ·  ${it.rapido ? 'rápido' : 'corte'}  ·  ← → bloques · ↑ ▶ · ↓ ⏸ · Mayús+← → principio y final`;
+    const mal = ladoMalSimPlano(it);
+    const gAct = it.comp === 41 || it.comp === 42 ? 'G' + it.comp : 'G40';
+    return `${simP.jugando ? '▶' : '⏸'} ${it.etiqueta}  ${String(it.texto).replace(/^\s*N\d+\s*/i, '')}  ·  ${gAct}${simP.comp === 'auto' ? ' (según el trazado)' : ''}  ·  X${fmt(pz.p.x, 3)} Y${fmt(pz.p.y, 3)}  ·  ${it.rapido ? 'rápido' : 'corte'}`
+        + (mal ? `  ·  ⚠ trazado ${mal.interior ? 'INTERIOR (por dentro)' : 'EXTERIOR (por fuera)'}: con ${gAct} la fresa se come la pieza, aquí corresponde G${mal.debe}` : '  ·  ← → bloques · ↑ ▶ · ↓ ⏸ · Mayús+← → principio y final');
 }
 function dibujarSimPlano() {
     if (!simP || !simP.visible) return;
@@ -8420,11 +8709,13 @@ function dibujarSimPlano() {
     const f = act ? Math.min(1, (simP.t - act.t0) / act.dur) : 0, D = Math.max(0, +cfgFresa.d || 0);
     ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     const trazo = (g, color, w, dash) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.beginPath(); muestrasSeg(g, 2 / view.z).forEach((q, k) => { const p = aPantalla(q); k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke(); ctx.setLineDash([]); };
-    const hechos = simP.items.filter((x, k) => x.tipo === 'xy' && k < i).map(x => x.sg);
-    if (act && act.tipo === 'xy') hechos.push(segParcial(act.sg, f));
+    const hechosIt = simP.items.filter((x, k) => x.tipo === 'xy' && k < i);
+    const hechos = hechosIt.filter(x => x.sg).map(x => x.sg), centros = hechosIt.map(x => ({ g: x.cg || x.sg, rapido: x.rapido, comp: !!x.cg && x.cg !== x.sg }));
+    if (act && act.tipo === 'xy') { if (act.sg) hechos.push(segParcial(act.sg, f)); centros.push({ g: segParcial(act.cg || act.sg, f), rapido: act.rapido, comp: !!act.cg && act.cg !== act.sg }); }
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (D > 0) hechos.filter(g => !g.rapido).forEach(g => trazo(g, 'rgba(230,126,34,.16)', D * view.z));        // huella de la fresa
+    if (D > 0) centros.filter(c => !c.rapido).forEach(c => trazo(c.g, 'rgba(230,126,34,.16)', D * view.z));      // huella de la fresa
     hechos.forEach(g => g.rapido ? trazo(g, '#7f8c8d', 1.4, [5, 4]) : trazo(g, '#c4580c', 2.6));
+    centros.filter(c => c.comp).forEach(c => trazo(c.g, '#8e44ad', 1.3, [4, 3]));                                // con G41/G42: el camino del centro
     const pz = act ? puntoItem(act, f) : { p:{ x:0, y:0 } }, q = aPantalla(pz.p), rr = Math.max(5, D / 2 * view.z), corta = act && !act.rapido;
     ctx.beginPath(); ctx.arc(q.x, q.y, rr, 0, TAU); ctx.fillStyle = corta ? 'rgba(230,126,34,.45)' : 'rgba(255,255,255,.35)'; ctx.fill();
     ctx.strokeStyle = corta ? '#c4580c' : '#5d6d7e'; ctx.lineWidth = 2; ctx.setLineDash(corta ? [] : [4, 3]); ctx.stroke(); ctx.setLineDash([]);
@@ -8439,13 +8730,7 @@ let sim = null;      // { items, T, t, jugando, vel, parar, huella, parados:Set,
 const SIM_BASE = 18; // mm por segundo a velocidad ×1
 const escSim = t => String(t === undefined || t === null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 function construirSimulacion() {
-    const items = [];
-    corr.segs.forEach(sg => items.push({ ord:sg.ord, tipo:'xy', sg, linea:sg.linea, etiqueta:sg.etiqueta, texto:sg.texto, z0:sg.z0, z1:sg.z1, rapido:sg.rapido, corte:sg.corte, abs:sg.abs, mov:sg.mov,
-        L: sg.tipo === 'A' ? Math.abs(sg.r * sg.theta) : dist(sg.p1, sg.p2) }));
-    (corr.prog.movZ || []).forEach(m => items.push({ ord:m.ord, tipo:'z', p:m.p, linea:m.linea, etiqueta:m.etiqueta, texto:m.texto, z0:m.z0, z1:m.z1, rapido:m.rapido, abs:m.abs, mov:m.mov,
-        L: Math.abs((m.z1 === null ? 0 : m.z1) - (m.z0 === null ? 5 : m.z0)) }));
-    items.sort((a, b) => a.ord - b.ord);
-    let t = 0; items.forEach(it => { it.t0 = t; it.dur = Math.max(0.12, it.rapido ? it.L / 4 : it.L); t += it.dur; it.t1 = t; });
+    const { items, T:t } = itemsDePrograma(corr.prog, Math.max(0, (+cfgFresa.d || 0) / 2));
     // errores y avisos ligados a una línea (un corte fuera del contorno explica a menudo un «falta mecanizar» sin línea)
     const errLinea = new Map(); corr.hallazgos.forEach(h => { if (h.linea === null || h.linea === undefined) return; if (!errLinea.has(h.linea)) errLinea.set(h.linea, []); errLinea.get(h.linea).push(h); });
     errLinea.forEach(l => l.sort((a, b) => (a.tipo === 'error' ? 0 : 1) - (b.tipo === 'error' ? 0 : 1)));
@@ -8454,8 +8739,8 @@ function construirSimulacion() {
 }
 function itemEn(t) { const its = sim.items; if (!its.length) return -1; let lo = 0, hi = its.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (its[m].t1 <= t) lo = m + 1; else hi = m; } return lo; }
 function puntoItem(it, f) {
-    if (it.tipo === 'z') return { p: it.p, z: it.z0 === null ? it.z1 : it.z0 + (it.z1 - it.z0) * f };
-    const g = it.sg, z = it.z0 === null || it.z1 === null ? (it.z1 !== null ? it.z1 : it.z0) : it.z0 + (it.z1 - it.z0) * f;
+    if (it.tipo === 'z') return { p: it.pc || it.p, z: it.z0 === null ? it.z1 : it.z0 + (it.z1 - it.z0) * f };
+    const g = it.cg || it.sg, z = it.z0 === null || it.z1 === null ? (it.z1 !== null ? it.z1 : it.z0) : it.z0 + (it.z1 - it.z0) * f;
     if (g.tipo === 'A') { const a = g.a1 + g.theta * f; return { p:{ x:g.c.x + g.r * Math.cos(a), y:g.c.y + g.r * Math.sin(a) }, z }; }
     return { p:{ x:g.p1.x + (g.p2.x - g.p1.x) * f, y:g.p1.y + (g.p2.y - g.p1.y) * f }, z };
 }
@@ -9266,7 +9551,7 @@ function pintarEjercicioMasiva() {
     mini.innerHTML = svgCorreccion({ segs:[], faltas:[] });
     document.getElementById('mvEjNom').textContent = `${cfgHoja.titulo || nombreProyecto()}${cfgHoja.num ? ' · nº ' + cfgHoja.num : ''}`;
     const n = contornos.filter(c => c.pts.length >= 2 && !c.texto && !c.deTexto).length;
-    document.getElementById('mvEjDat').textContent = `${n} contorno${n === 1 ? '' : 's'} · se pide: ${cfgHoja.prog === 'libre' ? 'programación libre' : PROG_TXT[cfgHoja.prog]}${cfgHoja.reqEntrada ? ', respetar las entradas' : ''}${cfgHoja.reqSentido ? ', respetar el sentido' : ''}`;
+    document.getElementById('mvEjDat').textContent = `${n} contorno${n === 1 ? '' : 's'} · se pide: ${textoPide()}`;
 }
 function abrirEjercicioMasiva(input) {
     const file = input.files[0]; input.value = ''; if (!file) return;
@@ -9349,7 +9634,7 @@ function pintarMasiva() {
     if (!hayPieza()) { res.innerHTML = `<strong>${L.length}</strong> programa${L.length === 1 ? '' : 's'} en espera: pulsa <strong>📂 Abrir ejercicio…</strong> para corregirlos.`; return; }
     const n = L.length, bien = L.filter(it => it.v.veredicto === 'bien').length, sale = L.filter(it => it.v.veredicto === 'bien' || it.v.veredicto === 'nocumple').length;
     const media = L.reduce((a, it) => a + it.v.nota, 0) / n, aprob = L.filter(it => it.v.nota >= 5).length;
-    res.innerHTML = `<strong>${n}</strong> alumno${n === 1 ? '' : 's'} · la pieza sale bien en <strong>${sale}</strong>${cfgHoja.prog !== 'libre' || cfgHoja.reqEntrada || cfgHoja.reqSentido ? ` · cumplen lo pedido <strong>${bien}</strong>` : ''} · nota media <strong>${nf(media, 1)}</strong> · aprueban <strong>${aprob}</strong> de ${n}`;
+    res.innerHTML = `<strong>${n}</strong> alumno${n === 1 ? '' : 's'} · la pieza sale bien en <strong>${sale}</strong>${hayRequisitos() ? ` · cumplen lo pedido <strong>${bien}</strong>` : ''} · nota media <strong>${nf(media, 1)}</strong> · aprueban <strong>${aprob}</strong> de ${n}`;
 }
 // Ver el detalle de un alumno en la ventana de corrección (y volver)
 function verAlumno(k) {
@@ -9408,9 +9693,9 @@ function imprimirInformes(ks) {
     if (!hayPieza()) { snack('Abre antes el ejercicio (📂 Abrir ejercicio…)'); return; }
     const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const N = critNota(), hoy = new Date().toLocaleDateString('es-ES');
-    const pide = `${cfgHoja.prog === 'libre' ? 'programación libre' : PROG_TXT[cfgHoja.prog]}${cfgHoja.reqEntrada ? ' · respetar las entradas' : ''}${cfgHoja.reqSentido ? ' · respetar el sentido' : ''}`;
+    const pide = textoPide();
     const titulo = `${cfgHoja.titulo || nombreProyecto()}${cfgHoja.num ? ' · Ejercicio nº ' + cfgHoja.num : ''}`;
-    const cat = { geometria:'Geometría', seguridad:'Seguridad', fuera:'Zona que sobra', requisito:'Lo pedido' };
+    const cat = { geometria:'Geometría', seguridad:'Seguridad', fuera:'Zona que sobra', requisito:'Lo pedido', compensacion:'Compensación' };
     const pagina = k => {
         const it = masiva.lista[k], r = it.r || {}, v = it.v;
         const H = (r.hallazgos || []).filter(h => v.veredicto !== 'vacio' || !/^Falta mecanizar/.test(h.msg)).sort((a, b) => (a.tipo === 'error' ? 0 : 1) - (b.tipo === 'error' ? 0 : 1) || ((a.linea ?? 1e9) - (b.linea ?? 1e9)));
