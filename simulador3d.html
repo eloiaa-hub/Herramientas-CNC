@@ -82,6 +82,8 @@
        volver a encoger el visor y empuja el panel derecho fuera de la pantalla */
     #viewport { flex:1; position:relative; background:var(--viewport-bg); min-width:0; overflow:hidden; }
     #viewport canvas { display:block; position:absolute; inset:0; width:100%; height:100%; }
+    #lienzo2D { cursor:grab; touch-action:none; }
+    body.modo2d #modoVistaToggle, body.modo2d #btnTransparencia, body.modo2d #barraVistas { display:none !important; }
 
     /* Barra para ensanchar el panel de código */
     #splitCodigo { width:6px; margin-left:-3px; margin-right:-3px; cursor:col-resize; flex-shrink:0;
@@ -210,7 +212,7 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥 Simulador G-Code 3D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V23</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥 Simulador G-Code 3D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V25</span></h1>
         
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
@@ -219,10 +221,14 @@
         <select id="selEjemplo" onchange="cargarEjemplo(this.value); this.value='';" title="Cargar uno de los programas de ejemplo incluidos">
             <option value="">📚 Ejemplos…</option>
             <option value="gcodeEjemplo">Ejemplo básico — sin compensación</option>
-            <option value="gcodeEjemploG41">Ejemplo G41 — compensación a la izquierda</option>
-            <option value="gcodeEjemploG42">Ejemplo G42 — compensación a la derecha</option>
+            <option value="gcodeEjemploG41">Ejemplo G41 — corte interior (agujero)</option>
+            <option value="gcodeEjemploG42">Ejemplo G42 — corte exterior (pieza)</option>
         </select>
         <div class="sep"></div>
+        <div class="seg-toggle" id="dimToggle">
+            <button id="btnModo2D" onclick="setModo2D(true)" title="Vista 2D en planta: el recorrido, la fresa y el vaciado del material vistos desde arriba, como en un plano">2D</button>
+            <button class="activo" id="btnModo3D" onclick="setModo2D(false)" title="Vista 3D: la pieza en volumen, con cámara libre">3D</button>
+        </div>
         <div class="seg-toggle" id="modoVistaToggle">
             <button class="activo" id="btnModoSolido" onclick="setModoVista('solido')" title="Fresa como cilindro sólido, con luz y sombreado">🧊 Sólido</button>
             <button id="btnModoWire" onclick="setModoVista('wireframe')" title="Fresa como línea/punto, trazado como líneas">📐 Wireframe</button>
@@ -421,7 +427,7 @@
     </div>
     <div class="cuerpo">
       <h3>Cargar un programa</h3>
-      <p>Al abrir el simulador se carga un programa de ejemplo. En <b>📚 Ejemplos</b> hay tres programas incluidos: el contorno básico y el mismo contorno con compensación <code>G41</code> (fresa por dentro) y <code>G42</code> (fresa por fuera), útiles para comprobar el simulador y para explicar la compensación en clase. Para usar tu programa, pulsa <b>📂 Cargar G-code</b> o arrastra el archivo (.nc, .gcode, .txt, .tap, .ngc) sobre la vista 3D.</p>
+      <p>Al abrir el simulador se carga un programa de ejemplo. En <b>📚 Ejemplos</b> hay tres programas incluidos: el contorno básico y el mismo contorno con compensación: con <code>G41</code> es un <b>corte interior</b> (un agujero con esa forma: la fresa va por dentro) y con <code>G42</code> un <b>corte exterior</b> (una pieza con esa forma: la fresa va por fuera), los dos recorriendo el contorno en sentido antihorario. Fíjate en cómo están escritos: bajan en la zona que sobra, activan la compensación en una recta que llega al centro de un lado (nunca en una esquina) y la anulan con <code>G40</code> en otra recta que se aleja. La entrada y la salida miden el <b>diámetro de la fresa más 1 o 2 mm</b> (8 mm con una fresa de 6): así la fresa baja sin tocar el contorno y el tramo donde se activa la compensación es más largo que su radio, como piden muchos controles. Para usar tu programa, pulsa <b>📂 Cargar G-code</b> o arrastra el archivo (.nc, .gcode, .txt, .tap, .ngc) sobre la vista 3D.</p>
       <p>La fresa empieza en X0 Y0 <b>Z10</b>, una posición de seguridad por encima de la pieza.</p>
 
       <h3>Código G que entiende</h3>
@@ -437,7 +443,8 @@
 
       <h3>Modos de vista</h3>
       <ul>
-        <li><b>🧊 Sólido</b>: bloque de material de madera y fresa como cilindro. Al pasar la fresa se va quitando material; cuanto más profundo, más oscuro. Donde se corta todo el grueso, el material desaparece y se ve la rejilla.</li>
+        <li><b>2D / 3D</b>: la vista <b>2D</b> muestra la pieza en planta, como en el plano: el bloque de material con lo que se va quitando (más oscuro cuanto más profundo; donde se corta todo el grueso, se ve el fondo), el recorrido de la fresa, los rápidos en discontinuo y la fresa como un círculo de su diámetro, con su Z al lado. Con <code>G41</code>/<code>G42</code> se ve también el contorno programado, en negro. La rueda del ratón o dos dedos amplían, arrastrando se desplaza y con doble clic o <b>🎯 Encuadrar</b> se vuelve a ver todo. La reproducción, el código, la revisión y la grabación de vídeo funcionan igual en las dos vistas. Si el equipo no puede mostrar 3D, el simulador abre directamente en 2D.</li>
+                <li><b>🧊 Sólido</b>: bloque de material de madera y fresa como cilindro. Al pasar la fresa se va quitando material; cuanto más profundo, más oscuro. Donde se corta todo el grueso, el material desaparece y se ve la rejilla.</li>
         <li><b>📐 Wireframe</b>: solo líneas; la fresa es una línea con un punto en la punta.</li>
         <li><b>👁️ Transparencia</b> (solo en sólido): deja el material al 50 % para ver la fresa dentro.</li>
         <li><b>🎯 Encuadrar</b>: vuelve a centrar la pieza en pantalla desde el punto de vista actual.</li>
@@ -516,40 +523,58 @@
 </div>
 <!-- Programas de ejemplo incluidos (el básico se carga al abrir) -->
 <script type="text/plain" id="gcodeEjemploG41">
-;(Ejemplo G41)
+;(Ejemplo G41 - CORTE INTERIOR: agujero con esta forma)
+; El contorno se recorre en sentido ANTIHORARIO.
+; G41 pone la fresa a la IZQUIERDA del avance: va por DENTRO del contorno
+; y vacia un agujero con esta forma (la pieza es lo de fuera).
+; Se entra desde dentro del agujero por el centro de un lado recto y se
+; sale igual: la compensacion nunca se activa ni se anula sobre una esquina.
+; Distancia de entrada y salida: el diametro de la fresa mas 1 o 2 mm
+; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
+; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-G41
 T1 M3 S12000
-G0 X0 Y0 Z10
-G1 Z-3 F150
-G1 X55 F1000
+G0 X30 Y8 Z10         ; encima de un punto DENTRO del agujero, a 8 mm del contorno
+G1 Z-3 F150           ; baja en la zona que sobra
+G41 G1 X30 Y0 F1000   ; activa G41 en una recta hasta el contorno
+G1 X55
 G3 X70 Y15 I0 J15
 G1 Y50
 G2 X60 Y60 I0 J10
 G1 X5
 G3 X0 Y55 I0 J-5
 G1 X0 Y0
-G1 Z10 F150
-G40
+G1 X30                ; termina donde empezo
+G40 G1 X30 Y8         ; anula con G40 en una recta que se aleja hacia dentro
+G0 Z10
 M02
 ; Fin de programa
 </script>
 <script type="text/plain" id="gcodeEjemploG42">
-;(Ejemplo G42)
+;(Ejemplo G42 - CORTE EXTERIOR: pieza con esta forma)
+; El contorno se recorre en sentido ANTIHORARIO.
+; G42 pone la fresa a la DERECHA del avance: va por FUERA del contorno
+; y recorta una pieza con esta forma.
+; Se entra desde fuera de la pieza por el centro de un lado recto y se
+; sale igual: la compensacion nunca se activa ni se anula sobre una esquina.
+; Distancia de entrada y salida: el diametro de la fresa mas 1 o 2 mm
+; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
+; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-G42
 T1 M3 S12000
-G0 X0 Y0 Z10
-G1 Z-3 F150
-G1 X55 F1000
+G0 X30 Y-8 Z10        ; encima de un punto FUERA de la pieza, a 8 mm del contorno
+G1 Z-3 F150           ; baja en la zona que sobra
+G42 G1 X30 Y0 F1000   ; activa G42 en una recta hasta el contorno
+G1 X55
 G3 X70 Y15 I0 J15
 G1 Y50
 G2 X60 Y60 I0 J10
 G1 X5
 G3 X0 Y55 I0 J-5
 G1 X0 Y0
-G1 Z10 F150
-G40
+G1 X30                ; termina donde empezo
+G40 G1 X30 Y-8        ; anula con G40 en una recta que se aleja hacia fuera
+G0 Z10
 M02
 ; Fin de programa
 </script>
@@ -2060,6 +2085,21 @@ function compensarCadena(moves, muestras, iEntrada, jFin, lado, r) {
         for (let q = 1; q <= n; q++) { const a = ang0 + dAng*q/n; B.esquina.push({ x:V.x + r*Math.cos(a), y:V.y + r*Math.sin(a) }); }
     }
 
+    // Cierre: si el contorno termina donde empezó y esa esquina es interior para la fresa,
+    // se para donde se cruzan el último tramo y el primero (como TpaCAD con un perfil cerrado)
+    if (tramos.length >= 2) {
+        const A = tramos[tramos.length-1], B = tramos[0], V = finEnt(A.orig), V0 = inicioEnt(B.orig);
+        if (Math.hypot(V.x-V0.x, V.y-V0.y) < 1e-6) {
+            const t1 = tangenteEnt(A.orig, 1), t2 = tangenteEnt(B.orig, 0), giro = t1.x*t2.y - t1.y*t2.x;
+            if (giro*lado > 1e-9) {
+                const cand = interseccionesEnt(A.off, B.off);
+                let P = null, dMin = Infinity;
+                cand.forEach(c => { const d = Math.hypot(c.x-V.x, c.y-V.y); if (d < dMin) { dMin = d; P = c; } });
+                if (P && dMin < 4*r + 1e-6) { recortarFin(A.off, P); recortarInicio(B.off, P); }
+            }
+        }
+    }
+
     // Entrada: termina en el punto de arranque del primer tramo desplazado
     const arranque = inicioEnt(tramos[0].off);
     const mE = muestras[iEntrada];
@@ -2139,7 +2179,8 @@ function initEscena3D() {
     camOrto.up.set(0, 0, 1);
     camera = camPersp;
 
-    renderer = new THREE.WebGLRenderer({ antialias:true });
+    try { renderer = new THREE.WebGLRenderer({ antialias:true }); if (!renderer.getContext()) throw new Error('sin WebGL'); }
+    catch (e) { renderer = rendererInerte(); sinWebGL = true; }
     renderer.setPixelRatio(window.devicePixelRatio || 1);
     renderer.setSize(cont.clientWidth, cont.clientHeight);
     cont.appendChild(renderer.domElement);
@@ -2786,6 +2827,7 @@ function toggleOrto() {
 }
 // "Encuadrar": vuelve a encuadrar la pieza manteniendo el punto de vista actual
 function resetCamara() {
+    if (modo2D) { vista2D = null; return; }
     if (vistaActual === 'libre') encuadrar(camera.position.clone().sub(controls.target));
     else encuadrar(DIRECCIONES_VISTA[vistaActual]);
 }
@@ -3354,6 +3396,173 @@ function actualizarBotonPlay() {
     document.getElementById('btnPlay').textContent = reproduciendo ? '⏸' : '▶';
 }
 
+// ════════════════════════════════════════════════════════════════════
+//  VISTA 2D (planta): el recorrido, la fresa y el vaciado vistos desde
+//  arriba, con la misma reproducción que la vista 3D
+// ════════════════════════════════════════════════════════════════════
+let modo2D = false, sinWebGL = false, lienzo2D = null, ctx2D = null, vista2D = null;
+const cache2D = { puntos:null, prog:null, progMoves:null, mat:null, matProg:null, matImg:null };
+// Si el navegador no puede crear la escena 3D, un renderizador inerte deja funcionar todo lo demás (en 2D)
+function rendererInerte() {
+    const lienzo = document.createElement('canvas');
+    return { domElement: lienzo, setPixelRatio(){}, setSize(){}, render(){}, setClearColor(){},
+             getDrawingBufferSize(v){ v.set(lienzo.width || 1, lienzo.height || 1); return v; }, getPixelRatio(){ return 1; } };
+}
+function iniciar2D() {
+    const cont = document.getElementById('viewport');
+    lienzo2D = document.createElement('canvas'); lienzo2D.id = 'lienzo2D'; lienzo2D.style.display = 'none';
+    cont.insertBefore(lienzo2D, cont.firstChild.nextSibling);
+    ctx2D = lienzo2D.getContext('2d');
+    // ratón y táctil: arrastrar desplaza, rueda o dos dedos amplían, doble clic encuadra
+    const toques = new Map(); let arr = null, pinza = null;
+    lienzo2D.addEventListener('wheel', e => {
+        e.preventDefault(); if (!vista2D) return;
+        const r = lienzo2D.getBoundingClientRect(), k = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+        zoom2D(e.clientX - r.left, e.clientY - r.top, k);
+    }, { passive:false });
+    lienzo2D.addEventListener('pointerdown', e => {
+        lienzo2D.setPointerCapture(e.pointerId); toques.set(e.pointerId, { x:e.clientX, y:e.clientY });
+        if (toques.size === 1) arr = { x:e.clientX, y:e.clientY };
+        else if (toques.size === 2) { const [a, b] = [...toques.values()]; pinza = Math.hypot(a.x - b.x, a.y - b.y); arr = null; }
+    });
+    lienzo2D.addEventListener('pointermove', e => {
+        if (!toques.has(e.pointerId) || !vista2D) return;
+        toques.set(e.pointerId, { x:e.clientX, y:e.clientY });
+        if (toques.size === 2 && pinza) {
+            const [a, b] = [...toques.values()], d = Math.hypot(a.x - b.x, a.y - b.y), r = lienzo2D.getBoundingClientRect();
+            if (d > 0) { zoom2D((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, d / pinza); pinza = d; }
+        } else if (arr) {
+            vista2D.cx -= (e.clientX - arr.x) / vista2D.z; vista2D.cy += (e.clientY - arr.y) / vista2D.z; arr = { x:e.clientX, y:e.clientY }; vista2D.auto = false;
+        }
+    });
+    const soltar2D = e => { toques.delete(e.pointerId); if (toques.size < 2) pinza = null; if (!toques.size) arr = null; };
+    lienzo2D.addEventListener('pointerup', soltar2D); lienzo2D.addEventListener('pointercancel', soltar2D);
+    lienzo2D.addEventListener('dblclick', () => { vista2D = null; });
+    let pref = false; try { pref = localStorage.getItem('sim3d_modo2D') === '1'; } catch (e) {}
+    if (sinWebGL) {
+        const b = document.getElementById('btnModo3D'); b.disabled = true; b.title = 'Este equipo o navegador no puede mostrar 3D (WebGL)';
+        setTimeout(() => mostrarSnack('Este equipo no puede mostrar la vista 3D (WebGL): se usa la vista 2D'), 600);
+    }
+    setModo2D(sinWebGL || pref, true);
+}
+function setModo2D(on, inicio) {
+    if (sinWebGL) on = true;
+    modo2D = !!on;
+    document.body.classList.toggle('modo2d', modo2D);
+    document.getElementById('btnModo2D').classList.toggle('activo', modo2D);
+    document.getElementById('btnModo3D').classList.toggle('activo', !modo2D);
+    lienzo2D.style.display = modo2D ? 'block' : 'none';
+    renderer.domElement.style.display = modo2D ? 'none' : 'block';
+    if (!inicio) try { localStorage.setItem('sim3d_modo2D', modo2D ? '1' : '0'); } catch (e) {}
+    if (modo2D) vista2D = null; else onResizeViewport();
+}
+function zoom2D(px, py, k) {
+    const W = lienzo2D.clientWidth, H = lienzo2D.clientHeight;
+    const wx = vista2D.cx + (px - W / 2) / vista2D.z, wy = vista2D.cy - (py - H / 2) / vista2D.z;
+    vista2D.z = Math.max(0.05, Math.min(400, vista2D.z * k));
+    vista2D.cx = wx - (px - W / 2) / vista2D.z; vista2D.cy = wy + (py - H / 2) / vista2D.z; vista2D.auto = false;
+}
+function caja2D() {
+    let x0 = 0, y0 = 0, x1 = 0, y1 = 0;          // el cero pieza siempre a la vista
+    puntosPlanos.forEach(p => { if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y; });
+    if (material) { x0 = Math.min(x0, material.x0); y0 = Math.min(y0, material.y0); x1 = Math.max(x1, material.x0 + material.w); y1 = Math.max(y1, material.y0 + material.h); }
+    const r = diametroFresa / 2; return { x0:x0 - r, y0:y0 - r, x1:x1 + r, y1:y1 + r };
+}
+// El material vaciado como imagen en planta: madera clara en la superficie, más oscura cuanto más hondo,
+// y transparente donde el corte atraviesa
+function imagenMaterial2D() {
+    const m = material; if (!m) return null;
+    if (cache2D.mat === m && cache2D.matProg === m.progreso && cache2D.matImg) return cache2D.matImg;
+    let c = cache2D.mat === m && cache2D.matImg ? cache2D.matImg : document.createElement('canvas');
+    c.width = m.nx; c.height = m.ny;
+    const g = c.getContext('2d'), img = g.createImageData(m.nx, m.ny), d = img.data;
+    const sup = modoOscuro ? [176, 146, 104] : [233, 210, 168], hondo = modoOscuro ? [92, 60, 30] : [138, 90, 43];
+    for (let j = 0; j < m.ny; j++) for (let i = 0; i < m.nx; i++) {
+        const a = m.alturas[j * m.nx + i], k = ((m.ny - 1 - j) * m.nx + i) * 4;
+        const t = Math.min(1, Math.max(0, -a / m.espesor));
+        if (t >= 0.999) { d[k + 3] = 0; continue; }
+        const f = t > 0 ? 0.25 + 0.75 * t : 0;
+        d[k] = sup[0] + (hondo[0] - sup[0]) * f; d[k + 1] = sup[1] + (hondo[1] - sup[1]) * f; d[k + 2] = sup[2] + (hondo[2] - sup[2]) * f; d[k + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    cache2D.mat = m; cache2D.matProg = m.progreso; cache2D.matImg = c;
+    return c;
+}
+function dibujar2D() {
+    const cont = document.getElementById('viewport'), W = cont.clientWidth, H = cont.clientHeight;
+    if (!W || !H || !ctx2D) return;
+    const dpr = window.devicePixelRatio || 1;
+    if (lienzo2D.width !== Math.round(W * dpr) || lienzo2D.height !== Math.round(H * dpr)) { lienzo2D.width = Math.round(W * dpr); lienzo2D.height = Math.round(H * dpr); }
+    if (!vista2D) { const b = caja2D(), mg = 40; vista2D = { cx:(b.x0 + b.x1) / 2, cy:(b.y0 + b.y1) / 2, z: Math.min((W - 2 * mg) / Math.max(1e-6, b.x1 - b.x0), (H - 2 * mg) / Math.max(1e-6, b.y1 - b.y0)), auto:true }; }
+    const g = ctx2D, V = vista2D, P = (x, y) => [W / 2 + (x - V.cx) * V.z, H / 2 - (y - V.cy) * V.z];
+    const chk = id => { const e = document.getElementById(id); return !e || e.checked; };
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = modoOscuro ? '#1b232b' : '#f4f6f8'; g.fillRect(0, 0, W, H);
+    // cuadrícula con cotas y ejes
+    if (chk('chkEjes')) {
+        const pasos = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500]; const paso = pasos.find(p => p * V.z >= 45) || 1000;
+        const xa = V.cx - W / 2 / V.z, xb = V.cx + W / 2 / V.z, ya = V.cy - H / 2 / V.z, yb = V.cy + H / 2 / V.z;
+        g.lineWidth = 1; g.strokeStyle = modoOscuro ? 'rgba(255,255,255,.07)' : 'rgba(0,40,80,.08)'; g.beginPath();
+        for (let x = Math.ceil(xa / paso) * paso; x <= xb; x += paso) { const [sx] = P(x, 0); g.moveTo(sx, 0); g.lineTo(sx, H); }
+        for (let y = Math.ceil(ya / paso) * paso; y <= yb; y += paso) { const [, sy] = P(0, y); g.moveTo(0, sy); g.lineTo(W, sy); }
+        g.stroke();
+        g.fillStyle = modoOscuro ? '#8fa0b0' : '#6b7a89'; g.font = '11px system-ui, sans-serif';
+        const dec = paso < 1 ? 1 : 0;
+        g.textAlign = 'center'; for (let x = Math.ceil(xa / paso) * paso; x <= xb; x += paso) { const [sx] = P(x, 0); g.fillText((+x.toFixed(3)).toFixed(dec), sx, H - 6); }
+        g.textAlign = 'left'; for (let y = Math.ceil(ya / paso) * paso; y <= yb; y += paso) { const [, sy] = P(0, y); g.fillText((+y.toFixed(3)).toFixed(dec), 4, sy - 3); }
+    }
+    // material vaciado
+    if (material && chk('chkMaterial')) {
+        const im = imagenMaterial2D(), m = material, [ax, ay] = P(m.x0 - m.px / 2, m.y0 + m.h + m.py / 2), [bx, by] = P(m.x0 + m.w + m.px / 2, m.y0 - m.py / 2);
+        if (im) { g.imageSmoothingEnabled = true; g.drawImage(im, ax, ay, bx - ax, by - ay); }
+        const [rx, ry] = P(m.x0, m.y0 + m.h), [sx, sy] = P(m.x0 + m.w, m.y0);
+        g.strokeStyle = modoOscuro ? '#c9a46c' : '#a8794a'; g.lineWidth = 1.5; g.strokeRect(rx, ry, sx - rx, sy - ry);
+    }
+    // ejes del cero pieza
+    if (chk('chkEjes')) {
+        const [ox, oy] = P(0, 0), L = 34;
+        g.lineWidth = 2; g.strokeStyle = '#d64545'; g.beginPath(); g.moveTo(ox, oy); g.lineTo(ox + L, oy); g.stroke();
+        g.strokeStyle = '#2e9e52'; g.beginPath(); g.moveTo(ox, oy); g.lineTo(ox, oy - L); g.stroke();
+        g.fillStyle = '#d64545'; g.font = '700 12px system-ui, sans-serif'; g.fillText('X', ox + L + 3, oy + 4);
+        g.fillStyle = '#2e9e52'; g.fillText('Y', ox - 4, oy - L - 4);
+        g.beginPath(); g.arc(ox, oy, 4, 0, Math.PI * 2); g.fillStyle = modoOscuro ? '#fff' : '#1c2733'; g.fill();
+    }
+    const linea = (pts, color, w, dash) => { if (pts.length < 2) return; g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, k) => { const [x, y] = P(p.x, p.y); k ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.setLineDash([]); };
+    // contorno programado (con G41/G42 la fresa no va por él)
+    const hayComp = gcodeMoves.some(mv => mv.comp === 41 || mv.comp === 42);
+    if (hayComp && chk('chkProgramado')) {
+        if (cache2D.progMoves !== gcodeMoves) { cache2D.prog = []; let tramo = []; gcodeMoves.forEach(mv => { if (mv.tipo !== 'corte') { if (tramo.length) cache2D.prog.push(tramo); tramo = []; return; } muestrearMovimiento(mv).forEach((p, q) => { if (q > 0 || !tramo.length) tramo.push(p); }); }); if (tramo.length) cache2D.prog.push(tramo); cache2D.progMoves = gcodeMoves; }
+        cache2D.prog.forEach(t => linea(t, modoOscuro ? '#f0f0f0' : '#1c2733', 1.6));
+    }
+    // recorrido previsto (tenue) y realizado
+    const n = puntosPlanos.length; if (!n) return;
+    const pos = posicionEnIndice(indicePlano), i = Math.min(n - 1, Math.floor(indicePlano));
+    const verRap = chk('chkRapidos');
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    // previsto: se agrupa por tipo para dibujar pocas líneas
+    const tramos = (desde, hasta, extra) => { const out = []; let cur = null;
+        for (let k = Math.max(1, desde); k <= hasta; k++) { const a = puntosPlanos[k - 1], b = puntosPlanos[k], t = b.tipo === 'rapido' ? 'r' : (b.z < -1e-9 || a.z < -1e-9) ? 'c' : 'a';
+            if (!cur || cur.t !== t) { cur = { t, pts:[a] }; out.push(cur); } cur.pts.push(b); }
+        if (extra) { const a = puntosPlanos[Math.max(0, hasta)], t = extra.tipo === 'rapido' ? 'r' : (extra.z < -1e-9 || a.z < -1e-9) ? 'c' : 'a'; if (!cur || cur.t !== t) { cur = { t, pts:[a] }; out.push(cur); } cur.pts.push(extra); }
+        return out; };
+    if (cache2D.puntos !== puntosPlanos) { cache2D.puntos = puntosPlanos; cache2D.previsto = tramos(1, n - 1); }
+    cache2D.previsto.forEach(t => { if (t.t === 'r' && !verRap) return; linea(t.pts, modoOscuro ? 'rgba(200,210,220,.22)' : 'rgba(60,80,100,.18)', 1, t.t === 'r' ? [5, 4] : []); });
+    if (chk('chkRecorrido')) tramos(1, i, pos).forEach(t => {
+        if (t.t === 'r') { if (verRap) linea(t.pts, modoOscuro ? '#9fb0bf' : '#7f8c8d', 1.4, [6, 4]); }
+        else if (t.t === 'c') { if (!material) linea(t.pts, 'rgba(230,126,34,.18)', Math.max(1, 2 * radioCorteVista() * V.z)); linea(t.pts, '#c4580c', 2.4); }
+        else linea(t.pts, modoOscuro ? '#9fb0bf' : '#8795a3', 1.2, [2, 3]);
+    });
+    // la fresa
+    if (pos) {
+        const [x, y] = P(pos.x, pos.y), r = Math.max(5, diametroFresa / 2 * V.z), corta = pos.z < -1e-9;
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = corta ? 'rgba(230,126,34,.45)' : 'rgba(255,255,255,.25)'; g.fill();
+        g.strokeStyle = corta ? '#c4580c' : (modoOscuro ? '#c8d2dc' : '#5d6d7e'); g.lineWidth = 2; g.setLineDash(corta ? [] : [4, 3]); g.stroke(); g.setLineDash([]);
+        g.beginPath(); g.moveTo(x - 6, y); g.lineTo(x + 6, y); g.moveTo(x, y - 6); g.lineTo(x, y + 6); g.strokeStyle = modoOscuro ? '#fff' : '#2c3e50'; g.lineWidth = 1.2; g.stroke();
+        g.font = '600 11px Consolas, monospace'; g.fillStyle = corta ? '#c4580c' : (modoOscuro ? '#c8d2dc' : '#5d6d7e'); g.textAlign = 'left';
+        g.fillText('Z' + pos.z.toFixed(2), x + r + 4, y - r * 0.4);
+    }
+}
+
 function animate(ts) {
     requestAnimationFrame(animate);
     controls.update();
@@ -3375,7 +3584,7 @@ function animate(ts) {
 
     // Girar la fresa (efecto visual de husillo) mientras reproduce o si hay movimiento
     if (mallaFresaSolida.visible) mallaFresaSolida.rotation.z += reproduciendo ? 0.35 : 0;
-    renderer.render(scene, camera);
+    if (modo2D) dibujar2D(); else renderer.render(scene, camera);
     if (grabacion) componerFotogramaVideo();
 }
 
@@ -3491,7 +3700,7 @@ async function prepararYGrabar() {
 }
 
 function iniciarGrabacion(fmt, destino, nombre) {
-    const origen = renderer.domElement;
+    const origen = modo2D ? lienzo2D : renderer.domElement;
     const lienzo = document.createElement('canvas');
     lienzo.width = origen.width - (origen.width % 2); lienzo.height = origen.height - (origen.height % 2);
     const ctx = lienzo.getContext('2d');
@@ -3533,7 +3742,7 @@ function actualizarBotonGrabar() {
 
 function componerFotogramaVideo() {
     const g = grabacion, c = g.ctx, W = g.lienzo.width, H = g.lienzo.height;
-    c.drawImage(renderer.domElement, 0, 0, W, H);
+    c.drawImage(modo2D ? lienzo2D : renderer.domElement, 0, 0, W, H);
     const k = Math.max(1, H / 700);                 // escala del rótulo según resolución
     const fs = Math.round(15*k), pad = Math.round(10*k);
 
@@ -3553,7 +3762,7 @@ function componerFotogramaVideo() {
 
     // Rótulo superior: nombre del archivo y modo
     c.font = '600 ' + Math.round(13*k) + 'px -apple-system, Segoe UI, Arial, sans-serif';
-    const titulo = document.getElementById('filenameLabel').textContent + '  ·  ' + (modoVista === 'solido' ? 'Sólido' : 'Wireframe');
+    const titulo = document.getElementById('filenameLabel').textContent + '  ·  ' + (modo2D ? 'Vista 2D' : modoVista === 'solido' ? 'Sólido' : 'Wireframe');
     const tw = c.measureText(titulo).width + pad*2;
     c.fillStyle = 'rgba(255,255,255,0.85)'; c.fillRect(pad, pad, tw, Math.round(13*k) + pad*1.4);
     c.fillStyle = '#1c2733'; c.fillText(titulo, pad*2, pad + Math.round(13*k)*0.95 + pad*0.2);
@@ -3582,6 +3791,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { cerrarAy
 
 window.addEventListener('DOMContentLoaded', () => {
     initEscena3D();
+    iniciar2D();
     cargarTema();
     cargarEjemplo('gcodeEjemplo');
 });

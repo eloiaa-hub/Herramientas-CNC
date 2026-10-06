@@ -398,7 +398,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v63</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v64</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -8092,7 +8092,8 @@ function corregirPrograma(texto) {
             s.estado = !maxDev ? 'ok' : danaPieza ? 'mal' : 'fuera';
             s.maxDev = maxDev;
             if (danaPieza) H.push({ tipo:'error', cat:'geometria', linea:s.linea, seg:s, msg:`${s.etiqueta}: este corte se mete en la pieza — se aparta hasta ${fmt(maxDev, 3)} mm del contorno. «${s.texto}»` });
-            else if (fuera) H.push({ tipo:'aviso', cat:'fuera', linea:s.linea, seg:s, msg:`${s.etiqueta}: corta fuera del contorno, en la zona que sobra (hasta ${fmt(maxDev, 3)} mm). Correcto si es una entrada o una salida. «${s.texto}»` });
+            // una entrada o salida que activa o anula la compensación en la zona que sobra es lo correcto: sin aviso
+            else if (fuera && !s.cambioComp) H.push({ tipo:'aviso', cat:'fuera', linea:s.linea, seg:s, msg:`${s.etiqueta}: corta fuera del contorno, en la zona que sobra (hasta ${fmt(maxDev, 3)} mm). Correcto si es una entrada o una salida. «${s.texto}»` });
         });
         return { H, solTramos, solSegs, idxSol, faltas, largoPlano, largoFalta, errores: H.filter(h => h.tipo === 'error').length };
     };
