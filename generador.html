@@ -714,9 +714,10 @@
 <div class="app-window">
 
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v74</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v79</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="perfil_sin_nombre" placeholder="Nombre del proyecto">
+            <span class="icon-gear" onclick="abrirCreditos()" title="Créditos y licencias" style="font-size:17px">ℹ</span>
             <span class="icon-gear" id="helpIcon" onclick="toggleAyuda()" title="Ayuda">❓</span>
             <span class="icon-gear" onclick="toggleSettings()">⚙️</span>
         </div>
@@ -813,8 +814,10 @@
                         <label>V. Máquina (G0) <input type="number" id="gcFeedPosA" value="1200" min="1" style="width:60px"></label>
                         <label>Z Seguridad <input type="number" id="gcZsafeA" value="50" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
                         <label>Prof. total <input type="number" id="gcZtotalA" value="-20" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
+                        <label title="Sobreespesor que dejan las pasadas de desbaste; después, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. Escala ×10: 5 = 0,5 mm">Acabado <input type="number" id="gcAcabA" value="0" min="0" step="1" style="width:52px" title="Escala ×10: valor real = esto ÷ 10 mm (5 = 0,5 mm de sobreespesor)"></label>
                         <label>Paso Z <input type="number" id="gcZstepA" value="10" min="1" step="1" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
-                        <label>Herramienta <input type="number" id="gcToolA" value="1" min="1" max="999" step="1" style="width:60px"></label>
+                        <label>Herramienta <input type="number" id="gcToolA" value="101" min="1" max="999" step="1" style="width:60px" title="Número de herramienta (T): tres cifras, como en TpaCAD (T101…)"></label>
+                        <label>De la base <span style="display:inline-flex;gap:4px"><select id="hbSelA" style="width:150px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
                         <label>Radio herramienta <input type="number" id="gcToolRA" value="5" min="0" step="1" style="width:60px" title="Escala ×10: radio real = esto ÷ 10 mm"></label>
                         <label>Corrección herramienta
                             <select id="gcCompA" style="width:135px">
@@ -858,8 +861,10 @@
                         <label>V. Máquina (G0) <input type="number" id="gcFeedPos" value="1200" min="1" style="width:60px"></label>
                         <label>Z Seguridad <input type="number" id="gcZsafe" value="50" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
                         <label>Prof. total <input type="number" id="gcZtotal" value="-20" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
+                        <label title="Sobreespesor que dejan las pasadas de desbaste; después, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. Escala ×10: 5 = 0,5 mm">Acabado <input type="number" id="gcAcab" value="0" min="0" step="1" style="width:52px" title="Escala ×10: valor real = esto ÷ 10 mm (5 = 0,5 mm de sobreespesor)"></label>
                         <label>Paso Z <input type="number" id="gcZstep" value="10" min="1" step="1" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
-                        <label>Herramienta <input type="number" id="gcTool" value="1" min="1" max="999" step="1" style="width:60px"></label>
+                        <label>Herramienta <input type="number" id="gcTool" value="101" min="1" max="999" step="1" style="width:60px" title="Número de herramienta (T): tres cifras, como en TpaCAD (T101…)"></label>
+                        <label>De la base <span style="display:inline-flex;gap:4px"><select id="hbSel" style="width:150px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
                         <label>Radio herramienta <input type="number" id="gcToolR" value="5" min="0" step="1" style="width:60px" title="Escala ×10: radio real = esto ÷ 10 mm"></label>
                         <label>Corrección herramienta
                             <select id="gcComp" style="width:135px">
@@ -1324,6 +1329,7 @@
                         <tr><td>Z Seguridad</td><td>Altura Z de seguridad a la que sube la herramienta entre desplazamientos, para evitar colisiones con la pieza.</td></tr>
                         <tr><td>Prof. total</td><td>Profundidad final del corte (valor negativo). Si es mayor que Paso Z, se generan varias pasadas sucesivas.</td></tr>
                         <tr><td>Paso Z</td><td>Incremento de profundidad por cada pasada. Por ejemplo, Prof. total -6 con Paso Z 2 genera tres pasadas: -2, -4, -6.</td></tr>
+                        <tr><td>Acabado</td><td>Sobreespesor que dejan las pasadas de desbaste (en la misma escala ×10: 5 = 0,5 mm). Las pasadas recorren el contorno desplazado ese sobreespesor hacia la zona que sobra y, al final, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. No se aplica a grabados, cajeras ni trazados con puentes.</td></tr>
                         <tr><td>Radio herramienta</td><td>Radio real de la fresa, usado para la simulación visual de corte.</td></tr>
                         <tr><td>V. Rotación (S)</td><td>Velocidad de giro del husillo (rpm). Se emite como <code>M3 S…</code> al inicio del programa. Por defecto 10000 rpm.</td></tr>
                         <tr><td>Punto de entrada</td><td>Vértice del polígono desde el que arrancará el recorrido de corte.</td></tr>
@@ -1683,6 +1689,176 @@ const SNAP    = ESCALA; // cada cuadrado de la rejilla = 1mm
 const ESCALA_VIRTUAL = 10;
 // Real (mm) -> lo que se escribe/lee en los campos de Z y radio de herramienta,
 // y lo que se muestra en una cota de longitud/radio.
+// ════════════════════════════════════════════════════════════════════
+//  BASE DE HERRAMIENTAS compartida por la suite (Calcador, Corrector,
+//  Generador y Simuladores). Se guarda en el navegador y se puede
+//  exportar e importar para pasarla a otro ordenador o a los alumnos.
+// ════════════════════════════════════════════════════════════════════
+const HB = (() => {
+    const CLAVE = 'suiteCNC:herramientas', TIPOS = { plana:'Plana', bola:'Bola', v:'En V' };
+    const selectores = [];
+    const porDefecto = () => [
+        { id:'h1', T:101, nombre:'Fresa plana Ø6', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 },
+        { id:'h2', T:102, nombre:'Fresa plana Ø3', tipo:'plana', d:3, angulo:90, F:800, Fz:200, S:16000, paso:1.5 },
+        { id:'h3', T:103, nombre:'Fresa en V 90°', tipo:'v', d:6, angulo:90, F:600, Fz:200, S:16000, paso:1 } ];
+    const T_MIN = 101, T_MAX = 999;          // números de herramienta de tres cifras, como en TpaCAD
+    // T de una o dos cifras (bases antiguas): se le suma 100 (T1 → T101)
+    const normT = t => { t = Math.round(t); if (t >= 1 && t < 100) t += 100; return Math.max(T_MIN, Math.min(T_MAX, t)); };
+    const num = (v, def, min) => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? (min !== undefined ? Math.max(min, n) : n) : def; };
+    function sanear(h) {
+        if (!h || typeof h !== 'object') return null;
+        return { id: String(h.id || ('h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6))),
+            T: normT(num(h.T, T_MIN, 1)), nombre: String(h.nombre || 'Herramienta').slice(0, 60),
+            tipo: TIPOS[h.tipo] ? h.tipo : 'plana', d: num(h.d, 6, 0.1), angulo: Math.max(10, Math.min(170, num(h.angulo, 90))),
+            F: num(h.F, 1000, 1), Fz: num(h.Fz, 300, 1), S: Math.round(num(h.S, 12000, 0)), paso: num(h.paso, 3, 0.05) };
+    }
+    function leer() {
+        try { const d = JSON.parse(localStorage.getItem(CLAVE) || 'null'); if (d && Array.isArray(d.herramientas)) return d.herramientas.map(sanear).filter(Boolean); } catch (e) {}
+        return porDefecto();
+    }
+    function guardar(lista) {
+        try { localStorage.setItem(CLAVE, JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas:lista })); } catch (e) {}
+        selectores.forEach(s => s.refrescar());
+    }
+    const etiqueta = h => `T${h.T} · ${h.nombre}`;
+    const porT = T => leer().find(h => h.T === +T) || null;
+    const siguienteT = l => Math.min(T_MAX, l.length ? Math.max(T_MIN - 1, ...l.map(x => x.T)) + 1 : T_MIN);
+    const porId = id => leer().find(h => h.id === id) || null;
+    // Desplegable «Herramienta de la base»: al elegir una, el programa la aplica
+    function montarSelector(sel, aplicar) {
+        if (!sel) return;
+        const s = { sel, aplicar, refrescar() {
+            const lista = leer(), v = sel.value;
+            sel.innerHTML = '<option value="">— a mano —</option>' + lista.map(h => `<option value="${h.id}">${etiqueta(h).replace(/</g, '&lt;')} · Ø${+h.d.toFixed(3)}</option>`).join('');
+            if ([...sel.options].some(o => o.value === v)) sel.value = v;
+        } };
+        sel.addEventListener('change', () => { const h = porId(sel.value); if (h) aplicar(h); });
+        s.refrescar(); selectores.push(s);
+    }
+    function marcar(sel, id) { if (sel && [...sel.options].some(o => o.value === id)) sel.value = id; else if (sel) sel.value = ''; }
+    window.addEventListener('storage', e => { if (e.key === CLAVE) selectores.forEach(s => s.refrescar()); });
+    // ── Ventana de gestión ──
+    let aplicarActual = null;
+    function estilos() {
+        if (document.getElementById('hbEstilos')) return;
+        const st = document.createElement('style'); st.id = 'hbEstilos';
+        st.textContent = `.hb-fondo{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:9000;display:none;align-items:center;justify-content:center}
+.hb-fondo.visible{display:flex}.hb-caja{background:#fff;color:#1c2733;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:min(1080px,96vw);max-height:88vh;display:flex;flex-direction:column;font:13px system-ui,-apple-system,'Segoe UI',sans-serif}
+.hb-cab{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #e3e8ee}.hb-cab h2{margin:0;font-size:17px;flex:1}
+.hb-cuerpo{overflow:auto;padding:10px 18px}.hb-pie{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid #e3e8ee;align-items:center}
+.hb-tabla{border-collapse:collapse;width:100%}.hb-tabla th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5d6d7e;text-align:left;padding:6px 4px;border-bottom:1px solid #e3e8ee;white-space:nowrap}
+.hb-tabla td{padding:4px;border-bottom:1px solid #f0f2f5}.hb-tabla input,.hb-tabla select{width:100%;box-sizing:border-box;padding:4px 5px;border:1px solid #cfd6de;border-radius:5px;font:inherit;background:#fff;color:inherit}
+.hb-tabla input.hb-dup{border-color:#d84343;background:#fdecec}.hb-tabla input:disabled{opacity:.35;background:#f0f2f5}.hb-b{border:1px solid #cfd6de;background:#fff;color:#1c2733;border-radius:7px;padding:6px 11px;cursor:pointer;font:inherit}
+.hb-b:hover{background:#f0f4f8}.hb-b.hb-p{background:#005A9C;border-color:#005A9C;color:#fff}.hb-b.hb-p:hover{background:#004a80}.hb-nota{font-size:11.5px;color:#5d6d7e;margin:8px 0 0}
+.hb-x{border:none;background:#e74c3c;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}`;
+        document.head.appendChild(st);
+    }
+    function caja() {
+        let f = document.getElementById('hbFondo'); if (f) return f;
+        estilos();
+        f = document.createElement('div'); f.id = 'hbFondo'; f.className = 'hb-fondo';
+        f.innerHTML = `<div class="hb-caja"><div class="hb-cab"><h2>🧰 Base de herramientas</h2><button class="hb-x" onclick="HB.cerrar()" title="Cerrar">✕</button></div>
+<div class="hb-cuerpo"><table class="hb-tabla"><thead><tr><th style="width:56px">T</th><th>Nombre</th><th style="width:96px">Tipo</th><th style="width:66px">Ø (mm)</th><th style="width:62px">V (°)</th><th style="width:76px">F corte</th><th style="width:76px">F bajada</th><th style="width:82px">S (rpm)</th><th style="width:72px">Pasada (mm)</th><th style="width:110px"></th></tr></thead><tbody id="hbFilas"></tbody></table>
+<p class="hb-nota">Una sola lista para el Calcador, el Corrector, el Generador y los Simuladores de este navegador. <b>T</b> es el número de herramienta de la máquina, de tres cifras como en TpaCAD (de T101 a T999): si un programa usa <code>T102</code>, el Simulador toma de aquí su diámetro y su tipo. «F corte» y «F bajada» en mm/min; «Pasada», la profundidad máxima por pasada. Los cambios se guardan al momento.</p></div>
+<div class="hb-pie"><button class="hb-b hb-p" onclick="HB.anadir()">＋ Añadir herramienta</button><button class="hb-b" onclick="HB.exportar()" title="Guarda la lista en un archivo JSON para pasarla a otro ordenador o a los alumnos">⬇ Exportar JSON</button><button class="hb-b" onclick="HB.exportarCSV()" title="Guarda la lista como hoja de cálculo (CSV con punto y coma, se abre en Excel o LibreOffice)">⬇ Exportar CSV</button><button class="hb-b" onclick="document.getElementById('hbArchivo').click()" title="Carga una lista en JSON o CSV (sustituye la actual)">📥 Importar JSON o CSV</button><input type="file" id="hbArchivo" accept=".json,.csv,.txt" style="display:none"><span style="flex:1"></span><button class="hb-b" onclick="HB.restaurar()" title="Vuelve a las tres herramientas de ejemplo">Restaurar ejemplo</button></div></div>`;
+        document.body.appendChild(f);
+        f.addEventListener('click', e => { if (e.target === f) cerrar(); });
+        f.querySelector('#hbArchivo').addEventListener('change', e => { const a = e.target.files[0]; e.target.value = ''; if (a) importar(a); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && f.classList.contains('visible')) { e.stopPropagation(); cerrar(); } }, true);
+        return f;
+    }
+    function pintar() {
+        const lista = leer(), tb = document.getElementById('hbFilas'); if (!tb) return;
+        const veces = {}; lista.forEach(h => { veces[h.T] = (veces[h.T] || 0) + 1; });
+        const e = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        tb.innerHTML = lista.map(h => `<tr data-id="${e(h.id)}">
+ <td><input type="number" min="101" max="999" step="1" data-k="T" value="${h.T}" class="${veces[h.T] > 1 ? 'hb-dup' : ''}" title="${veces[h.T] > 1 ? 'Número repetido: cada herramienta debería tener el suyo' : 'Número de herramienta (T) de la máquina'}"></td>
+<td><input data-k="nombre" value="${e(h.nombre)}"></td>
+<td><select data-k="tipo">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}"${k === h.tipo ? ' selected' : ''}>${t}</option>`).join('')}</select></td>
+<td><input type="number" min="0.1" step="0.5" data-k="d" value="${h.d}"></td>
+<td><input type="number" min="10" max="170" step="5" data-k="angulo" value="${h.angulo}" ${h.tipo === 'v' ? '' : 'disabled title="Solo en fresas en V"'}></td>
+<td><input type="number" min="1" step="50" data-k="F" value="${h.F}"></td>
+<td><input type="number" min="1" step="50" data-k="Fz" value="${h.Fz}"></td>
+<td><input type="number" min="0" step="500" data-k="S" value="${h.S}"></td>
+<td><input type="number" min="0.05" step="0.5" data-k="paso" value="${h.paso}"></td>
+<td style="white-space:nowrap">${aplicarActual ? '<button class="hb-b hb-p" data-usar="1" title="Usar esta herramienta aquí">Usar</button> ' : ''}<button class="hb-b" data-dup="1" title="Duplicar">⧉</button> <button class="hb-b" data-borrar="1" title="Borrar">🗑</button></td></tr>`).join('');
+        tb.querySelectorAll('input,select').forEach(el => el.addEventListener('change', () => {
+            const id = el.closest('tr').dataset.id, l = leer(), h = l.find(x => x.id === id); if (!h) return;
+            h[el.dataset.k] = el.dataset.k === 'nombre' || el.dataset.k === 'tipo' ? el.value : el.value;
+            l[l.indexOf(h)] = sanear(h); guardar(l); pintar();
+        }));
+        tb.querySelectorAll('[data-usar]').forEach(b => b.onclick = () => { const h = porId(b.closest('tr').dataset.id); if (h && aplicarActual) { aplicarActual(h); cerrar(); } });
+        tb.querySelectorAll('[data-dup]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h) return; const n = sanear({ ...h, id:null, T: siguienteT(l), nombre: h.nombre + ' (copia)' }); l.splice(l.indexOf(h) + 1, 0, n); guardar(l); pintar(); });
+        tb.querySelectorAll('[data-borrar]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h || !confirm(`¿Borrar «${etiqueta(h)}» de la base de herramientas?`)) return; l.splice(l.indexOf(h), 1); guardar(l); pintar(); });
+    }
+    function abrir(aplicar) { aplicarActual = aplicar || null; caja().classList.add('visible'); pintar(); }
+    function cerrar() { const f = document.getElementById('hbFondo'); if (f) f.classList.remove('visible'); }
+    function anadir() { const l = leer(); l.push(sanear({ T: siguienteT(l), nombre:'Nueva fresa', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 })); guardar(l); pintar(); }
+    function exportar() {
+        const txt = JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas: leer() }, null, 2);
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:'application/json' })); a.download = 'Herramientas_SuiteCNC.json';
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    // ── CSV: punto y coma y coma decimal (Excel en español); al importar se reconoce el separador, el decimal y las columnas por su nombre ──
+    const COLS = [['T', 'T'], ['nombre', 'Nombre'], ['tipo', 'Tipo'], ['d', 'Diámetro (mm)'], ['angulo', 'Ángulo V (°)'], ['F', 'F corte (mm/min)'], ['Fz', 'F bajada (mm/min)'], ['S', 'S (rpm)'], ['paso', 'Pasada (mm)']];
+    function exportarCSV() {
+        const campo = v => { const t = typeof v === 'number' ? String(v).replace('.', ',') : String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+        const filas = [COLS.map(c => c[1]).join(';')].concat(leer().map(h => COLS.map(([k]) => campo(k === 'tipo' ? TIPOS[h.tipo] : h[k])).join(';')));
+        descargarTexto('\ufeff' + filas.join('\r\n') + '\r\n', 'Herramientas_SuiteCNC.csv', 'text/csv');
+    }
+    function leerCSV(texto) {
+        texto = texto.replace(/^\ufeff/, '');
+        const lineas = texto.split(/\r?\n/).filter(l => l.trim());
+        if (lineas.length < 2) return null;
+        const sep = [';', '\t', ','].map(c => [c, lineas[0].split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+        const partir = l => { const out = []; let cur = '', q = false; for (let i = 0; i < l.length; i++) { const ch = l[i];
+            if (q) { if (ch === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+            else if (ch === '"') q = true; else if (ch === sep) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map(x => x.trim()); };
+        const norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+        const alias = { t:'T', herramienta:'T', numero:'T', nombre:'nombre', descripcion:'nombre', tipo:'tipo', diametro:'d', diametromm:'d', d:'d', o:'d', angulo:'angulo', angulov:'angulo', fcorte:'F', fcortemmmin:'F', avance:'F', f:'F', fbajada:'Fz', fbajadammmin:'Fz', fz:'Fz', s:'S', srpm:'S', rpm:'S', revoluciones:'S', pasada:'paso', pasadamm:'paso', paso:'paso', profundidadporpasada:'paso' };
+        const cab = partir(lineas[0]).map(c => alias[norm(c)] || alias[norm(c).replace(/\d+$/, '')] || null);
+        if (!cab.includes('d') && !cab.includes('T')) return null;
+        const tipoDe = v => { const n = norm(v); return n.startsWith('bola') ? 'bola' : (n === 'v' || n.startsWith('env') || n.startsWith('v')) ? 'v' : 'plana'; };
+        return lineas.slice(1).map(l => { const c = partir(l), h = {}; cab.forEach((k, i) => { if (!k || c[i] === undefined || c[i] === '') return; h[k] = k === 'nombre' ? c[i] : k === 'tipo' ? tipoDe(c[i]) : c[i].replace(',', '.'); }); return h; })
+            .filter(h => Object.keys(h).length).map(sanear).filter(Boolean);
+    }
+    function descargarTexto(txt, nombre, tipo) {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:tipo })); a.download = nombre;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    function importar(archivo) {
+        const r = new FileReader();
+        r.onload = () => { let d = null, l = null; const txt = String(r.result);
+            if (/^\s*[\[{]/.test(txt.replace(/^\ufeff/, ''))) { try { d = JSON.parse(txt.replace(/^\ufeff/, '')); } catch (e) {} l = d && Array.isArray(d.herramientas) ? d.herramientas.map(sanear).filter(Boolean) : null; }
+            else l = leerCSV(txt);
+            if (!l) { alert('El archivo no es una lista de herramientas válida (JSON exportado o CSV con columnas T, Nombre, Tipo, Diámetro…)'); return; }
+            if (!l || !l.length) { alert('El archivo no contiene herramientas'); return; }
+            if (!confirm(`¿Sustituir la base actual por las ${l.length} herramientas del archivo?`)) return;
+            guardar(l); pintar(); };
+        r.readAsText(archivo);
+    }
+    function restaurar() { if (confirm('¿Volver a las tres herramientas de ejemplo (T101, T102 y T103)? Se perderá la lista actual.')) { guardar(porDefecto()); pintar(); } }
+    return { leer, guardar, montarSelector, marcar, abrir, cerrar, anadir, exportar, exportarCSV, leerCSV, restaurar, porT, porId, etiqueta, TIPOS };
+})();
+
+// ── Aviso de cambios sin guardar en archivo: un punto junto al nombre del proyecto.
+//    (Lo que haces se guarda solo en este navegador; el punto indica que el archivo JSON no está al día.)
+const SG = (() => {
+    let clave = null, marca = null, listo = false;
+    function poner(v) { if (!marca) return; marca.style.display = v ? 'inline' : 'none'; try { localStorage.setItem(clave, v ? '1' : '0'); } catch (e) {} }
+    function iniciar(k) {
+        clave = k; const inp = document.getElementById('projectName'); if (!inp || marca) return;
+        marca = document.createElement('span'); marca.id = 'marcaSinGuardar'; marca.textContent = '●';
+        marca.title = 'Hay cambios que todavía no están en ningún archivo (sí en este navegador). Guarda el JSON para tenerlos en un archivo.';
+        marca.style.cssText = 'color:#e67e22;font-size:15px;line-height:1;margin:0 2px 0 5px;display:none;cursor:help;align-self:center';
+        inp.insertAdjacentElement('afterend', marca);
+        let v = false; try { v = localStorage.getItem(clave) === '1'; } catch (e) {}
+        poner(v);
+        setTimeout(() => { listo = true; }, 1500);           // la carga inicial no cuenta como cambio
+    }
+    return { iniciar, cambio: () => { if (listo) poner(true); }, guardado: () => poner(false) };
+})();
+
 function campoDeReal(valorReal) { return valorReal * ESCALA_VIRTUAL; }
 // Lo que hay escrito en un campo de Z o radio de herramienta -> mm reales.
 function realDeCampo(valorCampo) { return valorCampo / ESCALA_VIRTUAL; }
@@ -1765,6 +1941,23 @@ let vb = { x:0, y:0, w:ANCHO, h:ALTO };
 let ultimoGcode = '';
 
 // ════════════════════════════════════════════════
+// Herramienta de la base: rellena los dos paneles (los campos de radio y Z van en la escala ×10 del dibujo)
+function aplicarHerramientaGen(h) {
+    const poner = (id, v) => { const el = document.getElementById(id); if (!el) return; el.value = v; el.dispatchEvent(new Event('input', { bubbles:true })); el.dispatchEvent(new Event('change', { bubbles:true })); };
+    ['A', ''].forEach(suf => {
+        poner('gcTool' + suf, h.T); poner('gcToolR' + suf, +campoDeReal(h.d / 2).toFixed(3)); poner('gcFeed' + suf, h.F);
+        poner('gcSpindle' + suf, h.S); if (h.paso > 0) poner('gcZstep' + suf, +campoDeReal(h.paso).toFixed(3));
+        HB.marcar(document.getElementById('hbSel' + suf), h.id);
+    });
+    snack(`Herramienta ${HB.etiqueta(h)}: Ø${h.d} mm, F${h.F}, S${h.S}, pasadas de ${h.paso} mm`);
+}
+window.addEventListener('DOMContentLoaded', () => {
+    SG.iniciar('generador_sinGuardar');
+    HB.montarSelector(document.getElementById('hbSelA'), aplicarHerramientaGen);
+    HB.montarSelector(document.getElementById('hbSel'), aplicarHerramientaGen);
+    // si se cambia a mano el radio, la herramienta deja de ser la de la base
+    ['gcToolRA', 'gcToolR'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', e => { if (e.isTrusted) { HB.marcar(document.getElementById('hbSelA'), ''); HB.marcar(document.getElementById('hbSel'), ''); } }); });
+});
 window.addEventListener('DOMContentLoaded', () => {
     inicializarFondo();
     generarDibujo();
@@ -4291,7 +4484,7 @@ function generarGcodeAuto() {
         ['gcCoordModeA','gcCoordMode'], ['gcCompA','gcComp'], ['gcStrategyA','gcStrategy'],
         ['gcUnitsA','gcUnits'], ['gcToolA','gcTool'],
         ['gcZsafeA','gcZsafe'], ['gcZtotalA','gcZtotal'],
-        ['gcZstepA','gcZstep'], ['gcToolRA','gcToolR'], ['gcSpindleA','gcSpindle'],
+        ['gcZstepA','gcZstep'], ['gcToolRA','gcToolR'], ['gcSpindleA','gcSpindle'], ['gcAcabA','gcAcab'],
     ];
     map.forEach(([src, dst]) => {
         const s = document.getElementById(src);
@@ -4302,12 +4495,66 @@ function generarGcodeAuto() {
 }
 
 
-// Formatea un número para el G-code: máximo 2 decimales, y sin ningún
-// decimal en absoluto si el valor es entero (10 en vez de 10.00, 7.5 en
-// vez de 7.50). Convertir el string de toFixed(2) de vuelta a Number
+// Formatea un número para el G-code: máximo 3 decimales (0,001 mm), y sin ningún
+// decimal en absoluto si el valor es entero (10 en vez de 10.000, 7.5 en
+// vez de 7.500). Convertir el string de toFixed(3) de vuelta a Number
 // elimina los ceros sobrantes (y el punto decimal si no queda nada tras él).
 function fmtNum(n) {
-    return (+n.toFixed(2)).toString();
+    const t = (+n.toFixed(3)).toString();
+    return t === '-0' ? '0' : t;
+}
+
+// Recorrido desplazado «s» a un lado (izq = a la izquierda del avance): rectas paralelas, arcos concéntricos;
+// en las esquinas que quedan por fuera se añade un arco de radio s y en las de dentro se recorta en el cruce.
+// null si no se puede (un arco más pequeño que el desplazamiento).
+function offsetRecorrido(segs, s, izq) {
+    const sg0 = segs.filter(g => !g.nulo); if (!sg0.length) return null;
+    const lado = izq ? 1 : -1;
+    const tgIni = g => g.recta ? { x:(g.p2.x - g.p1.x) / (g.L || 1), y:(g.p2.y - g.p1.y) / (g.L || 1) } : { x:-Math.sin(g.a1) * g.dir, y:Math.cos(g.a1) * g.dir };
+    const tgFin = g => { if (g.recta) return tgIni(g); const a = g.a1 + g.dir * g.L / g.r; return { x:-Math.sin(a) * g.dir, y:Math.cos(a) * g.dir }; };
+    const off = [];
+    for (const g of sg0) {
+        if (g.recta) { const t = tgIni(g), n = { x:-t.y * lado * s, y:t.x * lado * s }; off.push({ recta:true, p1:{ x:g.p1.x + n.x, y:g.p1.y + n.y }, p2:{ x:g.p2.x + n.x, y:g.p2.y + n.y }, L:g.L, V1:g.p1, V2:g.p2 }); continue; }
+        const r2 = g.r - lado * g.dir * s; if (r2 < 0.01) return null;
+        const k = r2 / g.r, a2 = g.a1 + g.dir * g.L / g.r;
+        off.push({ recta:false, c:g.c, r:r2, dir:g.dir, a1:g.a1, L:r2 * g.L / g.r, g:g.g, p1:{ x:g.c.x + (g.p1.x - g.c.x) * k, y:g.c.y + (g.p1.y - g.c.y) * k }, p2:{ x:g.c.x + r2 * Math.cos(a2), y:g.c.y + r2 * Math.sin(a2) }, V1:g.p1, V2:g.p2 });
+    }
+    const angDir = (a, b, dir) => { let d = (b - a) * dir; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI); return d; };
+    const fijarFin = (g, X) => { if (!g.recta) g.L = g.r * angDir(g.a1, Math.atan2(X.y - g.c.y, X.x - g.c.x), g.dir); else g.L = Math.hypot(X.x - g.p1.x, X.y - g.p1.y); g.p2 = { ...X }; };
+    const fijarIni = (g, X) => { if (!g.recta) { const fin = g.a1 + g.dir * g.L / g.r, a = Math.atan2(X.y - g.c.y, X.x - g.c.x); g.a1 = a; g.L = g.r * angDir(a, fin, g.dir); } else g.L = Math.hypot(g.p2.x - X.x, g.p2.y - X.y); g.p1 = { ...X }; };
+    const cruce = (A, B, V) => {
+        const cand = [];
+        if (A.recta && B.recta) { const d1 = tgIni(A), d2 = tgIni(B), den = d1.x * d2.y - d1.y * d2.x; if (Math.abs(den) < 1e-12) return null; const w = { x:B.p1.x - A.p1.x, y:B.p1.y - A.p1.y }, t = (w.x * d2.y - w.y * d2.x) / den; cand.push({ x:A.p1.x + d1.x * t, y:A.p1.y + d1.y * t }); }
+        else if (A.recta || B.recta) { const L = A.recta ? A : B, C = A.recta ? B : A, d = tgIni(L), w = { x:L.p1.x - C.c.x, y:L.p1.y - C.c.y }, bb = w.x * d.x + w.y * d.y, cc = w.x * w.x + w.y * w.y - C.r * C.r, D = bb * bb - cc; if (D < 0) return null; [-bb - Math.sqrt(D), -bb + Math.sqrt(D)].forEach(t => cand.push({ x:L.p1.x + d.x * t, y:L.p1.y + d.y * t })); }
+        else { const d = Math.hypot(B.c.x - A.c.x, B.c.y - A.c.y); if (d < 1e-12 || d > A.r + B.r || d < Math.abs(A.r - B.r)) return null; const a = (A.r * A.r - B.r * B.r + d * d) / (2 * d), h = Math.sqrt(Math.max(0, A.r * A.r - a * a)), u = { x:(B.c.x - A.c.x) / d, y:(B.c.y - A.c.y) / d }, m = { x:A.c.x + u.x * a, y:A.c.y + u.y * a }; cand.push({ x:m.x - u.y * h, y:m.y + u.x * h }, { x:m.x + u.y * h, y:m.y - u.x * h }); }
+        let X = null, md = Infinity; cand.forEach(q => { const dd = Math.hypot(q.x - V.x, q.y - V.y); if (dd < md) { md = dd; X = q; } });
+        return X && md < 4 * s + 1e-6 ? X : null;
+    };
+    const out = [];
+    const n = off.length, cerrado = Math.hypot(sg0[n - 1].p2.x - sg0[0].p1.x, sg0[n - 1].p2.y - sg0[0].p1.y) < 1e-6;
+    // esquinas: recorte (por dentro) o arco de radio s (por fuera)
+    const esquina = (A, B, V, k) => {
+        if (Math.hypot(A.p2.x - B.p1.x, A.p2.y - B.p1.y) < 1e-6) return null;
+        const t1 = tgFin(A), t2 = tgIni(B), giro = t1.x * t2.y - t1.y * t2.x;
+        if (giro * lado > 0) { const X = cruce(A, B, V); if (X) { fijarFin(A, X); fijarIni(B, X); } else imposible = true; return null; }
+        const a1 = Math.atan2(A.p2.y - V.y, A.p2.x - V.x), a2 = Math.atan2(B.p1.y - V.y, B.p1.x - V.x);
+        let sw = a2 - a1; while (sw > Math.PI) sw -= 2 * Math.PI; while (sw < -Math.PI) sw += 2 * Math.PI;
+        const dir = sw >= 0 ? 1 : -1;
+        return { recta:false, c:V, r:s, dir, a1, L:s * Math.abs(sw), g: dir > 0 ? 'G3' : 'G2', p1:{ ...A.p2 }, p2:{ ...B.p1 }, esquina:true };
+    };
+    let imposible = false;           // una esquina interior cuyos caminos no se cruzan: el trazado es demasiado estrecho
+    const arcosEsq = [];
+    for (let k = 0; k + 1 < n; k++) arcosEsq[k] = esquina(off[k], off[k + 1], off[k].V2);
+    let arcoCierre = cerrado ? esquina(off[n - 1], off[0], off[0].V1) : null;
+    for (let k = 0; k < n; k++) { out.push(off[k]); if (arcosEsq[k]) out.push(arcosEsq[k]); }
+    if (arcoCierre) out.push(arcoCierre);
+    if (imposible || out.some(g => !(g.L > -1e-9) || !isFinite(g.L))) return null;
+    const res = out.filter(g => g.L > 1e-6);
+    // comprobación final: cada tramo empieza donde acaba el anterior y el recorrido se cierra
+    for (let k = 0; k + 1 < res.length; k++) if (Math.hypot(res[k].p2.x - res[k + 1].p1.x, res[k].p2.y - res[k + 1].p1.y) > 1e-4) return null;
+    if (cerrado && res.length && Math.hypot(res[res.length - 1].p2.x - res[0].p1.x, res[res.length - 1].p2.y - res[0].p1.y) > 1e-4) return null;
+    for (const g of res) if (!g.recta) { const d1 = Math.hypot(g.p1.x - g.c.x, g.p1.y - g.c.y), d2 = Math.hypot(g.p2.x - g.c.x, g.p2.y - g.c.y); if (Math.abs(d1 - g.r) > 1e-4 || Math.abs(d2 - g.r) > 1e-4) return null; }
+    return res;
 }
 
 function generarGcode() {
@@ -4319,7 +4566,7 @@ function generarGcode() {
     // con sanearlo (no hace falta abortar como con Z, ver más abajo).
     const feed      = Math.max(1, Math.abs(parseFloat(document.getElementById('gcFeed').value)    || 300));
     const feedPos   = Math.max(1, Math.abs(parseFloat(document.getElementById('gcFeedPos').value) || 1200));
-    const toolNum   = Math.min(999, Math.max(1, parseInt(document.getElementById('gcTool').value) || 1));
+    const toolNum   = Math.min(999, Math.max(1, parseInt(document.getElementById('gcTool').value) || 101));
     const toolStr   = String(toolNum).padStart(3, '0');
     const toolR     = Math.max(0, realDeCampo(parseFloat(document.getElementById('gcToolR').value) || 0));
     const spindle   = Math.max(1, Math.abs(parseInt(document.getElementById('gcSpindle').value) || 10000));
@@ -4633,6 +4880,47 @@ function generarGcode() {
             if (centros.length) nc += `; Puentes: ${centros.length} de ${fmtNum(pz.ancho)} de ancho en la pieza (la fresa se levanta ${fmtNum(w)}), hasta Z${fmtNum(zTab)}, en las pasadas más profundas${pz.pts && pz.pts.length ? ' · situados en el Calcador' : ''}\n`;
         }
 
+        // ── Desbaste + acabado: las pasadas dejan un sobreespesor y una pasada final recorre el contorno exacto ──
+        const sobre = (!grabar && !abierto) ? Math.max(0, realDeCampo(parseFloat((document.getElementById('gcAcab') || {}).value) || 0)) : 0;
+        let segR = null;
+        if (sobre > 0) {
+            if (tabs.length) nc += `; ⚠ Desbaste y acabado: no se aplica a un trazado con puentes (se corta como siempre)\n`;
+            else {
+                // lado de la zona que sobra: fuera de los exteriores, dentro de los interiores
+                const poli = []; segM.forEach(sg => { poli.push(sg.p1); if (!sg.recta) { const am = sg.a1 + sg.dir * sg.L / sg.r / 2; poli.push({ x:sg.c.x + sg.r * Math.cos(am), y:sg.c.y + sg.r * Math.sin(am) }); } });
+                let area = 0; poli.forEach((q, i) => { const r2 = poli[(i + 1) % poli.length]; area += q.x * r2.y - r2.x * q.y; });
+                const ccw = area > 0, izq = t.tipo === 'interior' ? ccw : !ccw;
+                segR = offsetRecorrido(segM, sobre, izq);
+                if (!segR) nc += `; ⚠ No se puede dejar ${fmtNum(sobre)} mm de sobreespesor en este trazado (es demasiado estrecho o tiene un arco más pequeño): se corta sin pasada de acabado\n`;
+                else nc += `; Desbaste dejando ${fmtNum(sobre)} mm de sobreespesor (${t.tipo === 'interior' ? 'hacia dentro' : 'hacia fuera'}) y acabado final por el contorno\n`;
+            }
+        }
+        const escribirRecorrido = (lista) => {
+            lista.forEach(sg => {
+                const q = sg.p2;
+                if (sg.recta || Math.hypot(q.x - cur.x, q.y - cur.y) < 0.002) nc += `G1 ${fmtXY(q.x, q.y)} F${feed}\n`;
+                else nc += `${sg.g} ${fmtXY(q.x, q.y)} I${fmtNum(sg.c.x - cur.x)} J${fmtNum(sg.c.y - cur.y)} F${feed}\n`;
+                moveCur(q.x, q.y);
+            });
+        };
+        if (segR) {
+            const ini = segR[0].p1;
+            zDepthsT.forEach((zPass, passIdx) => {
+                nc += `; ── Desbaste ${passIdx + 1} / ${zDepthsT.length}  (Z=${fmtNum(zPass)}, sobreespesor ${fmtNum(sobre)}) ──\n`;
+                nc += `G0 ${fmtXY(ini.x, ini.y)} F${feedPos}   ; inicio del desbaste\n`; moveCur(ini.x, ini.y);
+                nc += `G1 ${fmtZ(0)} F${feed}       ; bajar a Z0\n`; moveCur(undefined, undefined, 0);
+                nc += `G1 ${fmtZ(zPass)} F${feed}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
+                escribirRecorrido(segR);
+                nc += `G0 ${fmtZ(zSafe)} F${feedPos}      ; subir a Z seguro\n`; moveCur(undefined, undefined, zSafe);
+            });
+            nc += `; ── Acabado (Z=${fmtNum(zTotalT)}): el contorno exacto ──\n`;
+            nc += `G0 ${fmtXY(xEm, yEm)} F${feedPos}   ; volver a punto entrada\n`; moveCur(xEm, yEm);
+            nc += `G1 ${fmtZ(0)} F${feed}       ; bajar a Z0\n`; moveCur(undefined, undefined, 0);
+            nc += `G1 ${fmtZ(zTotalT)} F${feed}     ; profundidad ${fmtNum(zTotalT)}\n`; moveCur(undefined, undefined, zTotalT);
+            escribirRecorrido(segM.filter(sg => !sg.nulo));
+            nc += `G0 ${fmtZ(zSafe)} F${feedPos}      ; subir a Z seguro\n`; moveCur(undefined, undefined, zSafe);
+            return;
+        }
         // ── Pasadas Z para este trazado ──
         zDepthsT.forEach((zPass, passIdx) => {
             nc += `; ── Pasada ${passIdx + 1} / ${zDepthsT.length}  (Z=${fmtNum(zPass)}) ──\n`;
@@ -4751,6 +5039,7 @@ function calcadorVigente() { return bloqueCalcador && huellaCalcador !== null &&
 function guardarJSON() {
     const json = JSON.stringify(estadoActual(), null, 2);
     descargarBlob(json, `${nombreProyecto()}.json`, 'application/json');
+    SG.guardado();
     if (bloqueCalcador && !calcadorVigente()) snack('JSON guardado · la geometría ha cambiado en el Generador: el archivo ya no conserva los datos del Calcador (textos editables, formas y cotas)', 7000);
     else snack(bloqueCalcador ? 'JSON guardado (con los datos del Calcador: se puede volver a abrir en él sin perder nada)' : 'JSON guardado');
 }
@@ -4785,8 +5074,9 @@ function cargarJSON(input) {
         try {
             const data = JSON.parse(e.target.result);
             restaurarEstado(data);
+            setTimeout(() => SG.guardado(), 0);
             snack(`Proyecto "${data.nombre || 'sin nombre'}" cargado`);
-        } catch (err) { snack('Error al leer el JSON'); }
+        } catch (err) { snack(err && /proyecto/.test(err.message || '') ? err.message : 'Error al leer el JSON: no es un archivo JSON válido'); }
         input.value = '';
     };
     reader.onerror = () => { snack('No se pudo leer el archivo'); input.value = ''; };
@@ -4905,6 +5195,7 @@ function restaurarEstadoBase(data) {
 
 // ── Auto-guardado en localStorage ──
 function guardarAutoLocalStorage() {
+    SG.cambio();
     try { localStorage.setItem('cad_estado', JSON.stringify(estadoActual())); } catch(e) {}
 }
 
@@ -9366,6 +9657,57 @@ function snack(msg) {
     sb.textContent = msg; sb.classList.add('show');
     clearTimeout(sb._t); sb._t = setTimeout(() => sb.classList.remove('show'), 2400);
 }
+
+// ── Créditos y licencias ──
+function abrirCreditos() {
+    let f = document.getElementById('credFondo');
+    if (!f) {
+        const st = document.createElement('style');
+        st.textContent = `.cred-fondo{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:9500;display:none;align-items:center;justify-content:center}.cred-fondo.visible{display:flex}
+.cred-caja{background:#fff;color:#1c2733;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:min(760px,94vw);max-height:86vh;display:flex;flex-direction:column;font:13.5px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
+.cred-cab{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #e3e8ee}.cred-cab h2{margin:0;font-size:17px;flex:1}
+.cred-x{border:none;background:#e74c3c;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}
+.cred-cuerpo{overflow:auto;padding:6px 20px 16px}.cred-cuerpo h3{font-size:14.5px;margin:16px 0 4px;color:#005A9C}.cred-cuerpo p{margin:6px 0}
+.cred-cuerpo pre{white-space:pre-wrap;font:11.5px/1.45 Consolas,monospace;background:#f4f6f8;border:1px solid #e3e8ee;border-radius:6px;padding:8px 10px}`;
+        document.head.appendChild(st);
+        f = document.createElement('div'); f.id = 'credFondo'; f.className = 'cred-fondo';
+        f.innerHTML = `<div class="cred-caja"><div class="cred-cab"><h2>ℹ Créditos y licencias</h2><button class="cred-x" onclick="cerrarCreditos()" title="Cerrar">✕</button></div><div class="cred-cuerpo">
+<h3>Generador de G-Code</h3>
+<p>Programa: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador. Forma parte de la <strong>Suite CNC 2026.10</strong> (Calcador, Corrector, Generador y Simuladores).</p>
+<p><strong>Licencia:</strong> se publica con la <strong>European Union Public Licence v. 1.2 (EUPL-1.2)</strong>: puedes usarlo, estudiarlo, modificarlo y compartirlo; si distribuyes una versión modificada, debe publicarse con la misma licencia (o una compatible) y con su código. Texto completo en el archivo <em>LICENSE</em> de la carpeta de las herramientas; los créditos de toda la suite, en <a href="licencias.html" target="_blank" rel="noopener">licencias.html</a>.</p>
+<h3>Componentes de terceros</h3>
+<p><strong>Clipper 6.4.2</strong>, para calcular el vaciado de las cajeras (desplazamiento de contornos y operaciones con islas): © 2010-2017 Angus Johnson, con licencia <strong>Boost Software License 1.0</strong>, que permite usarlo, modificarlo y redistribuirlo manteniendo este aviso:</p>
+<pre>Boost Software License - Version 1.0 - August 17th, 2003
+
+Permission is hereby granted, free of charge, to any person or organization
+obtaining a copy of the software and accompanying documentation covered by
+this license (the &quot;Software&quot;) to use, reproduce, display, distribute,
+execute, and transmit the Software, and to prepare derivative works of the
+Software, and to permit third-parties to whom the Software is furnished to
+do so, all subject to the following:
+
+The copyright notices in the Software and this entire statement, including
+the above license grant, this restriction and the following disclaimer,
+must be included in all copies of the Software, in whole or in part, and
+all derivative works of the Software, unless such copies or derivative
+works are solely in the form of machine-executable object code generated by
+a source language processor.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</pre>
+</div></div>`;
+        document.body.appendChild(f);
+        f.addEventListener('click', e => { if (e.target === f) cerrarCreditos(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && f.classList.contains('visible')) cerrarCreditos(); });
+    }
+    f.classList.add('visible');
+}
+function cerrarCreditos() { const f = document.getElementById('credFondo'); if (f) f.classList.remove('visible'); }
 </script>
 </body>
 </html>

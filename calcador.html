@@ -398,7 +398,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v64</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v70</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -636,6 +636,7 @@
 
                 <div class="section-label">Fresa</div>
                 <div class="params-box">
+                    <div class="param-line">Herramienta <span style="display:flex;gap:4px;align-items:center"><select id="hbSel" style="max-width:150px" title="Elige una fresa de la base de herramientas (la misma del Generador y los Simuladores)"></select><button type="button" onclick="HB.abrir(aplicarHerramientaCalc)" title="Base de herramientas: añadir, editar, exportar…" style="border:1px solid var(--border-color);background:transparent;border-radius:6px;padding:2px 6px;cursor:pointer">🧰</button></span></div>
                     <div class="param-line">Diámetro de fresa (mm) <input type="number" id="fresaD" step="0.5" min="0.1" value="6"></div>
                     <div class="param-line"><span>Comprobar mecanizado</span>
                         <label class="toggle"><input type="checkbox" id="chkFresa"><span class="toggle-slider"></span></label></div>
@@ -654,6 +655,7 @@
                     <div class="param-line"><span title="Solo DXF y SVG. Desmarcado, el DXF usa el cero pieza del plano como origen. El JSON siempre envía el cero pieza al Generador.">DXF: esquina de la pieza en 0,0</span><input type="checkbox" id="chkOrigen"></div>
                     <button class="btn-action" onclick="exportarJSON()">💾 Guardar para el Generador (.json)</button>
                     <button class="btn-action sec" onclick="abrirEnGenerador()" title="Abre el Generador en otra pestaña con este proyecto, sin guardar ni buscar archivos. «⬅ Calcador» lo devuelve">➜ Abrir en el Generador</button>
+                    <button class="btn-action sec" onclick="abrirEnSimulador()" title="Abre el Simulador del profesor con el plano de este ejercicio y el programa de su solución (el de la tabla, con las alturas), para verla mecanizada en 3D o en 2D">➜ Abrir en el Simulador</button>
                     <button class="btn-action sec" onclick="abrirVariantes()" title="Varias versiones del ejercicio (simetrías, giro, otro cero pieza…) con la misma dificultad y distinta solución, para exámenes">🎲 Variantes para examen…</button>
                     <div class="param-line">DXF
                         <select id="selDxf">
@@ -751,7 +753,7 @@
         <div class="help-header"><h2>ℹ Créditos y licencias</h2><button class="help-close" onclick="cerrarCreditos()">✕</button></div>
         <div class="cred-cuerpo">
 <h3>Calcador de contornos</h3>
-<p>Programa y manual: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador.</p>
+<p>Programa y manual: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador. Forma parte de la <strong>Suite CNC 2026.10</strong> (Calcador, Corrector, Generador y Simuladores).</p>
 <p><strong>Licencia:</strong> el programa se publica con la <strong>European Union Public Licence v. 1.2 (EUPL-1.2)</strong> y su manual con <strong>Creative Commons Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</strong>: puedes usarlos, estudiarlos, modificarlos y compartirlos; si distribuyes una versión modificada, debe publicarse con la misma licencia (o una compatible) y con su código. Textos completos en los archivos <em>LICENSE</em> y <em>LICENCIA-MANUAL.txt</em> de la carpeta de las herramientas.</p>
 
 <h3>Fuentes de una línea incluidas</h3>
@@ -1263,6 +1265,176 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
 <script>
 // Modo visor: el Corrector es este mismo programa con data-visor="1" (sin edición)
 const VISOR = document.documentElement.dataset.visor === '1';
+// ── Aviso de cambios sin guardar en archivo: un punto junto al nombre del proyecto.
+//    (Lo que haces se guarda solo en este navegador; el punto indica que el archivo JSON no está al día.)
+const SG = (() => {
+    let clave = null, marca = null, listo = false;
+    function poner(v) { if (!marca) return; marca.style.display = v ? 'inline' : 'none'; try { localStorage.setItem(clave, v ? '1' : '0'); } catch (e) {} }
+    function iniciar(k) {
+        clave = k; const inp = document.getElementById('projectName'); if (!inp || marca) return;
+        marca = document.createElement('span'); marca.id = 'marcaSinGuardar'; marca.textContent = '●';
+        marca.title = 'Hay cambios que todavía no están en ningún archivo (sí en este navegador). Guarda el JSON para tenerlos en un archivo.';
+        marca.style.cssText = 'color:#e67e22;font-size:15px;line-height:1;margin:0 2px 0 5px;display:none;cursor:help;align-self:center';
+        inp.insertAdjacentElement('afterend', marca);
+        let v = false; try { v = localStorage.getItem(clave) === '1'; } catch (e) {}
+        poner(v);
+        setTimeout(() => { listo = true; }, 1500);           // la carga inicial no cuenta como cambio
+    }
+    return { iniciar, cambio: () => { if (listo) poner(true); }, guardado: () => poner(false) };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+//  BASE DE HERRAMIENTAS compartida por la suite (Calcador, Corrector,
+//  Generador y Simuladores). Se guarda en el navegador y se puede
+//  exportar e importar para pasarla a otro ordenador o a los alumnos.
+// ════════════════════════════════════════════════════════════════════
+const HB = (() => {
+    const CLAVE = 'suiteCNC:herramientas', TIPOS = { plana:'Plana', bola:'Bola', v:'En V' };
+    const selectores = [];
+    const porDefecto = () => [
+        { id:'h1', T:101, nombre:'Fresa plana Ø6', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 },
+        { id:'h2', T:102, nombre:'Fresa plana Ø3', tipo:'plana', d:3, angulo:90, F:800, Fz:200, S:16000, paso:1.5 },
+        { id:'h3', T:103, nombre:'Fresa en V 90°', tipo:'v', d:6, angulo:90, F:600, Fz:200, S:16000, paso:1 } ];
+    const T_MIN = 101, T_MAX = 999;          // números de herramienta de tres cifras, como en TpaCAD
+    // T de una o dos cifras (bases antiguas): se le suma 100 (T1 → T101)
+    const normT = t => { t = Math.round(t); if (t >= 1 && t < 100) t += 100; return Math.max(T_MIN, Math.min(T_MAX, t)); };
+    const num = (v, def, min) => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? (min !== undefined ? Math.max(min, n) : n) : def; };
+    function sanear(h) {
+        if (!h || typeof h !== 'object') return null;
+        return { id: String(h.id || ('h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6))),
+            T: normT(num(h.T, T_MIN, 1)), nombre: String(h.nombre || 'Herramienta').slice(0, 60),
+            tipo: TIPOS[h.tipo] ? h.tipo : 'plana', d: num(h.d, 6, 0.1), angulo: Math.max(10, Math.min(170, num(h.angulo, 90))),
+            F: num(h.F, 1000, 1), Fz: num(h.Fz, 300, 1), S: Math.round(num(h.S, 12000, 0)), paso: num(h.paso, 3, 0.05) };
+    }
+    function leer() {
+        try { const d = JSON.parse(localStorage.getItem(CLAVE) || 'null'); if (d && Array.isArray(d.herramientas)) return d.herramientas.map(sanear).filter(Boolean); } catch (e) {}
+        return porDefecto();
+    }
+    function guardar(lista) {
+        try { localStorage.setItem(CLAVE, JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas:lista })); } catch (e) {}
+        selectores.forEach(s => s.refrescar());
+    }
+    const etiqueta = h => `T${h.T} · ${h.nombre}`;
+    const porT = T => leer().find(h => h.T === +T) || null;
+    const siguienteT = l => Math.min(T_MAX, l.length ? Math.max(T_MIN - 1, ...l.map(x => x.T)) + 1 : T_MIN);
+    const porId = id => leer().find(h => h.id === id) || null;
+    // Desplegable «Herramienta de la base»: al elegir una, el programa la aplica
+    function montarSelector(sel, aplicar) {
+        if (!sel) return;
+        const s = { sel, aplicar, refrescar() {
+            const lista = leer(), v = sel.value;
+            sel.innerHTML = '<option value="">— a mano —</option>' + lista.map(h => `<option value="${h.id}">${etiqueta(h).replace(/</g, '&lt;')} · Ø${+h.d.toFixed(3)}</option>`).join('');
+            if ([...sel.options].some(o => o.value === v)) sel.value = v;
+        } };
+        sel.addEventListener('change', () => { const h = porId(sel.value); if (h) aplicar(h); });
+        s.refrescar(); selectores.push(s);
+    }
+    function marcar(sel, id) { if (sel && [...sel.options].some(o => o.value === id)) sel.value = id; else if (sel) sel.value = ''; }
+    window.addEventListener('storage', e => { if (e.key === CLAVE) selectores.forEach(s => s.refrescar()); });
+    // ── Ventana de gestión ──
+    let aplicarActual = null;
+    function estilos() {
+        if (document.getElementById('hbEstilos')) return;
+        const st = document.createElement('style'); st.id = 'hbEstilos';
+        st.textContent = `.hb-fondo{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:9000;display:none;align-items:center;justify-content:center}
+.hb-fondo.visible{display:flex}.hb-caja{background:#fff;color:#1c2733;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:min(1080px,96vw);max-height:88vh;display:flex;flex-direction:column;font:13px system-ui,-apple-system,'Segoe UI',sans-serif}
+.hb-cab{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #e3e8ee}.hb-cab h2{margin:0;font-size:17px;flex:1}
+.hb-cuerpo{overflow:auto;padding:10px 18px}.hb-pie{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid #e3e8ee;align-items:center}
+.hb-tabla{border-collapse:collapse;width:100%}.hb-tabla th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5d6d7e;text-align:left;padding:6px 4px;border-bottom:1px solid #e3e8ee;white-space:nowrap}
+.hb-tabla td{padding:4px;border-bottom:1px solid #f0f2f5}.hb-tabla input,.hb-tabla select{width:100%;box-sizing:border-box;padding:4px 5px;border:1px solid #cfd6de;border-radius:5px;font:inherit;background:#fff;color:inherit}
+.hb-tabla input.hb-dup{border-color:#d84343;background:#fdecec}.hb-tabla input:disabled{opacity:.35;background:#f0f2f5}.hb-b{border:1px solid #cfd6de;background:#fff;color:#1c2733;border-radius:7px;padding:6px 11px;cursor:pointer;font:inherit}
+.hb-b:hover{background:#f0f4f8}.hb-b.hb-p{background:#005A9C;border-color:#005A9C;color:#fff}.hb-b.hb-p:hover{background:#004a80}.hb-nota{font-size:11.5px;color:#5d6d7e;margin:8px 0 0}
+.hb-x{border:none;background:#e74c3c;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}`;
+        document.head.appendChild(st);
+    }
+    function caja() {
+        let f = document.getElementById('hbFondo'); if (f) return f;
+        estilos();
+        f = document.createElement('div'); f.id = 'hbFondo'; f.className = 'hb-fondo';
+        f.innerHTML = `<div class="hb-caja"><div class="hb-cab"><h2>🧰 Base de herramientas</h2><button class="hb-x" onclick="HB.cerrar()" title="Cerrar">✕</button></div>
+<div class="hb-cuerpo"><table class="hb-tabla"><thead><tr><th style="width:56px">T</th><th>Nombre</th><th style="width:96px">Tipo</th><th style="width:66px">Ø (mm)</th><th style="width:62px">V (°)</th><th style="width:76px">F corte</th><th style="width:76px">F bajada</th><th style="width:82px">S (rpm)</th><th style="width:72px">Pasada (mm)</th><th style="width:110px"></th></tr></thead><tbody id="hbFilas"></tbody></table>
+<p class="hb-nota">Una sola lista para el Calcador, el Corrector, el Generador y los Simuladores de este navegador. <b>T</b> es el número de herramienta de la máquina, de tres cifras como en TpaCAD (de T101 a T999): si un programa usa <code>T102</code>, el Simulador toma de aquí su diámetro y su tipo. «F corte» y «F bajada» en mm/min; «Pasada», la profundidad máxima por pasada. Los cambios se guardan al momento.</p></div>
+<div class="hb-pie"><button class="hb-b hb-p" onclick="HB.anadir()">＋ Añadir herramienta</button><button class="hb-b" onclick="HB.exportar()" title="Guarda la lista en un archivo JSON para pasarla a otro ordenador o a los alumnos">⬇ Exportar JSON</button><button class="hb-b" onclick="HB.exportarCSV()" title="Guarda la lista como hoja de cálculo (CSV con punto y coma, se abre en Excel o LibreOffice)">⬇ Exportar CSV</button><button class="hb-b" onclick="document.getElementById('hbArchivo').click()" title="Carga una lista en JSON o CSV (sustituye la actual)">📥 Importar JSON o CSV</button><input type="file" id="hbArchivo" accept=".json,.csv,.txt" style="display:none"><span style="flex:1"></span><button class="hb-b" onclick="HB.restaurar()" title="Vuelve a las tres herramientas de ejemplo">Restaurar ejemplo</button></div></div>`;
+        document.body.appendChild(f);
+        f.addEventListener('click', e => { if (e.target === f) cerrar(); });
+        f.querySelector('#hbArchivo').addEventListener('change', e => { const a = e.target.files[0]; e.target.value = ''; if (a) importar(a); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && f.classList.contains('visible')) { e.stopPropagation(); cerrar(); } }, true);
+        return f;
+    }
+    function pintar() {
+        const lista = leer(), tb = document.getElementById('hbFilas'); if (!tb) return;
+        const veces = {}; lista.forEach(h => { veces[h.T] = (veces[h.T] || 0) + 1; });
+        const e = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        tb.innerHTML = lista.map(h => `<tr data-id="${e(h.id)}">
+ <td><input type="number" min="101" max="999" step="1" data-k="T" value="${h.T}" class="${veces[h.T] > 1 ? 'hb-dup' : ''}" title="${veces[h.T] > 1 ? 'Número repetido: cada herramienta debería tener el suyo' : 'Número de herramienta (T) de la máquina'}"></td>
+<td><input data-k="nombre" value="${e(h.nombre)}"></td>
+<td><select data-k="tipo">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}"${k === h.tipo ? ' selected' : ''}>${t}</option>`).join('')}</select></td>
+<td><input type="number" min="0.1" step="0.5" data-k="d" value="${h.d}"></td>
+<td><input type="number" min="10" max="170" step="5" data-k="angulo" value="${h.angulo}" ${h.tipo === 'v' ? '' : 'disabled title="Solo en fresas en V"'}></td>
+<td><input type="number" min="1" step="50" data-k="F" value="${h.F}"></td>
+<td><input type="number" min="1" step="50" data-k="Fz" value="${h.Fz}"></td>
+<td><input type="number" min="0" step="500" data-k="S" value="${h.S}"></td>
+<td><input type="number" min="0.05" step="0.5" data-k="paso" value="${h.paso}"></td>
+<td style="white-space:nowrap">${aplicarActual ? '<button class="hb-b hb-p" data-usar="1" title="Usar esta herramienta aquí">Usar</button> ' : ''}<button class="hb-b" data-dup="1" title="Duplicar">⧉</button> <button class="hb-b" data-borrar="1" title="Borrar">🗑</button></td></tr>`).join('');
+        tb.querySelectorAll('input,select').forEach(el => el.addEventListener('change', () => {
+            const id = el.closest('tr').dataset.id, l = leer(), h = l.find(x => x.id === id); if (!h) return;
+            h[el.dataset.k] = el.dataset.k === 'nombre' || el.dataset.k === 'tipo' ? el.value : el.value;
+            l[l.indexOf(h)] = sanear(h); guardar(l); pintar();
+        }));
+        tb.querySelectorAll('[data-usar]').forEach(b => b.onclick = () => { const h = porId(b.closest('tr').dataset.id); if (h && aplicarActual) { aplicarActual(h); cerrar(); } });
+        tb.querySelectorAll('[data-dup]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h) return; const n = sanear({ ...h, id:null, T: siguienteT(l), nombre: h.nombre + ' (copia)' }); l.splice(l.indexOf(h) + 1, 0, n); guardar(l); pintar(); });
+        tb.querySelectorAll('[data-borrar]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h || !confirm(`¿Borrar «${etiqueta(h)}» de la base de herramientas?`)) return; l.splice(l.indexOf(h), 1); guardar(l); pintar(); });
+    }
+    function abrir(aplicar) { aplicarActual = aplicar || null; caja().classList.add('visible'); pintar(); }
+    function cerrar() { const f = document.getElementById('hbFondo'); if (f) f.classList.remove('visible'); }
+    function anadir() { const l = leer(); l.push(sanear({ T: siguienteT(l), nombre:'Nueva fresa', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 })); guardar(l); pintar(); }
+    function exportar() {
+        const txt = JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas: leer() }, null, 2);
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:'application/json' })); a.download = 'Herramientas_SuiteCNC.json';
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    // ── CSV: punto y coma y coma decimal (Excel en español); al importar se reconoce el separador, el decimal y las columnas por su nombre ──
+    const COLS = [['T', 'T'], ['nombre', 'Nombre'], ['tipo', 'Tipo'], ['d', 'Diámetro (mm)'], ['angulo', 'Ángulo V (°)'], ['F', 'F corte (mm/min)'], ['Fz', 'F bajada (mm/min)'], ['S', 'S (rpm)'], ['paso', 'Pasada (mm)']];
+    function exportarCSV() {
+        const campo = v => { const t = typeof v === 'number' ? String(v).replace('.', ',') : String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+        const filas = [COLS.map(c => c[1]).join(';')].concat(leer().map(h => COLS.map(([k]) => campo(k === 'tipo' ? TIPOS[h.tipo] : h[k])).join(';')));
+        descargarTexto('\ufeff' + filas.join('\r\n') + '\r\n', 'Herramientas_SuiteCNC.csv', 'text/csv');
+    }
+    function leerCSV(texto) {
+        texto = texto.replace(/^\ufeff/, '');
+        const lineas = texto.split(/\r?\n/).filter(l => l.trim());
+        if (lineas.length < 2) return null;
+        const sep = [';', '\t', ','].map(c => [c, lineas[0].split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+        const partir = l => { const out = []; let cur = '', q = false; for (let i = 0; i < l.length; i++) { const ch = l[i];
+            if (q) { if (ch === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+            else if (ch === '"') q = true; else if (ch === sep) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map(x => x.trim()); };
+        const norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+        const alias = { t:'T', herramienta:'T', numero:'T', nombre:'nombre', descripcion:'nombre', tipo:'tipo', diametro:'d', diametromm:'d', d:'d', o:'d', angulo:'angulo', angulov:'angulo', fcorte:'F', fcortemmmin:'F', avance:'F', f:'F', fbajada:'Fz', fbajadammmin:'Fz', fz:'Fz', s:'S', srpm:'S', rpm:'S', revoluciones:'S', pasada:'paso', pasadamm:'paso', paso:'paso', profundidadporpasada:'paso' };
+        const cab = partir(lineas[0]).map(c => alias[norm(c)] || alias[norm(c).replace(/\d+$/, '')] || null);
+        if (!cab.includes('d') && !cab.includes('T')) return null;
+        const tipoDe = v => { const n = norm(v); return n.startsWith('bola') ? 'bola' : (n === 'v' || n.startsWith('env') || n.startsWith('v')) ? 'v' : 'plana'; };
+        return lineas.slice(1).map(l => { const c = partir(l), h = {}; cab.forEach((k, i) => { if (!k || c[i] === undefined || c[i] === '') return; h[k] = k === 'nombre' ? c[i] : k === 'tipo' ? tipoDe(c[i]) : c[i].replace(',', '.'); }); return h; })
+            .filter(h => Object.keys(h).length).map(sanear).filter(Boolean);
+    }
+    function descargarTexto(txt, nombre, tipo) {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:tipo })); a.download = nombre;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    function importar(archivo) {
+        const r = new FileReader();
+        r.onload = () => { let d = null, l = null; const txt = String(r.result);
+            if (/^\s*[\[{]/.test(txt.replace(/^\ufeff/, ''))) { try { d = JSON.parse(txt.replace(/^\ufeff/, '')); } catch (e) {} l = d && Array.isArray(d.herramientas) ? d.herramientas.map(sanear).filter(Boolean) : null; }
+            else l = leerCSV(txt);
+            if (!l) { alert('El archivo no es una lista de herramientas válida (JSON exportado o CSV con columnas T, Nombre, Tipo, Diámetro…)'); return; }
+            if (!l || !l.length) { alert('El archivo no contiene herramientas'); return; }
+            if (!confirm(`¿Sustituir la base actual por las ${l.length} herramientas del archivo?`)) return;
+            guardar(l); pintar(); };
+        r.readAsText(archivo);
+    }
+    function restaurar() { if (confirm('¿Volver a las tres herramientas de ejemplo (T101, T102 y T103)? Se perderá la lista actual.')) { guardar(porDefecto()); pintar(); } }
+    return { leer, guardar, montarSelector, marcar, abrir, cerrar, anadir, exportar, exportarCSV, leerCSV, restaurar, porT, porId, etiqueta, TIPOS };
+})();
+
 
 /* opentype.js 2.0.0 — lector de fuentes TTF/OTF · https://github.com/opentypejs/opentype.js
 The MIT License (MIT)
@@ -1614,7 +1786,7 @@ let snapCfg = { puntos:true, fondo:true, cerca:true, inter:true, tanperp:true, r
 let aux = [];
 let auxPend = null;
 let cfgAux = { modo:'2p', ang:0, dist:10, radio:0 };
-let cfgFresa = { ver:false, d:6 };
+let cfgFresa = { ver:false, d:6, herr:null };   // herr: la herramienta de la base elegida (si la hay)
 let fresaRes = null;
 let cfgCotas = { ver:false, nivel:'todo', incl:'proy', cero:true, entrada:true, sentido:true, centros:true, cadena:true, verOcultas:false };
 let cotasAjuste = {};   // clave de cota → { oculta, dn, dt, v } (posición manual u ocultación)
@@ -4877,6 +5049,7 @@ function rehacer() { if (!redoStack.length) { snack('Nada que rehacer'); return;
 let tAuto = null;
 function guardarAutoPronto() { clearTimeout(tAuto); tAuto = setTimeout(guardarAuto, 500); }
 function guardarAuto() {
+    SG.cambio();
     clearTimeout(tAuto);
     const base = { v:1, nombre: document.getElementById('projectName').value, contornos, aux, cotasAjuste, cfgAux, cfgFresa, cfgTr, cfgVec, cfgFormas, cfgEqui, cotasManuales, cfgCotaMan, cfgHoja, cfgCorr, cfgAjuste, cfgExport, cfgTexto, escalaJSON: document.getElementById('selEscala').value, tbProg: document.getElementById('tbProg').value, view, snapCfg, cfgCotas, modoOscuro, colorAcento,
                    fondo: fondo ? { tipo:fondo.tipo, nombre:fondo.nombre, s:fondo.s, rot:fondo.rot, tx:fondo.tx, ty:fondo.ty, opac:fondo.opac, inv:fondo.inv, txt:fondo.txt, bloq:!!fondo.bloq, soloLineas:!!fondo.soloLineas } : null };
@@ -4991,6 +5164,7 @@ function cargarAutoInterno() {
     return true;
 }
 function nuevo() {
+    setTimeout(() => SG.guardado(), 0);
     if (contornos.length && !confirm('¿Empezar de cero? Se borran los contornos y el fondo (puedes deshacer).')) return;
     guardarUndo();
     contornos = []; aux = []; auxPend = null; fondo = null; sel = -1; selSet = new Set(); cotasAjuste = {}; cotasManuales = []; dib = null; circ = null; ran = null;
@@ -5087,6 +5261,7 @@ function exportarJSON(soloDatos) {
     };
     if (soloDatos) return datos;
     descargar(JSON.stringify(datos, null, 2), nombreProyecto() + '.json', 'application/json');
+    SG.guardado();
     snack(`JSON guardado: ${lista.length + abiertosG.length} contorno(s) con su cero pieza, entradas, sentido y mecanizado` + (abiertosG.length ? ` (${abiertosG.length} trazo(s) abierto(s) como grabado)` : '') + ' — ábrelo con el Generador v71 o posterior');
 }
 function exportarDXF() {
@@ -5227,6 +5402,7 @@ function sincronizarDesdeGenerador(d) {
     if (nMec || nEnt) setTimeout(() => snack(`Cambios traídos del Generador: ${nMec ? nMec + ' mecanizado(s)' : ''}${nMec && nEnt ? ' y ' : ''}${nEnt ? nEnt + ' punto(s) de entrada' : ''}`), 400);
 }
 function abrirJSONDatos(d) {
+    setTimeout(() => SG.guardado(), 0);      // recién abierto de un archivo o de la biblioteca: el archivo está al día
     {
         let nuevos = null;
         if (esObj(d.calcador) && Array.isArray(d.calcador.contornos)) nuevos = sanearContornos(d.calcador.contornos);
@@ -5648,7 +5824,16 @@ function dibujarFresa() {
     ctx.restore();
 }
 document.getElementById('chkFresa').addEventListener('change', e => { cfgFresa.ver = e.target.checked; programarFresa(); render(); guardarAuto(); });
-document.getElementById('fresaD').addEventListener('input', e => { const v = numES(e.target.value); if (v > 0) { cfgFresa.d = v; programarFresa(); guardarAutoPronto(); } });
+document.getElementById('fresaD').addEventListener('input', e => { const v = numES(e.target.value); if (v > 0) { cfgFresa.d = v; cfgFresa.herr = null; HB.marcar(document.getElementById('hbSel'), ''); programarFresa(); guardarAutoPronto(); } });
+// Herramienta de la base: su diámetro y su nombre (para la hoja del alumno)
+function aplicarHerramientaCalc(h) {
+    cfgFresa.d = h.d; cfgFresa.herr = { id:h.id, T:h.T, nombre:h.nombre, tipo:h.tipo, angulo:h.angulo };
+    document.getElementById('fresaD').value = h.d; cfgHoja.herramienta = `T${h.T} · ${h.nombre}`;
+    HB.marcar(document.getElementById('hbSel'), h.id);
+    programarFresa(); refrescar(); guardarAutoPronto();
+    snack(`Herramienta ${HB.etiqueta(h)}: Ø${h.d} mm (también en la hoja del alumno)`);
+}
+HB.montarSelector(document.getElementById('hbSel'), aplicarHerramientaCalc);
 
 // ════════════════════════════════════════════════
 //  TABLA DE COORDENADAS
@@ -7882,6 +8067,7 @@ let corr = null; // último resultado { segs, hallazgos, ... }
 // ── Intérprete ISO (Fanuc estándar, plano XY) ──
 function interpretarISO(texto) {
     const segs = [], notas = [], ignorados = new Map(), movZ = [];
+    const comaDecimal = [];
     let orden = 0;                 // orden de cada movimiento (para la simulación)
     const est = { mov:null, abs:true, polar:false, pulg:false, plano:17, comp:40, compPend:null, compRun:0 };
     let pos = { x:0, y:0 }, z = null, hayZ = /(^|[^A-Z(])Z\s*[-+.\d]/i.test(texto.replace(/\([^)]*\)/g, '').replace(/;.*$/gm, ''));
@@ -7891,6 +8077,8 @@ function interpretarISO(texto) {
     const ignorar = (cod, linea, n) => { if (!ignorados.has(cod)) ignorados.set(cod, []); ignorados.get(cod).push(n || ('línea ' + (linea + 1))); };
     lineas.forEach((original, li) => {
         let t = original.replace(/\([^)]*\)/g, ' ').replace(/;.*$/, ' ').toUpperCase();
+        // coma decimal (X10,5): el control no la acepta; se lee como punto y se avisa (como en el Simulador)
+        if (/\d,\d/.test(t)) { comaDecimal.push(li); t = t.replace(/(\d),(\d)/g, '$1.$2'); }
         if (/^\s*[%O]/.test(t) && !/[GXYZ]/.test(t.replace(/^\s*O\d+/, ''))) return; // % o número de programa
         const palabras = [...t.matchAll(/([A-Z])\s*([+-]?(?:\d+\.?\d*|\.\d+))/g)].map(m => ({ l:m[1], v:parseFloat(m[2]), s:m[2] }));
         if (!palabras.length) return;
@@ -7985,14 +8173,26 @@ function interpretarISO(texto) {
         pos = p1; z = z1;
     });
     ignorados.forEach((donde, cod) => nota('aviso', null, `${cod} no se interpreta (${donde.slice(0, 4).join(', ')}${donde.length > 4 ? '…' : ''}); si define parte del recorrido, esa parte no se ha comparado.`));
+    if (comaDecimal.length) nota('aviso', comaDecimal[0], `Coma decimal en ${comaDecimal.length === 1 ? 'la línea ' + (comaDecimal[0] + 1) : comaDecimal.length + ' líneas (la primera, la ' + (comaDecimal[0] + 1) + ')'} (por ejemplo «X10,5»): el control no la acepta, hay que escribir punto (X10.5). Se ha leído como punto.`);
+    notas.forEach(n => { if (typeof n.seg === 'number') n.seg = segs[n.seg]; });      // el «seg» de un aviso es el tramo, no su posición
     return { segs, notas, hayZ, lineas, movZ, compFinal:est.comp };
 }
+// (como mucho 4000 muestras por tramo: un tramo de kilómetros —un cero de más— no debe bloquear la corrección)
+const MAX_MUESTRAS_TRAMO = 4000;
+// Los tramos del plano (extremos y curvatura «b») y los del programa (tipo 'L' o 'A') se aceptan igual
+function segNormal(s) {
+    if (!s || s.tipo === 'L' || s.tipo === 'A') return s;
+    if (!s.b) return { tipo:'L', p1:s.p1, p2:s.p2 };
+    const a = arcoDeBulge(s.p1, s.p2, s.b); return { tipo:'A', p1:s.p1, p2:s.p2, c:a.c, r:a.r, a1:a.a1, theta:a.theta };
+}
 function muestrasSeg(s, paso) {
-    if (s.tipo === 'L') { const n = Math.max(1, Math.ceil(dist(s.p1, s.p2) / paso)); return Array.from({ length:n + 1 }, (_, i) => add(s.p1, mulv(sub(s.p2, s.p1), i / n))); }
-    const n = Math.max(2, Math.ceil(Math.abs(s.theta) * s.r / paso));
+    s = segNormal(s);
+    if (s.tipo === 'L') { const n = Math.min(MAX_MUESTRAS_TRAMO, Math.max(1, Math.ceil(dist(s.p1, s.p2) / paso) || 1)); return Array.from({ length:n + 1 }, (_, i) => add(s.p1, mulv(sub(s.p2, s.p1), i / n))); }
+    const n = Math.min(MAX_MUESTRAS_TRAMO, Math.max(2, Math.ceil(Math.abs(s.theta) * s.r / paso) || 2));
     return Array.from({ length:n + 1 }, (_, i) => { const a = s.a1 + s.theta * i / n; return { x:s.c.x + s.r * Math.cos(a), y:s.c.y + s.r * Math.sin(a) }; });
 }
 function distASeg(q, s) {
+    s = segNormal(s);
     if (s.tipo === 'L') return dist(q, cercanoEnSegRecta(q, s.p1, s.p2));
     return dist(q, cercanoEnArco(q, s.c, s.r, s.a1, s.theta));
 }
@@ -8476,6 +8676,7 @@ function dibujarCorr() {
     if (!vistaCorr) { const b = bboxPts(todos), m = 30, z = Math.min((w - 2 * m) / Math.max(b.x1 - b.x0, 1e-6), (h - 2 * m) / Math.max(b.y1 - b.y0, 1e-6)); vistaCorr = { z, cx:(b.x0 + b.x1) / 2, cy:(b.y0 + b.y1) / 2 , w, h }; }
     const V = vistaCorr, P = q => ({ x: w / 2 + (q.x - V.cx) * V.z, y: h / 2 - (q.y - V.cy) * V.z });
     const trazar = (s, color, grosor, disc) => {
+        if (!s || !s.p1 || !s.p2) return;
         g.beginPath(); g.strokeStyle = color; g.lineWidth = grosor; g.setLineDash(disc || []);
         muestrasSeg(s, 2 / V.z).forEach((q, i) => { const p = P(q); i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y); }); g.stroke(); g.setLineDash([]);
     };
@@ -8546,7 +8747,8 @@ function compensarItems(items, R) {
     const tgFin = g => { if (g.tipo !== 'A') return norm(sub(g.p2, g.p1)); const a = g.a1 + g.theta; return g.theta > 0 ? { x:-Math.sin(a), y:Math.cos(a) } : { x:Math.sin(a), y:-Math.cos(a) }; };
     const izq = d => ({ x:-d.y, y:d.x });
     const desplazar = (g, s) => {
-        if (g.tipo !== 'A') { const d = mulv(izq(norm(sub(g.p2, g.p1))), s * R); return { tipo:'L', p1:add(g.p1, d), p2:add(g.p2, d) }; }
+        if (g.tipo !== 'A' || !(g.r > 1e-9)) {          // un arco de radio nulo (I0 J0) se trata como recta
+            if (!(Math.hypot(g.p2.x - g.p1.x, g.p2.y - g.p1.y) > 1e-12)) return { tipo:'L', p1:{ ...g.p1 }, p2:{ ...g.p2 } }; const d = mulv(izq(norm(sub(g.p2, g.p1))), s * R); return { tipo:'L', p1:add(g.p1, d), p2:add(g.p2, d) }; }
         const r2 = Math.max(1e-6, g.r - s * Math.sign(g.theta) * R), k = r2 / g.r;
         return { ...g, r:r2, p1:add(g.c, mulv(sub(g.p1, g.c), k)), p2:add(g.c, mulv(sub(g.p2, g.c), k)) };
     };
@@ -9895,10 +10097,27 @@ function abrirEnGeneradorDesde(hash) {
     if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo, o usa «Guardar para el Generador»'); return; }
     snack(VISOR ? 'Abriendo el proyecto en el Generador…' : 'Abriendo el proyecto en el Generador… Al terminar, «⬅ Calcador» lo devuelve aquí');
 }
+// ── Abrir el plano y su solución en el Simulador del profesor ──
+let paraSimulador = null;
+function abrirEnSimulador() {
+    const datos = exportarJSON(true); if (!datos) return;
+    const selC = document.getElementById('tbCont'), prevH = selC.innerHTML, prevV = selC.value;
+    let programa;
+    try { selC.innerHTML = '<option value="todos">Todos</option>'; selC.value = 'todos'; programa = textoTabla('iso'); } finally { selC.innerHTML = prevH; selC.value = prevV; }
+    paraSimulador = { tipo:'plano-calcador', json: JSON.stringify(datos), programa, nombre: nombreProyecto(), diametro: +cfgFresa.d || 0, herramienta: cfgFresa.herr || null };
+    try { localStorage.setItem('suiteCNC:paraSimulador', JSON.stringify({ ...paraSimulador, t: Date.now() })); } catch (e) {}
+    const w = window.open('simulador3d_profesor.html#desdeCalcador', '_blank');
+    if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo'); return; }
+    snack('Abriendo el plano y su solución en el Simulador…');
+}
+window.addEventListener('message', e => {
+    const d = e.data; if (!d || typeof d !== 'object') return;
+    if (d.tipo === 'simulador-listo' && paraSimulador && e.source) { e.source.postMessage(paraSimulador, '*'); paraSimulador = null; }
+});
 function recibirDelGenerador(json) {
     let d; try { d = JSON.parse(json); } catch (e) { return; }
     if (!esObj(d)) return;
-    guardarUndo(); abrirJSONDatos(d);
+    guardarUndo(); abrirJSONDatos(d); setTimeout(() => SG.cambio(), 700);
     snack('Proyecto devuelto por el Generador (Ctrl+Z para volver a como estaba)'); try { window.focus(); } catch (e) {}
 }
 window.addEventListener('message', e => {
@@ -10006,6 +10225,7 @@ async function anadirAbiertoBib() {
     const nombre = nombreProyecto() + '.json', e = entradaDe(d, 'Añadidos desde el Calcador/' + nombre, nombre);
     const act = await bibGuardarEntrada(e);
     await bibCargar(); pintarBiblioteca();
+    SG.guardado();
     snack(act ? `«${e.ficha.titulo || nombre}» actualizado en la biblioteca` : `«${e.ficha.titulo || nombre}» añadido a la biblioteca`);
 }
 // ── Pintar ──
@@ -10253,6 +10473,7 @@ document.getElementById('auxAng').value = cfgAux.ang;
 document.getElementById('auxDist').value = cfgAux.dist;
 document.getElementById('auxRad').value = cfgAux.radio;
 document.getElementById('fresaD').value = cfgFresa.d;
+HB.marcar(document.getElementById('hbSel'), cfgFresa.herr && cfgFresa.herr.id || '');
 document.getElementById('chkFresa').checked = cfgFresa.ver;
 mostrarCamposAux();
 document.getElementById('selNivelCotas').value = cfgCotas.nivel;
@@ -10280,6 +10501,7 @@ document.getElementById('vecHuecos').checked = cfgVec.huecos;
 document.getElementById('chkVerOcultas').checked = !!cfgCotas.verOcultas;
 herramienta = '';
 setHerramienta(VISOR ? 'editar' : 'linea');
+if (!VISOR) SG.iniciar('calcador_sinGuardar');
 redimensionar();
 if (!habiaEstado) setTimeout(encuadrar, 30);
 refrescar();

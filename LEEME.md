@@ -1,5 +1,7 @@
 # Herramientas CNC — Por Eloi A.A.
 
+**Suite CNC 2026.10** · novedades en [NOVEDADES.md](NOVEDADES.md)
+
 Herramientas para aprender y enseñar a programar CNC en código ISO (G-code).
 Cada una es **un único archivo HTML**: funciona en el navegador (Chrome, Edge o Firefox),
 sin instalar nada y también sin conexión a internet.
@@ -7,17 +9,17 @@ sin instalar nada y también sin conexión a internet.
 | Archivo | Herramienta | Versión |
 |---|---|---|
 | `index.html` | Portada con enlaces a todo | — |
-| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v64 |
-| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v11 |
+| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v70 |
+| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v17 |
 | `manual_calcador.html` / `.pdf` | Manual del Calcador | — |
-| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras y puentes) | v74 |
-| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V25 |
-| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V25 |
+| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras, puentes, desbaste y acabado) | v79 |
+| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V31 |
+| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V31 |
 | `licencias.html` | Créditos y licencias (fuentes y bibliotecas de terceros) | — |
 | `LICENSE` | Licencia de los programas (EUPL-1.2) | — |
 | `LICENCIA-MANUAL.txt` | Licencia del manual (CC BY-SA 4.0) | — |
 
-La versión de cada programa se ve junto a su título; el símbolo ⌂ vuelve a la portada.
+La versión de cada programa se ve junto a su título; la de la suite («Suite CNC año.mes»), en la portada y en la ventana «Créditos y licencias» de cada programa. El símbolo ⌂ vuelve a la portada.
 
 ## Usarlas desde el disco
 

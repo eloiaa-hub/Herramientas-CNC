@@ -83,6 +83,10 @@
     #viewport { flex:1; position:relative; background:var(--viewport-bg); min-width:0; overflow:hidden; }
     #viewport canvas { display:block; position:absolute; inset:0; width:100%; height:100%; }
     #lienzo2D { cursor:grab; touch-action:none; }
+    .plano-tit { font-weight:700; font-size:13px; margin-bottom:4px; }
+    .plano-eval div { margin:3px 0; font-size:12px; line-height:1.4; }
+    .plano-ok { color:#1e8449; font-weight:700; } .plano-mal { color:#b9770e; font-weight:700; }
+    .btn-quitar-plano { margin-top:6px; font-size:12px; padding:4px 8px; border-radius:6px; border:1px solid var(--borde, #ccd); background:transparent; color:inherit; cursor:pointer; }
     body.modo2d #modoVistaToggle, body.modo2d #btnTransparencia, body.modo2d #barraVistas { display:none !important; }
 
     /* Barra para ensanchar el panel de código */
@@ -229,12 +233,12 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥 Simulador G-Code 3D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">Profesor · V25</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥 Simulador G-Code 3D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">Profesor · V31</span></h1>
         <span class="pill-profesor" title="Versión para profesores: permite editar y guardar el G-code">PROFESOR</span>
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
-        <button class="principal" onclick="document.getElementById('fileInput').click()">📂 Cargar G-code</button>
-        <input type="file" id="fileInput" accept=".nc,.gcode,.txt,.tap,.ngc">
+        <button class="principal" onclick="document.getElementById('fileInput').click()" title="Un programa G-code (.nc, .txt…) o el plano del ejercicio (.json del Calcador) para comprobar el programa con él">📂 Cargar G-code / plano</button>
+        <input type="file" id="fileInput" accept=".nc,.gcode,.txt,.tap,.ngc,.json">
         <select id="selEjemplo" onchange="cargarEjemplo(this.value); this.value='';" title="Cargar uno de los programas de ejemplo incluidos">
             <option value="">📚 Ejemplos…</option>
             <option value="gcodeEjemplo">Ejemplo básico — sin compensación</option>
@@ -257,6 +261,7 @@
         <button id="btnPanelCodigo" class="activo" onclick="togglePanel('codigo')" title="Mostrar / ocultar el listado de G-code">📜<span class="lbl"> Código</span></button>
         <button id="btnPanelParam" class="activo" onclick="togglePanel('param')" title="Mostrar / ocultar el panel de parámetros">📊<span class="lbl"> Parámetros</span></button>
         <div class="sep"></div>
+        <button onclick="abrirCreditos()" title="Créditos y licencias">ℹ</button>
         <button onclick="abrirAyuda()" title="Cómo se usa el simulador">❓<span class="lbl"> Ayuda</span></button>
         <button id="btnAjustes" onclick="toggleAjustes(event)" title="Apariencia: modo oscuro y color entorno">⚙️</button>
     </header>
@@ -345,6 +350,11 @@
             </div>
             <div class="panel-sec">
                 <h3>Herramienta</h3>
+                <label class="etq">De la base de herramientas</label>
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                    <select id="hbSel" style="flex:1; min-width:0;" title="Elige una fresa de la base de herramientas (la misma del Calcador y el Generador). Si el programa usa una T de la base, se elige sola"></select>
+                    <button onclick="HB.abrir(aplicarHerramientaSim)" title="Base de herramientas: añadir, editar, exportar o importar la lista" style="padding:2px 8px;">🧰</button>
+                </div>
                 <label class="etq">Tipo de fresa</label>
                 <select id="tipoFresa" style="width:100%; margin-bottom:8px;" onchange="actualizarTipoFresa()">
                     <option value="plana">Plana (punta recta)</option>
@@ -384,6 +394,12 @@
                     <input type="checkbox" id="chkMaterial" checked onchange="actualizarVisibilidad()"> Bloque de material (modo sólido)
                 </label>
             </div>
+            <div class="panel-sec" id="secPlano" style="display:none">
+                <h3>Plano del ejercicio</h3>
+                <div class="plano-tit" id="planoTitulo"></div>
+                <div class="plano-eval" id="planoEval"></div>
+                <button class="btn-quitar-plano" onclick="quitarPlano()" title="Deja de comparar con el plano">✕ Quitar el plano</button>
+            </div>
             <div class="panel-sec">
                 <h3>Material</h3>
                 <label class="etq">Tamaño del bloque</label>
@@ -394,6 +410,8 @@
                 <div id="matAuto">
                     <label class="etq">Offset en XY (mm)</label>
                     <input type="number" id="matMargen" value="10" min="0" step="1" style="width:100%; margin-bottom:8px;" oninput="leerCfgMaterial()">
+                    <label class="etq" title="El grosor real del tablero. Vacío: la profundidad máxima del programa (todos los cortes pasantes). Con un grosor mayor, los cortes menos profundos quedan como vaciados o grabados">Grosor del tablero (mm)</label>
+                    <input type="number" id="matGrosorAuto" value="" min="0.1" step="0.5" placeholder="automático: la profundidad máxima" style="width:100%; margin-bottom:8px;" oninput="leerCfgMaterial()">
                 </div>
                 <div id="matManual" style="display:none;">
                     <div class="fila2" style="margin-bottom:8px;">
@@ -412,7 +430,7 @@
                 </div>
                 <div class="info-row"><span>Tamaño X × Y</span><span id="infoMatXY">—</span></div>
                 <div class="info-row"><span>Grosor</span><span id="infoMatZ">—</span></div>
-                <p class="nota-herr" id="notaMatAuto">Bloque = Dimensiones del trazado + offset en el plano XY. Grosor = Profundidad Max.</p>
+                <p class="nota-herr" id="notaMatAuto">Bloque = dimensiones del trazado + offset en el plano XY. Grosor = el del tablero o, si se deja vacío, la profundidad máxima (todos los cortes pasantes).</p>
                 <p class="nota-herr">Z=0, superficie de la pieza.</p>
             </div>
         </aside>
@@ -472,7 +490,10 @@
 
       <h3>Modos de vista</h3>
       <ul>
-        <li><b>2D / 3D</b>: la vista <b>2D</b> muestra la pieza en planta, como en el plano: el bloque de material con lo que se va quitando (más oscuro cuanto más profundo; donde se corta todo el grueso, se ve el fondo), el recorrido de la fresa, los rápidos en discontinuo y la fresa como un círculo de su diámetro, con su Z al lado. Con <code>G41</code>/<code>G42</code> se ve también el contorno programado, en negro. La rueda del ratón o dos dedos amplían, arrastrando se desplaza y con doble clic o <b>🎯 Encuadrar</b> se vuelve a ver todo. La reproducción, el código, la revisión y la grabación de vídeo funcionan igual en las dos vistas. Si el equipo no puede mostrar 3D, el simulador abre directamente en 2D.</li>
+        <li><b>Base de herramientas</b>: en <b>Herramienta</b>, el desplegable elige una fresa de la base (tipo y diámetro) y el botón <b>🧰</b> la abre para añadir o editar fresas, o para <b>importar</b> la lista que te dé el profesor. Si tu programa usa una herramienta (<code>T102</code>: tres cifras, como en TpaCAD) y no dice su diámetro en un comentario, el simulador la toma de la base. La lista se importa y exporta en JSON o en CSV (hoja de cálculo).</li>
+                <li><b>Plano del ejercicio</b>: con <b>📂 Cargar G-code / plano</b> puedes abrir también el plano del ejercicio (el archivo <code>.json</code> del Calcador que te dé el profesor). Se dibuja encima (exteriores en azul, interiores en rojo) y el recorrido de tu programa se colorea: <b>verde</b> si va sobre el contorno, <b>rojo</b> si se mete en la pieza y <b>naranja</b> si corta en la zona que sobra. El panel <b>Plano del ejercicio</b> dice qué parte del contorno queda mecanizada, en qué líneas se mete en la pieza y si la compensación <code>G41</code>/<code>G42</code> va del lado equivocado. Si programas el camino del centro de la fresa (en <code>G40</code>), lo reconoce y compara con él. El plano y el programa se pueden cargar en cualquier orden.</li>
+                <li><b>Grosor del tablero</b>: en <b>Material</b>, el modo automático admite el grosor real del tablero; vacío, es la profundidad máxima del programa (todo pasante). Con un tablero más grueso, los cortes menos profundos quedan como vaciados.</li>
+                <li><b>2D / 3D</b>: la vista <b>2D</b> muestra la pieza en planta, como en el plano: el bloque de material con lo que se va quitando (más oscuro cuanto más profundo; donde se corta todo el grueso, se ve el fondo), el recorrido de la fresa, los rápidos en discontinuo y la fresa como un círculo de su diámetro, con su Z al lado. Con <code>G41</code>/<code>G42</code> se ve también el contorno programado, en negro. La rueda del ratón o dos dedos amplían, arrastrando se desplaza y con doble clic o <b>🎯 Encuadrar</b> se vuelve a ver todo. La reproducción, el código, la revisión y la grabación de vídeo funcionan igual en las dos vistas. Si el equipo no puede mostrar 3D, el simulador abre directamente en 2D.</li>
                 <li><b>🧊 Sólido</b>: bloque de material de madera y fresa como cilindro. Al pasar la fresa se va quitando material; cuanto más profundo, más oscuro. Donde se corta todo el grueso, el material desaparece y se ve la rejilla.</li>
         <li><b>📐 Wireframe</b>: solo líneas; la fresa es una línea con un punto en la punta.</li>
         <li><b>👁️ Transparencia</b> (solo en sólido): deja el material al 50 % para ver la fresa dentro.</li>
@@ -571,7 +592,7 @@
 ; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
 ; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-T1 M3 S12000
+T101 M3 S12000
 G0 X30 Y8 Z10         ; encima de un punto DENTRO del agujero, a 8 mm del contorno
 G1 Z-3 F150           ; baja en la zona que sobra
 G41 G1 X30 Y0 F1000   ; activa G41 en una recta hasta el contorno
@@ -599,7 +620,7 @@ M02
 ; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
 ; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-T1 M3 S12000
+T101 M3 S12000
 G0 X30 Y-8 Z10        ; encima de un punto FUERA de la pieza, a 8 mm del contorno
 G1 Z-3 F150           ; baja en la zona que sobra
 G42 G1 X30 Y0 F1000   ; activa G42 en una recta hasta el contorno
@@ -619,7 +640,7 @@ M02
 <script type="text/plain" id="gcodeEjemplo">
 ;(Ejemplo básico)
 G71 G90
-T1 M3 S12000
+T101 M3 S12000
 G0 X0 Y0 Z10
 G1 Z-3 F150
 G1 X55 F1000
@@ -1771,6 +1792,8 @@ function parsearGcode3D(texto) {
     const moves = [];
     let x = 0, y = 0, z = Z_SEGURIDAD;   // la fresa arranca en posición de seguridad
     let absoluto = true;
+    let polar = false;        // G16: X = radio, Y = ángulo (°), con el polo en el cero pieza (como el Calcador)
+    let zConocida = false;    // hasta la primera Z, la altura de partida es la superficie (Z0) para las incrementales
     let unidadFactor = 1; // mm; G20 -> 25.4
     let ultimoF = 0;
     let ultimoGMocion = null;
@@ -1804,6 +1827,7 @@ function parsearGcode3D(texto) {
             else if (g === 21 || g === 71) unidadFactor = 1;
             else if (g === 90) absoluto = true;
             else if (g === 91) absoluto = false;
+            else if (g === 16) polar = true; else if (g === 15) polar = false;
             else if (g === 40 || g === 41 || g === 42) { if (g !== 40 && comp === 40) meta.lineaComp = idx+1; comp = g; }
             else if (g === 0 || g === 1 || g === 2 || g === 3) { ultimoGMocion = g; ciclo = null; }
             else if (g === 80) { ciclo = null; ultimoGMocion = null; }
@@ -1864,9 +1888,17 @@ function parsearGcode3D(texto) {
         if (!tieneMov) return;
         if (ultimoGMocion === null) ultimoGMocion = 0;
 
-        const nx = 'X' in letras ? (absoluto ? letras.X*unidadFactor : x+letras.X*unidadFactor) : x;
-        const ny = 'Y' in letras ? (absoluto ? letras.Y*unidadFactor : y+letras.Y*unidadFactor) : y;
-        const nz = 'Z' in letras ? (absoluto ? letras.Z*unidadFactor : z+letras.Z*unidadFactor) : z;
+        let nx, ny;
+        if (polar) {
+            // polares: X es el radio e Y el ángulo; el que falta se conserva
+            const r = ('X' in letras ? letras.X * unidadFactor : Math.hypot(x, y)), ang = ('Y' in letras ? letras.Y : Math.atan2(y, x) * 180 / Math.PI) * Math.PI / 180;
+            nx = ('X' in letras || 'Y' in letras) ? r * Math.cos(ang) : x; ny = ('X' in letras || 'Y' in letras) ? r * Math.sin(ang) : y;
+        } else {
+            nx = 'X' in letras ? (absoluto ? letras.X*unidadFactor : x+letras.X*unidadFactor) : x;
+            ny = 'Y' in letras ? (absoluto ? letras.Y*unidadFactor : y+letras.Y*unidadFactor) : y;
+        }
+        const nz = 'Z' in letras ? (absoluto ? letras.Z*unidadFactor : (zConocida ? z : 0)+letras.Z*unidadFactor) : z;
+        if ('Z' in letras) zConocida = true;
         const mov = { fromX:x, fromY:y, fromZ:z, x:nx, y:ny, z:nz, f:ultimoF, linea: idx+1, textoLinea: linea.trim(), comp,
                       xyProgramado: ('X' in letras) || ('Y' in letras), husillo };
         if (ultimoGMocion === 0) mov.tipo = 'rapido';
@@ -2341,11 +2373,19 @@ function leerHerramientaDelPrograma(texto) {
         if (!tipo && (m = com.match(/\b(?:en\s*)?V(?:-?bit)?\s*([0-9]{2,3})\s*[°º]/i))) { tipo = 'v'; ang = num(m[1]); }
         if (!tipo && /\b(plana|flat)\b/i.test(com)) tipo = 'plana';
     }
+    // si los comentarios no dicen el diámetro, la T del programa se busca en la base de herramientas
+    let hT = null;
+    if (!(diam > 0)) {
+        const sinCom = texto.replace(/\([^)]*\)/g, ' ').replace(/;.*$/gm, ' ');
+        const mT = sinCom.match(/(?:^|[^A-Z0-9])T\s*0*(\d{1,3})(?![\d.])/im);
+        if (mT && (hT = HB.porT(+mT[1]))) { diam = hT.d; if (!tipo) { tipo = hT.tipo; ang = hT.angulo; } }
+    }
     const partes = [];
     if (diam > 0) {
         document.getElementById('diamHerramienta').value = +diam.toFixed(3);
         diametroFresa = diam;
-        partes.push('Ø' + (+diam.toFixed(3)) + ' mm (línea ' + lineaDiam + ': "' + textoDiam.trim() + '")');
+        partes.push('Ø' + (+diam.toFixed(3)) + ' mm ' + (hT ? '(T' + hT.T + ' de la base de herramientas: «' + hT.nombre + '»)' : '(línea ' + lineaDiam + ': "' + textoDiam.trim() + '")'));
+        HB.marcar(document.getElementById('hbSel'), hT ? hT.id : '');
     }
     if (tipo) {
         document.getElementById('tipoFresa').value = tipo;
@@ -2379,6 +2419,7 @@ function leerCfgMaterial() {
     const val = (id, def, min) => { const n = v(id); return isFinite(n) ? Math.max(min, n) : def; };
     matCfg.lx = val('matLX', 100, 1); matCfg.ly = val('matLY', 100, 1); matCfg.grosor = val('matGrosor', 10, 0.1);
     matCfg.origen = document.getElementById('matOrigen').value;
+    const ga = v('matGrosorAuto'); matCfg.grosorAuto = isFinite(ga) && ga > 0 ? ga : null;
     document.getElementById('matAuto').style.display = matCfg.modo === 'auto' ? 'block' : 'none';
     document.getElementById('matManual').style.display = matCfg.modo === 'manual' ? 'block' : 'none';
     document.getElementById('notaMatAuto').style.display = matCfg.modo === 'auto' ? 'block' : 'none';
@@ -2423,6 +2464,7 @@ function actualizarDiametroHerramienta(desdePrograma) {
     if (!gcodeMoves.length) return;
     if (gcodeMoves.some(m => m.comp === 41 || m.comp === 42)) recalcularTrayectoria();   // G41/G42 depende del radio
     else if (material) { reiniciarMaterial(); actualizarMaterial(indicePlano); }
+    evaluarPlano();          // en G40, el camino del centro depende del radio
 }
 
 function setModoVista(modo) {
@@ -2693,6 +2735,7 @@ function cargarGcodeTexto(texto, nombre) {
     construirMaterial();
     colocarRejillaBase();
     construirContornoProgramado();
+    evaluarPlano();
 
     construirListadoCodigo(texto);
     document.getElementById('filenameLabel').textContent = nombre;
@@ -2934,8 +2977,13 @@ function actualizarRecorridoDibujado(idxFloat) {
 
 // ── Rejilla base: en el fondo del material (Z más negativa) ─────────────
 function crearRejilla(tam, cx, cy, z) {
-    if (gridHelper) { scene.remove(gridHelper); gridHelper.geometry.dispose(); gridHelper.material.dispose(); }
-    gridHelper = new THREE.GridHelper(tam, Math.round(tam/5), modoOscuro ? 0x55555f : 0x9aa3ad, modoOscuro ? 0x34343c : 0xc3cad2); // celdas de 5 mm
+    if (gridHelper) { scene.remove(gridHelper); gridHelper.geometry.dispose(); gridHelper.material.dispose(); gridHelper = null; }
+    if (![tam, cx, cy, z].every(isFinite) || tam <= 0) return;          // coordenadas imposibles: sin rejilla
+    // celdas de 5 mm; en escenas enormes, más grandes (10, 20, 50, 100…) para no pasar de 400 divisiones
+    let celda = 5; const pasos = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 1e5, 1e6, 1e7];
+    for (let k = 0; tam / celda > 400 && k < pasos.length; k++) celda = pasos[k];
+    if (tam / celda > 400) return;
+    gridHelper = new THREE.GridHelper(tam, Math.max(1, Math.round(tam / celda)), modoOscuro ? 0x55555f : 0x9aa3ad, modoOscuro ? 0x34343c : 0xc3cad2);
     gridHelper.userData = { tam, cx, cy, z };
     gridHelper.rotation.x = Math.PI/2; // el grid por defecto está en XZ, lo giramos a XY
     gridHelper.position.set(cx, cy, z);
@@ -2992,7 +3040,8 @@ function construirMaterial() {
         let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
         cortes.forEach(p => { if(p.x<minX)minX=p.x; if(p.x>maxX)maxX=p.x; if(p.y<minY)minY=p.y; if(p.y>maxY)maxY=p.y; });
         const mg = Math.max(0, matCfg.margen);
-        x0 = minX - mg; y0 = minY - mg; w = maxX - minX + 2*mg; h = maxY - minY + 2*mg; espesor = -zMin;
+        x0 = minX - mg; y0 = minY - mg; w = maxX - minX + 2*mg; h = maxY - minY + 2*mg;
+        espesor = matCfg.grosorAuto ? matCfg.grosorAuto : -zMin;       // el grosor del tablero, o la profundidad máxima
     }
     const paso = Math.max(0.15, Math.max(w, h) / (MAX_NODOS_LADO-1));
     const nx = Math.round(w/paso)+1, ny = Math.round(h/paso)+1;
@@ -3048,7 +3097,8 @@ function construirMaterial() {
     material = { x0, y0, w, h, nx, ny, px, py, espesor, alturas: new Float32Array(n), malla, geo, geoF, idxOriginal, progreso: -1,
                  sucio: null };
     document.getElementById('infoMatXY').textContent = w.toFixed(0) + ' × ' + h.toFixed(0) + ' mm';
-    document.getElementById('infoMatZ').textContent = espesor.toFixed(2) + ' mm';
+    const masHondo = -zMin - espesor;
+    document.getElementById('infoMatZ').textContent = espesor.toFixed(2) + ' mm' + (masHondo > 0.01 ? ` · ⚠ la fresa baja ${masHondo.toFixed(2)} mm más (corta el martiriño)` : '');
     actualizarVisibilidad();
 }
 
@@ -3538,8 +3588,9 @@ function dibujar2D() {
     g.fillStyle = modoOscuro ? '#1b232b' : '#f4f6f8'; g.fillRect(0, 0, W, H);
     // cuadrícula con cotas y ejes
     if (chk('chkEjes')) {
-        const pasos = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500]; const paso = pasos.find(p => p * V.z >= 45) || 1000;
+        const pasos = [0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 1e4, 2e4, 5e4, 1e5, 1e6, 1e7, 1e8]; const paso = pasos.find(p => p * V.z >= 45) || 1e9;
         const xa = V.cx - W / 2 / V.z, xb = V.cx + W / 2 / V.z, ya = V.cy - H / 2 / V.z, yb = V.cy + H / 2 / V.z;
+        if (!(isFinite(xa) && isFinite(xb) && isFinite(ya) && isFinite(yb)) || (xb - xa) / paso > 600 || (yb - ya) / paso > 600) { /* escala imposible: sin cuadrícula */ } else {
         g.lineWidth = 1; g.strokeStyle = modoOscuro ? 'rgba(255,255,255,.07)' : 'rgba(0,40,80,.08)'; g.beginPath();
         for (let x = Math.ceil(xa / paso) * paso; x <= xb; x += paso) { const [sx] = P(x, 0); g.moveTo(sx, 0); g.lineTo(sx, H); }
         for (let y = Math.ceil(ya / paso) * paso; y <= yb; y += paso) { const [, sy] = P(0, y); g.moveTo(0, sy); g.lineTo(W, sy); }
@@ -3548,6 +3599,7 @@ function dibujar2D() {
         const dec = paso < 1 ? 1 : 0;
         g.textAlign = 'center'; for (let x = Math.ceil(xa / paso) * paso; x <= xb; x += paso) { const [sx] = P(x, 0); g.fillText((+x.toFixed(3)).toFixed(dec), sx, H - 6); }
         g.textAlign = 'left'; for (let y = Math.ceil(ya / paso) * paso; y <= yb; y += paso) { const [, sy] = P(0, y); g.fillText((+y.toFixed(3)).toFixed(dec), 4, sy - 3); }
+        }
     }
     // material vaciado
     if (material && chk('chkMaterial')) {
@@ -3566,6 +3618,8 @@ function dibujar2D() {
         g.beginPath(); g.arc(ox, oy, 4, 0, Math.PI * 2); g.fillStyle = modoOscuro ? '#fff' : '#1c2733'; g.fill();
     }
     const linea = (pts, color, w, dash) => { if (pts.length < 2) return; g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, k) => { const [x, y] = P(p.x, p.y); k ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.setLineDash([]); };
+    // el plano del ejercicio: exteriores en azul, interiores en rojo
+    if (plano) plano.trazados.forEach(t => linea(t.m, t.interior ? '#d64545' : '#1e6fd9', 1.8));
     // contorno programado (con G41/G42 la fresa no va por él)
     const hayComp = gcodeMoves.some(mv => mv.comp === 41 || mv.comp === 42);
     if (hayComp && chk('chkProgramado')) {
@@ -3579,15 +3633,16 @@ function dibujar2D() {
     g.lineCap = 'round'; g.lineJoin = 'round';
     // previsto: se agrupa por tipo para dibujar pocas líneas
     const tramos = (desde, hasta, extra) => { const out = []; let cur = null;
-        for (let k = Math.max(1, desde); k <= hasta; k++) { const a = puntosPlanos[k - 1], b = puntosPlanos[k], t = b.tipo === 'rapido' ? 'r' : (b.z < -1e-9 || a.z < -1e-9) ? 'c' : 'a';
+        const cl = p => (evalPlano && evalPlano.claseMov && evalPlano.claseMov[p.movIdx]) || '';
+        for (let k = Math.max(1, desde); k <= hasta; k++) { const a = puntosPlanos[k - 1], b = puntosPlanos[k], t = b.tipo === 'rapido' ? 'r' : (b.z < -1e-9 || a.z < -1e-9) ? 'c' + cl(b) : 'a';
             if (!cur || cur.t !== t) { cur = { t, pts:[a] }; out.push(cur); } cur.pts.push(b); }
-        if (extra) { const a = puntosPlanos[Math.max(0, hasta)], t = extra.tipo === 'rapido' ? 'r' : (extra.z < -1e-9 || a.z < -1e-9) ? 'c' : 'a'; if (!cur || cur.t !== t) { cur = { t, pts:[a] }; out.push(cur); } cur.pts.push(extra); }
+        if (extra) { const a = puntosPlanos[Math.max(0, hasta)], t = extra.tipo === 'rapido' ? 'r' : (extra.z < -1e-9 || a.z < -1e-9) ? 'c' + cl(a) : 'a'; if (!cur || cur.t !== t) { cur = { t, pts:[a] }; out.push(cur); } cur.pts.push(extra); }
         return out; };
     if (cache2D.puntos !== puntosPlanos) { cache2D.puntos = puntosPlanos; cache2D.previsto = tramos(1, n - 1); }
     cache2D.previsto.forEach(t => { if (t.t === 'r' && !verRap) return; linea(t.pts, modoOscuro ? 'rgba(200,210,220,.22)' : 'rgba(60,80,100,.18)', 1, t.t === 'r' ? [5, 4] : []); });
     if (chk('chkRecorrido')) tramos(1, i, pos).forEach(t => {
         if (t.t === 'r') { if (verRap) linea(t.pts, modoOscuro ? '#9fb0bf' : '#7f8c8d', 1.4, [6, 4]); }
-        else if (t.t === 'c') { if (!material) linea(t.pts, 'rgba(230,126,34,.18)', Math.max(1, 2 * radioCorteVista() * V.z)); linea(t.pts, '#c4580c', 2.4); }
+        else if (t.t[0] === 'c') { if (!material) linea(t.pts, 'rgba(230,126,34,.18)', Math.max(1, 2 * radioCorteVista() * V.z)); linea(t.pts, { cok:'#27ae60', cmal:'#d84343', cfuera:'#e67e22' }[t.t] || '#c4580c', 2.4); }
         else linea(t.pts, modoOscuro ? '#9fb0bf' : '#8795a3', 1.2, [2, 3]);
     });
     // la fresa
@@ -3601,6 +3656,298 @@ function dibujar2D() {
     }
 }
 
+// ════════════════════════════════════════════════════════════════════
+//  PLANO DEL EJERCICIO (JSON del Calcador): referencia y autocorrección
+//  El recorrido programado se compara con el contorno del plano:
+//  verde, sobre el contorno · rojo, se mete en la pieza · naranja, zona que sobra
+// ════════════════════════════════════════════════════════════════════
+let plano = null, evalPlano = null, grupoPlano = null;
+const TOL_PLANO = 0.1;
+function puntosDeContornoCalc(c) {
+    const n = c.pts.length, cerr = !!c.cerrado, out = [], segs = cerr ? n : n - 1;
+    for (let k = 0; k < segs; k++) {
+        const p1 = c.pts[k], p2 = c.pts[(k + 1) % n], b = (c.b && c.b[k]) || 0;
+        out.push({ x:p1.x, y:p1.y });
+        if (Math.abs(b) < 1e-12) continue;
+        const d = Math.hypot(p2.x - p1.x, p2.y - p1.y); if (d < 1e-12) continue;
+        const u = { x:(p2.x - p1.x) / d, y:(p2.y - p1.y) / d }, nl = { x:-u.y, y:u.x }, kk = (1 - b * b) / (4 * b) * d;
+        const c0 = { x:(p1.x + p2.x) / 2 + nl.x * kk, y:(p1.y + p2.y) / 2 + nl.y * kk }, r = Math.hypot(p1.x - c0.x, p1.y - c0.y);
+        const a1 = Math.atan2(p1.y - c0.y, p1.x - c0.x), th = 4 * Math.atan(b), nn = Math.max(4, Math.ceil(Math.abs(th) * r / 0.5));
+        for (let q = 1; q < nn; q++) { const a = a1 + th * q / nn; out.push({ x:c0.x + r * Math.cos(a), y:c0.y + r * Math.sin(a) }); }
+    }
+    out.push(cerr ? { ...out[0] } : { x:c.pts[n - 1].x, y:c.pts[n - 1].y });
+    return out;
+}
+function dentroPoli(q, P) { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const a = P[i], b = P[j]; if (((a.y > q.y) !== (b.y > q.y)) && q.x < (b.x - a.x) * (q.y - a.y) / (b.y - a.y) + a.x) c = !c; } return c; }
+function distASegPlano(q, a, b) { const ab = { x:b.x - a.x, y:b.y - a.y }, L = ab.x * ab.x + ab.y * ab.y; let t = L ? ((q.x - a.x) * ab.x + (q.y - a.y) * ab.y) / L : 0; t = Math.max(0, Math.min(1, t)); return Math.hypot(q.x - a.x - t * ab.x, q.y - a.y - t * ab.y); }
+function cargarPlano(d, nombre) {
+    const C = d && d.calcador; if (!C || !Array.isArray(C.contornos)) { mostrarSnack('«' + nombre + '» no es un plano del Calcador'); return false; }
+    const cs = C.contornos.filter(c => c && Array.isArray(c.pts) && c.pts.length >= 2 && !c.texto && !c.deTexto && !(c.mec && c.mec.op === 'fabricar'));
+    const trazados = cs.map(c => ({ m: puntosDeContornoCalc(c), cerrado: !!c.cerrado, tipo: c.tipo }));
+    // tipos: los marcados en el Calcador; si no, por anidamiento
+    trazados.forEach((t, i) => {
+        if (!t.cerrado) { t.interior = null; return; }
+        if (t.tipo === 'interior' || t.tipo === 'exterior') { t.interior = t.tipo === 'interior'; return; }
+        let n = 0; trazados.forEach((o, j) => { if (j !== i && o.cerrado && dentroPoli(t.m[Math.floor(t.m.length / 3)], o.m)) n++; });
+        t.interior = n % 2 === 1;
+    });
+    const H = C.hoja || C.cfgHoja || {};
+    plano = { titulo: (H.titulo || d.nombre || nombre || 'Plano').toString(), trazados };
+    dibujarPlano3D(); evaluarPlano();
+    const ext = trazados.filter(t => t.interior === false).length, int = trazados.filter(t => t.interior === true).length;
+    mostrarSnack(`Plano «${plano.titulo}» cargado: ${ext} exterior(es), ${int} interior(es)` + (gcodeMoves.length ? '' : '. Carga ahora el programa G-code para comprobarlo'));
+    if (typeof vista2D !== 'undefined') vista2D = null;
+    return true;
+}
+function quitarPlano() { plano = null; evalPlano = null; dibujarPlano3D(); pintarEvalPlano(); }
+function dibujarPlano3D() {
+    if (!grupoPlano) { grupoPlano = new THREE.Group(); scene.add(grupoPlano); }
+    while (grupoPlano.children.length) { const c = grupoPlano.children.pop(); c.geometry && c.geometry.dispose(); c.material && c.material.dispose(); const k = materialesLineaGruesa.indexOf(c.material); if (k >= 0) materialesLineaGruesa.splice(k, 1); }
+    if (!plano) return;
+    plano.trazados.forEach(t => grupoPlano.add(crearLineaGruesa(t.m.map(p => new THREE.Vector3(p.x, p.y, 0.05)), t.interior ? 0xd64545 : 0x1e6fd9, 2)));
+}
+// pieza según los tipos: dentro de un exterior y fuera de sus interiores; un interior suelto es un hueco en una placa
+function enPiezaPlano(q) {
+    const ext = plano.trazados.filter(t => t.interior === false), int = plano.trazados.filter(t => t.interior === true);
+    if (int.some(t => dentroPoli(q, t.m))) return false;
+    return ext.some(t => dentroPoli(q, t.m)) || (int.length && !ext.length);
+}
+function distPlano(q) { let d = Infinity; plano.trazados.forEach(t => { for (let k = 0; k + 1 < t.m.length; k++) d = Math.min(d, distASegPlano(q, t.m[k], t.m[k + 1])); }); return d; }
+function evaluarPlano() {
+    evalPlano = null;
+    if (!plano || !gcodeMoves.length) { pintarEvalPlano(); return; }
+    const R = Math.max(0, diametroFresa / 2), hayComp = gcodeMoves.some(m => m.comp === 41 || m.comp === 42);
+    // puntos de corte programados (bajo la superficie), por movimiento
+    const porMov = gcodeMoves.map(m => (m.tipo === 'corte' && m.z < -1e-9 && m.fromZ < -1e-9 && (Math.abs(m.x - m.fromX) > 1e-9 || Math.abs(m.y - m.fromY) > 1e-9)) ? densificar(muestrearMovimiento(m), 0.5) : null);
+    const todos = []; porMov.forEach(ps => ps && ps.forEach(p => todos.push(p)));
+    if (!todos.length) { evalPlano = { sinCortes:true }; pintarEvalPlano(); return; }
+    const dists = todos.map(distPlano);
+    // ¿programa el contorno, o (en G40) el camino del centro de la fresa?
+    const okC = dists.filter(d => d <= TOL_PLANO).length, okF = R > 0 && !hayComp ? dists.filter(d => Math.abs(d - R) <= TOL_PLANO).length : -1;
+    const modo = okF > okC ? 'centro' : 'contorno';
+    const clase = (p, d) => modo === 'contorno' ? (d <= TOL_PLANO ? 'ok' : enPiezaPlano(p) ? 'mal' : 'fuera')
+                                                : (Math.abs(d - R) <= TOL_PLANO ? 'ok' : (enPiezaPlano(p) || d < R - TOL_PLANO) ? 'mal' : 'fuera');
+    const claseMov = [], lineasMal = new Set(), ladoMal = new Set(); let i = 0;
+    porMov.forEach((ps, k) => {
+        if (!ps) { claseMov[k] = null; return; }
+        let peor = 'ok'; ps.forEach(p => { const c = clase(p, dists[i++]); if (c === 'mal') peor = 'mal'; else if (c === 'fuera' && peor === 'ok') peor = 'fuera'; });
+        // con G41/G42 lo programado es el contorno: además, el lado debe ser el del tipo del trazado
+        const m = gcodeMoves[k];
+        if (peor === 'ok' && (m.comp === 41 || m.comp === 42) && ps.length >= 2) {
+            const j = Math.floor(ps.length / 2), q = ps[j], q2 = ps[Math.min(ps.length - 1, j + 1)], q0 = ps[Math.max(0, j - 1)];
+            const L = Math.hypot(q2.x - q0.x, q2.y - q0.y) || 1, nl = { x:-(q2.y - q0.y) / L, y:(q2.x - q0.x) / L };
+            let tr = null, md = Infinity; plano.trazados.forEach(t => { if (!t.cerrado) return; for (let i2 = 0; i2 + 1 < t.m.length; i2++) { const d = distASegPlano(q, t.m[i2], t.m[i2 + 1]); if (d < md) { md = d; tr = t; } } });
+            if (tr && md <= TOL_PLANO * 3) {
+                const izqDentro = dentroPoli({ x:q.x + nl.x * 0.05, y:q.y + nl.y * 0.05 }, tr.m);
+                const debe = tr.interior ? (izqDentro ? 41 : 42) : (izqDentro ? 42 : 41);
+                if (m.comp !== debe) { peor = 'mal'; ladoMal.add(m.linea + ':' + debe + ':' + (tr.interior ? 'interior' : 'exterior')); }
+            }
+        }
+        claseMov[k] = peor; if (peor === 'mal') lineasMal.add(m.linea);
+    });
+    // qué parte del contorno queda mecanizada
+    let tot = 0, cub = 0;
+    plano.trazados.forEach(t => { for (let k = 0; k + 1 < t.m.length; k++) {
+        const a = t.m[k], b = t.m[k + 1], L = Math.hypot(b.x - a.x, b.y - a.y), q = { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 };
+        tot += L; let mejor = Infinity; for (const p of todos) { const d = Math.hypot(p.x - q.x, p.y - q.y); const e = modo === 'contorno' ? d : Math.abs(d - R); if (e < mejor) { mejor = e; if (mejor <= TOL_PLANO * 3) break; } }
+        if (mejor <= (modo === 'contorno' ? TOL_PLANO * 3 + 0.25 : TOL_PLANO * 3 + 0.25)) cub += L; } });
+    evalPlano = { modo, claseMov, lineasMal:[...lineasMal].sort((a, b) => a - b), cubierto: tot ? cub / tot : 0, ladoMal:[...ladoMal] };
+    pintarEvalPlano();
+}
+function densificar(pts, paso) { const out = []; for (let k = 0; k < pts.length; k++) { if (k) { const a = pts[k - 1], b = pts[k], n = Math.min(4000, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / paso) || 1); for (let q = 1; q < n; q++) out.push({ x:a.x + (b.x - a.x) * q / n, y:a.y + (b.y - a.y) * q / n }); } out.push(pts[k]); } return out; }
+function pintarEvalPlano() {
+    const sec = document.getElementById('secPlano'); if (!sec) return;
+    sec.style.display = plano ? '' : 'none'; if (!plano) return;
+    document.getElementById('planoTitulo').textContent = plano.titulo;
+    const el = document.getElementById('planoEval');
+    if (!gcodeMoves.length) { el.innerHTML = 'Carga el programa G-code para comprobarlo con el plano.'; return; }
+    if (!evalPlano || evalPlano.sinCortes) { el.innerHTML = 'El programa no corta por debajo de Z0: no hay nada que comparar.'; return; }
+    const e = evalPlano, pc = Math.round(e.cubierto * 100);
+    const bien = pc >= 99 && !e.lineasMal.length;
+    el.innerHTML = `<div class="${bien ? 'plano-ok' : 'plano-mal'}">${bien ? '✅ El recorrido sigue todo el contorno del plano' : '⚠ El recorrido no coincide del todo con el plano'}</div>`
+        + `<div>Contorno mecanizado: <b>${pc} %</b></div>`
+        + (e.lineasMal.length ? `<div>Se mete en la pieza en las líneas: <b>${e.lineasMal.slice(0, 12).join(', ')}${e.lineasMal.length > 12 ? '…' : ''}</b></div>` : '')
+        + (e.ladoMal && e.ladoMal.length ? (() => { const [lin, debe, tipo] = e.ladoMal[0].split(':'); return `<div>Compensación del lado equivocado (desde la línea ${lin}): el trazado es <b>${tipo}</b> y, en ese sentido de recorrido, corresponde <b>G${debe}</b>.</div>`; })() : '')
+        + `<div class="nota-herr">${e.modo === 'centro' ? 'El programa describe el camino del centro de la fresa (G40): se compara con él.' : 'Verde: sobre el contorno · rojo: se mete en la pieza · naranja: corta en la zona que sobra.'}</div>`;
+}
+// El Calcador puede enviar el plano y su solución («➜ Abrir en el Simulador»)
+window.addEventListener('load', () => setTimeout(() => {
+    if (location.hash !== '#desdeCalcador') return;
+    let recibido = false;
+    const recibir = d => {
+        if (recibido || !d) return; recibido = true;
+        try { const j = JSON.parse(d.json); if (d.herramienta && d.herramienta.tipo) { document.getElementById('tipoFresa').value = ['plana','bola','v'].includes(d.herramienta.tipo) ? d.herramienta.tipo : 'plana'; if (d.herramienta.angulo) document.getElementById('anguloV').value = d.herramienta.angulo; actualizarTipoFresa(); } if (d.diametro > 0) { document.getElementById('diamHerramienta').value = d.diametro; actualizarDiametroHerramienta(); } if (d.programa) cargarGcodeTexto(d.programa, (d.nombre || 'pieza') + ' (solución).nc'); cargarPlano(j, d.nombre); } catch (e) { mostrarSnack('No se pudo leer lo recibido del Calcador'); }
+        try { localStorage.removeItem('suiteCNC:paraSimulador'); history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    };
+    window.addEventListener('message', e => { if (e.data && e.data.tipo === 'plano-calcador') recibir(e.data); });
+    if (window.opener) try { window.opener.postMessage({ tipo:'simulador-listo' }, '*'); } catch (e) {}
+    setTimeout(() => { if (recibido) return; try { const x = JSON.parse(localStorage.getItem('suiteCNC:paraSimulador') || 'null'); if (x && Date.now() - x.t < 120000) recibir(x); } catch (e) {} }, 1200);
+}, 300));
+
+// ════════════════════════════════════════════════════════════════════
+//  BASE DE HERRAMIENTAS compartida por la suite (Calcador, Corrector,
+//  Generador y Simuladores). Se guarda en el navegador y se puede
+//  exportar e importar para pasarla a otro ordenador o a los alumnos.
+// ════════════════════════════════════════════════════════════════════
+const HB = (() => {
+    const CLAVE = 'suiteCNC:herramientas', TIPOS = { plana:'Plana', bola:'Bola', v:'En V' };
+    const selectores = [];
+    const porDefecto = () => [
+        { id:'h1', T:101, nombre:'Fresa plana Ø6', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 },
+        { id:'h2', T:102, nombre:'Fresa plana Ø3', tipo:'plana', d:3, angulo:90, F:800, Fz:200, S:16000, paso:1.5 },
+        { id:'h3', T:103, nombre:'Fresa en V 90°', tipo:'v', d:6, angulo:90, F:600, Fz:200, S:16000, paso:1 } ];
+    const T_MIN = 101, T_MAX = 999;          // números de herramienta de tres cifras, como en TpaCAD
+    // T de una o dos cifras (bases antiguas): se le suma 100 (T1 → T101)
+    const normT = t => { t = Math.round(t); if (t >= 1 && t < 100) t += 100; return Math.max(T_MIN, Math.min(T_MAX, t)); };
+    const num = (v, def, min) => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? (min !== undefined ? Math.max(min, n) : n) : def; };
+    function sanear(h) {
+        if (!h || typeof h !== 'object') return null;
+        return { id: String(h.id || ('h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6))),
+            T: normT(num(h.T, T_MIN, 1)), nombre: String(h.nombre || 'Herramienta').slice(0, 60),
+            tipo: TIPOS[h.tipo] ? h.tipo : 'plana', d: num(h.d, 6, 0.1), angulo: Math.max(10, Math.min(170, num(h.angulo, 90))),
+            F: num(h.F, 1000, 1), Fz: num(h.Fz, 300, 1), S: Math.round(num(h.S, 12000, 0)), paso: num(h.paso, 3, 0.05) };
+    }
+    function leer() {
+        try { const d = JSON.parse(localStorage.getItem(CLAVE) || 'null'); if (d && Array.isArray(d.herramientas)) return d.herramientas.map(sanear).filter(Boolean); } catch (e) {}
+        return porDefecto();
+    }
+    function guardar(lista) {
+        try { localStorage.setItem(CLAVE, JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas:lista })); } catch (e) {}
+        selectores.forEach(s => s.refrescar());
+    }
+    const etiqueta = h => `T${h.T} · ${h.nombre}`;
+    const porT = T => leer().find(h => h.T === +T) || null;
+    const siguienteT = l => Math.min(T_MAX, l.length ? Math.max(T_MIN - 1, ...l.map(x => x.T)) + 1 : T_MIN);
+    const porId = id => leer().find(h => h.id === id) || null;
+    // Desplegable «Herramienta de la base»: al elegir una, el programa la aplica
+    function montarSelector(sel, aplicar) {
+        if (!sel) return;
+        const s = { sel, aplicar, refrescar() {
+            const lista = leer(), v = sel.value;
+            sel.innerHTML = '<option value="">— a mano —</option>' + lista.map(h => `<option value="${h.id}">${etiqueta(h).replace(/</g, '&lt;')} · Ø${+h.d.toFixed(3)}</option>`).join('');
+            if ([...sel.options].some(o => o.value === v)) sel.value = v;
+        } };
+        sel.addEventListener('change', () => { const h = porId(sel.value); if (h) aplicar(h); });
+        s.refrescar(); selectores.push(s);
+    }
+    function marcar(sel, id) { if (sel && [...sel.options].some(o => o.value === id)) sel.value = id; else if (sel) sel.value = ''; }
+    window.addEventListener('storage', e => { if (e.key === CLAVE) selectores.forEach(s => s.refrescar()); });
+    // ── Ventana de gestión ──
+    let aplicarActual = null;
+    function estilos() {
+        if (document.getElementById('hbEstilos')) return;
+        const st = document.createElement('style'); st.id = 'hbEstilos';
+        st.textContent = `.hb-fondo{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:9000;display:none;align-items:center;justify-content:center}
+.hb-fondo.visible{display:flex}.hb-caja{background:#fff;color:#1c2733;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:min(1080px,96vw);max-height:88vh;display:flex;flex-direction:column;font:13px system-ui,-apple-system,'Segoe UI',sans-serif}
+.hb-cab{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #e3e8ee}.hb-cab h2{margin:0;font-size:17px;flex:1}
+.hb-cuerpo{overflow:auto;padding:10px 18px}.hb-pie{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid #e3e8ee;align-items:center}
+.hb-tabla{border-collapse:collapse;width:100%}.hb-tabla th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5d6d7e;text-align:left;padding:6px 4px;border-bottom:1px solid #e3e8ee;white-space:nowrap}
+.hb-tabla td{padding:4px;border-bottom:1px solid #f0f2f5}.hb-tabla input,.hb-tabla select{width:100%;box-sizing:border-box;padding:4px 5px;border:1px solid #cfd6de;border-radius:5px;font:inherit;background:#fff;color:inherit}
+.hb-tabla input.hb-dup{border-color:#d84343;background:#fdecec}.hb-tabla input:disabled{opacity:.35;background:#f0f2f5}.hb-b{border:1px solid #cfd6de;background:#fff;color:#1c2733;border-radius:7px;padding:6px 11px;cursor:pointer;font:inherit}
+.hb-b:hover{background:#f0f4f8}.hb-b.hb-p{background:#005A9C;border-color:#005A9C;color:#fff}.hb-b.hb-p:hover{background:#004a80}.hb-nota{font-size:11.5px;color:#5d6d7e;margin:8px 0 0}
+.hb-x{border:none;background:#e74c3c;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}`;
+        document.head.appendChild(st);
+    }
+    function caja() {
+        let f = document.getElementById('hbFondo'); if (f) return f;
+        estilos();
+        f = document.createElement('div'); f.id = 'hbFondo'; f.className = 'hb-fondo';
+        f.innerHTML = `<div class="hb-caja"><div class="hb-cab"><h2>🧰 Base de herramientas</h2><button class="hb-x" onclick="HB.cerrar()" title="Cerrar">✕</button></div>
+<div class="hb-cuerpo"><table class="hb-tabla"><thead><tr><th style="width:56px">T</th><th>Nombre</th><th style="width:96px">Tipo</th><th style="width:66px">Ø (mm)</th><th style="width:62px">V (°)</th><th style="width:76px">F corte</th><th style="width:76px">F bajada</th><th style="width:82px">S (rpm)</th><th style="width:72px">Pasada (mm)</th><th style="width:110px"></th></tr></thead><tbody id="hbFilas"></tbody></table>
+<p class="hb-nota">Una sola lista para el Calcador, el Corrector, el Generador y los Simuladores de este navegador. <b>T</b> es el número de herramienta de la máquina, de tres cifras como en TpaCAD (de T101 a T999): si un programa usa <code>T102</code>, el Simulador toma de aquí su diámetro y su tipo. «F corte» y «F bajada» en mm/min; «Pasada», la profundidad máxima por pasada. Los cambios se guardan al momento.</p></div>
+<div class="hb-pie"><button class="hb-b hb-p" onclick="HB.anadir()">＋ Añadir herramienta</button><button class="hb-b" onclick="HB.exportar()" title="Guarda la lista en un archivo JSON para pasarla a otro ordenador o a los alumnos">⬇ Exportar JSON</button><button class="hb-b" onclick="HB.exportarCSV()" title="Guarda la lista como hoja de cálculo (CSV con punto y coma, se abre en Excel o LibreOffice)">⬇ Exportar CSV</button><button class="hb-b" onclick="document.getElementById('hbArchivo').click()" title="Carga una lista en JSON o CSV (sustituye la actual)">📥 Importar JSON o CSV</button><input type="file" id="hbArchivo" accept=".json,.csv,.txt" style="display:none"><span style="flex:1"></span><button class="hb-b" onclick="HB.restaurar()" title="Vuelve a las tres herramientas de ejemplo">Restaurar ejemplo</button></div></div>`;
+        document.body.appendChild(f);
+        f.addEventListener('click', e => { if (e.target === f) cerrar(); });
+        f.querySelector('#hbArchivo').addEventListener('change', e => { const a = e.target.files[0]; e.target.value = ''; if (a) importar(a); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && f.classList.contains('visible')) { e.stopPropagation(); cerrar(); } }, true);
+        return f;
+    }
+    function pintar() {
+        const lista = leer(), tb = document.getElementById('hbFilas'); if (!tb) return;
+        const veces = {}; lista.forEach(h => { veces[h.T] = (veces[h.T] || 0) + 1; });
+        const e = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        tb.innerHTML = lista.map(h => `<tr data-id="${e(h.id)}">
+ <td><input type="number" min="101" max="999" step="1" data-k="T" value="${h.T}" class="${veces[h.T] > 1 ? 'hb-dup' : ''}" title="${veces[h.T] > 1 ? 'Número repetido: cada herramienta debería tener el suyo' : 'Número de herramienta (T) de la máquina'}"></td>
+<td><input data-k="nombre" value="${e(h.nombre)}"></td>
+<td><select data-k="tipo">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}"${k === h.tipo ? ' selected' : ''}>${t}</option>`).join('')}</select></td>
+<td><input type="number" min="0.1" step="0.5" data-k="d" value="${h.d}"></td>
+<td><input type="number" min="10" max="170" step="5" data-k="angulo" value="${h.angulo}" ${h.tipo === 'v' ? '' : 'disabled title="Solo en fresas en V"'}></td>
+<td><input type="number" min="1" step="50" data-k="F" value="${h.F}"></td>
+<td><input type="number" min="1" step="50" data-k="Fz" value="${h.Fz}"></td>
+<td><input type="number" min="0" step="500" data-k="S" value="${h.S}"></td>
+<td><input type="number" min="0.05" step="0.5" data-k="paso" value="${h.paso}"></td>
+<td style="white-space:nowrap">${aplicarActual ? '<button class="hb-b hb-p" data-usar="1" title="Usar esta herramienta aquí">Usar</button> ' : ''}<button class="hb-b" data-dup="1" title="Duplicar">⧉</button> <button class="hb-b" data-borrar="1" title="Borrar">🗑</button></td></tr>`).join('');
+        tb.querySelectorAll('input,select').forEach(el => el.addEventListener('change', () => {
+            const id = el.closest('tr').dataset.id, l = leer(), h = l.find(x => x.id === id); if (!h) return;
+            h[el.dataset.k] = el.dataset.k === 'nombre' || el.dataset.k === 'tipo' ? el.value : el.value;
+            l[l.indexOf(h)] = sanear(h); guardar(l); pintar();
+        }));
+        tb.querySelectorAll('[data-usar]').forEach(b => b.onclick = () => { const h = porId(b.closest('tr').dataset.id); if (h && aplicarActual) { aplicarActual(h); cerrar(); } });
+        tb.querySelectorAll('[data-dup]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h) return; const n = sanear({ ...h, id:null, T: siguienteT(l), nombre: h.nombre + ' (copia)' }); l.splice(l.indexOf(h) + 1, 0, n); guardar(l); pintar(); });
+        tb.querySelectorAll('[data-borrar]').forEach(b => b.onclick = () => { const l = leer(), h = l.find(x => x.id === b.closest('tr').dataset.id); if (!h || !confirm(`¿Borrar «${etiqueta(h)}» de la base de herramientas?`)) return; l.splice(l.indexOf(h), 1); guardar(l); pintar(); });
+    }
+    function abrir(aplicar) { aplicarActual = aplicar || null; caja().classList.add('visible'); pintar(); }
+    function cerrar() { const f = document.getElementById('hbFondo'); if (f) f.classList.remove('visible'); }
+    function anadir() { const l = leer(); l.push(sanear({ T: siguienteT(l), nombre:'Nueva fresa', tipo:'plana', d:6, angulo:90, F:1000, Fz:300, S:12000, paso:3 })); guardar(l); pintar(); }
+    function exportar() {
+        const txt = JSON.stringify({ tipo:'herramientas-suiteCNC', version:1, herramientas: leer() }, null, 2);
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:'application/json' })); a.download = 'Herramientas_SuiteCNC.json';
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    // ── CSV: punto y coma y coma decimal (Excel en español); al importar se reconoce el separador, el decimal y las columnas por su nombre ──
+    const COLS = [['T', 'T'], ['nombre', 'Nombre'], ['tipo', 'Tipo'], ['d', 'Diámetro (mm)'], ['angulo', 'Ángulo V (°)'], ['F', 'F corte (mm/min)'], ['Fz', 'F bajada (mm/min)'], ['S', 'S (rpm)'], ['paso', 'Pasada (mm)']];
+    function exportarCSV() {
+        const campo = v => { const t = typeof v === 'number' ? String(v).replace('.', ',') : String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+        const filas = [COLS.map(c => c[1]).join(';')].concat(leer().map(h => COLS.map(([k]) => campo(k === 'tipo' ? TIPOS[h.tipo] : h[k])).join(';')));
+        descargarTexto('\ufeff' + filas.join('\r\n') + '\r\n', 'Herramientas_SuiteCNC.csv', 'text/csv');
+    }
+    function leerCSV(texto) {
+        texto = texto.replace(/^\ufeff/, '');
+        const lineas = texto.split(/\r?\n/).filter(l => l.trim());
+        if (lineas.length < 2) return null;
+        const sep = [';', '\t', ','].map(c => [c, lineas[0].split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+        const partir = l => { const out = []; let cur = '', q = false; for (let i = 0; i < l.length; i++) { const ch = l[i];
+            if (q) { if (ch === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+            else if (ch === '"') q = true; else if (ch === sep) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map(x => x.trim()); };
+        const norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+        const alias = { t:'T', herramienta:'T', numero:'T', nombre:'nombre', descripcion:'nombre', tipo:'tipo', diametro:'d', diametromm:'d', d:'d', o:'d', angulo:'angulo', angulov:'angulo', fcorte:'F', fcortemmmin:'F', avance:'F', f:'F', fbajada:'Fz', fbajadammmin:'Fz', fz:'Fz', s:'S', srpm:'S', rpm:'S', revoluciones:'S', pasada:'paso', pasadamm:'paso', paso:'paso', profundidadporpasada:'paso' };
+        const cab = partir(lineas[0]).map(c => alias[norm(c)] || alias[norm(c).replace(/\d+$/, '')] || null);
+        if (!cab.includes('d') && !cab.includes('T')) return null;
+        const tipoDe = v => { const n = norm(v); return n.startsWith('bola') ? 'bola' : (n === 'v' || n.startsWith('env') || n.startsWith('v')) ? 'v' : 'plana'; };
+        return lineas.slice(1).map(l => { const c = partir(l), h = {}; cab.forEach((k, i) => { if (!k || c[i] === undefined || c[i] === '') return; h[k] = k === 'nombre' ? c[i] : k === 'tipo' ? tipoDe(c[i]) : c[i].replace(',', '.'); }); return h; })
+            .filter(h => Object.keys(h).length).map(sanear).filter(Boolean);
+    }
+    function descargarTexto(txt, nombre, tipo) {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type:tipo })); a.download = nombre;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    function importar(archivo) {
+        const r = new FileReader();
+        r.onload = () => { let d = null, l = null; const txt = String(r.result);
+            if (/^\s*[\[{]/.test(txt.replace(/^\ufeff/, ''))) { try { d = JSON.parse(txt.replace(/^\ufeff/, '')); } catch (e) {} l = d && Array.isArray(d.herramientas) ? d.herramientas.map(sanear).filter(Boolean) : null; }
+            else l = leerCSV(txt);
+            if (!l) { alert('El archivo no es una lista de herramientas válida (JSON exportado o CSV con columnas T, Nombre, Tipo, Diámetro…)'); return; }
+            if (!l || !l.length) { alert('El archivo no contiene herramientas'); return; }
+            if (!confirm(`¿Sustituir la base actual por las ${l.length} herramientas del archivo?`)) return;
+            guardar(l); pintar(); };
+        r.readAsText(archivo);
+    }
+    function restaurar() { if (confirm('¿Volver a las tres herramientas de ejemplo (T101, T102 y T103)? Se perderá la lista actual.')) { guardar(porDefecto()); pintar(); } }
+    return { leer, guardar, montarSelector, marcar, abrir, cerrar, anadir, exportar, exportarCSV, leerCSV, restaurar, porT, porId, etiqueta, TIPOS };
+})();
+
+// Herramienta de la base: tipo, ángulo y diámetro
+function aplicarHerramientaSim(h) {
+    document.getElementById('tipoFresa').value = h.tipo; document.getElementById('anguloV').value = h.angulo;
+    document.getElementById('diamHerramienta').value = h.d;
+    actualizarTipoFresa(); actualizarDiametroHerramienta();
+    HB.marcar(document.getElementById('hbSel'), h.id);
+    mostrarSnack(`Herramienta ${HB.etiqueta(h)}: Ø${h.d} mm`);
+}
+window.addEventListener('load', () => {
+    HB.montarSelector(document.getElementById('hbSel'), aplicarHerramientaSim);
+    document.getElementById('diamHerramienta').addEventListener('input', e => { if (e.isTrusted) HB.marcar(document.getElementById('hbSel'), ''); });
+});
 function animate(ts) {
     requestAnimationFrame(animate);
     controls.update();
@@ -3649,6 +3996,10 @@ function leerArchivoGcode(f) {
         catch (e) { texto = new TextDecoder('windows-1252').decode(buf); }
         if (texto.charCodeAt(0) === 0xFEFF) texto = texto.slice(1);          // BOM
         if (/\u0000/.test(texto.slice(0, 2000))) { mostrarSnack('«' + f.name + '» no parece un archivo de texto con G-code'); return; }
+        if (/\.json$/i.test(f.name) || /^\s*\{/.test(texto)) {
+            let d; try { d = JSON.parse(texto); } catch (e) { mostrarSnack('«' + f.name + '» no es un JSON válido'); return; }
+            cargarPlano(d, f.name); return;
+        }
         cargarGcodeTexto(texto, f.name);
     };
     reader.onerror = () => mostrarSnack('No se pudo leer el archivo');
@@ -3881,7 +4232,7 @@ function descartarEdicion() {
 }
 function nuevoPrograma() {
     if (!confirmarDescarteEdicion()) return;
-    const plantilla = '( Programa nuevo )\nG71 G90\nT1 M3 S12000\nG0 X0 Y0 Z10\n\nG0 Z10\nM5\nM30\n';
+    const plantilla = '( Programa nuevo )\nG71 G90\nT101 M3 S12000\nG0 X0 Y0 Z10\n\nG0 Z10\nM5\nM30\n';
     if (!editando) { textoAntesDeEditar = textoPrograma; mostrarModoEdicion(true); }
     editorTexto().value = plantilla;
     nombrePrograma = 'programa_nuevo.nc';
@@ -3966,6 +4317,55 @@ window.addEventListener('DOMContentLoaded', () => {
     cargarEjemplo('gcodeEjemplo');
 });
 
+
+// ── Créditos y licencias ──
+function abrirCreditos() {
+    let f = document.getElementById('credFondo');
+    if (!f) {
+        const st = document.createElement('style');
+        st.textContent = `.cred-fondo{position:fixed;inset:0;background:rgba(10,20,30,.45);z-index:9500;display:none;align-items:center;justify-content:center}.cred-fondo.visible{display:flex}
+.cred-caja{background:#fff;color:#1c2733;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.3);width:min(760px,94vw);max-height:86vh;display:flex;flex-direction:column;font:13.5px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
+.cred-cab{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #e3e8ee}.cred-cab h2{margin:0;font-size:17px;flex:1}
+.cred-x{border:none;background:#e74c3c;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}
+.cred-cuerpo{overflow:auto;padding:6px 20px 16px}.cred-cuerpo h3{font-size:14.5px;margin:16px 0 4px;color:#005A9C}.cred-cuerpo p{margin:6px 0}
+.cred-cuerpo pre{white-space:pre-wrap;font:11.5px/1.45 Consolas,monospace;background:#f4f6f8;border:1px solid #e3e8ee;border-radius:6px;padding:8px 10px}`;
+        document.head.appendChild(st);
+        f = document.createElement('div'); f.id = 'credFondo'; f.className = 'cred-fondo';
+        f.innerHTML = `<div class="cred-caja"><div class="cred-cab"><h2>ℹ Créditos y licencias</h2><button class="cred-x" onclick="cerrarCreditos()" title="Cerrar">✕</button></div><div class="cred-cuerpo">
+<h3>Simulador G-Code 3D (versión del profesor)</h3>
+<p>Programa: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador. Forma parte de la <strong>Suite CNC 2026.10</strong> (Calcador, Corrector, Generador y Simuladores).</p>
+<p><strong>Licencia:</strong> se publica con la <strong>European Union Public Licence v. 1.2 (EUPL-1.2)</strong>: puedes usarlo, estudiarlo, modificarlo y compartirlo; si distribuyes una versión modificada, debe publicarse con la misma licencia (o una compatible) y con su código. Texto completo en el archivo <em>LICENSE</em> de la carpeta de las herramientas; los créditos de toda la suite, en <a href="licencias.html" target="_blank" rel="noopener">licencias.html</a>.</p>
+<h3>Componentes de terceros</h3>
+<p><strong>three.js</strong> (con sus controles de cámara OrbitControls), la biblioteca que dibuja la vista 3D: © 2010-2021 three.js authors, con licencia <strong>MIT</strong>, que permite usarlo, copiarlo, modificarlo y redistribuirlo manteniendo este aviso:</p>
+<pre>The MIT License
+
+Copyright © 2010-2021 three.js authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</pre>
+</div></div>`;
+        document.body.appendChild(f);
+        f.addEventListener('click', e => { if (e.target === f) cerrarCreditos(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && f.classList.contains('visible')) cerrarCreditos(); });
+    }
+    f.classList.add('visible');
+}
+function cerrarCreditos() { const f = document.getElementById('credFondo'); if (f) f.classList.remove('visible'); }
 </script>
 </body>
 </html>
