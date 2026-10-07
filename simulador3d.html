@@ -61,7 +61,9 @@
     header h1 { flex-shrink:0; }
     header .filename { min-width:0 !important; }
     /* En pantallas estrechas algunos botones muestran solo el icono (el texto sigue en el título emergente) */
-    @media (max-width: 1420px) { header .lbl { display:none; } }
+    @media (max-width: 1600px) { header .lbl { display:none; } }
+    @media (max-width: 1300px) { header .lbl2 { display:none; } }
+    @media (max-width: 1200px) { header .tit-largo { display:none; } header .filename { max-width:110px; } header .sep { display:none; } }
     input[type=range] { accent-color:var(--accent); }
     header button, header select { padding:6px 9px; }
     header button, header .seg-toggle { white-space:nowrap; flex-shrink:0; }
@@ -216,11 +218,11 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥 Simulador G-Code 3D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V31</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V34</span></h1>
         
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
-        <button class="principal" onclick="document.getElementById('fileInput').click()" title="Un programa G-code (.nc, .txt…) o el plano del ejercicio (.json del Calcador) para comprobar el programa con él">📂 Cargar G-code / plano</button>
+        <button class="principal" onclick="document.getElementById('fileInput').click()" title="Un programa G-code (.nc, .txt…) o el plano del ejercicio (.json del Calcador) para comprobar el programa con él">📂 Cargar<span class="lbl2"> G-code / plano</span></button>
         <input type="file" id="fileInput" accept=".nc,.gcode,.txt,.tap,.ngc,.json">
         <select id="selEjemplo" onchange="cargarEjemplo(this.value); this.value='';" title="Cargar uno de los programas de ejemplo incluidos">
             <option value="">📚 Ejemplos…</option>
@@ -234,8 +236,8 @@
             <button class="activo" id="btnModo3D" onclick="setModo2D(false)" title="Vista 3D: la pieza en volumen, con cámara libre">3D</button>
         </div>
         <div class="seg-toggle" id="modoVistaToggle">
-            <button class="activo" id="btnModoSolido" onclick="setModoVista('solido')" title="Fresa como cilindro sólido, con luz y sombreado">🧊 Sólido</button>
-            <button id="btnModoWire" onclick="setModoVista('wireframe')" title="Fresa como línea/punto, trazado como líneas">📐 Wireframe</button>
+            <button class="activo" id="btnModoSolido" onclick="setModoVista('solido')" title="Sólido: fresa como cilindro, con luz y sombreado">🧊<span class="lbl"> Sólido</span></button>
+            <button id="btnModoWire" onclick="setModoVista('wireframe')" title="Wireframe: fresa como línea y punto, trazado como líneas">📐<span class="lbl"> Wireframe</span></button>
         </div>
         <button id="btnTransparencia" onclick="toggleTransparencia()" title="Material semitransparente (50 %) para ver la fresa dentro. Solo en modo sólido">👁️<span class="lbl"> Transparencia</span></button>
         <div class="sep"></div>
@@ -444,8 +446,9 @@
       <button class="panel-cerrar" onclick="cerrarAyuda()" title="Cerrar (Esc)">✕</button>
     </div>
     <div class="cuerpo">
+      <p style="margin:0 0 10px;font-size:13px">📖 Hay una <a href="guia_simulador.pdf" target="_blank" rel="noopener"><b>guía para el alumnado en PDF</b></a>, con capturas y una lista de comprobación antes de entregar (en la misma carpeta que el simulador).</p>
       <h3>Cargar un programa</h3>
-      <p>Al abrir el simulador se carga un programa de ejemplo. En <b>📚 Ejemplos</b> hay tres programas incluidos: el contorno básico y el mismo contorno con compensación: con <code>G41</code> es un <b>corte interior</b> (un agujero con esa forma: la fresa va por dentro) y con <code>G42</code> un <b>corte exterior</b> (una pieza con esa forma: la fresa va por fuera), los dos recorriendo el contorno en sentido antihorario. Fíjate en cómo están escritos: bajan en la zona que sobra, activan la compensación en una recta que llega al centro de un lado (nunca en una esquina) y la anulan con <code>G40</code> en otra recta que se aleja. La entrada y la salida miden el <b>diámetro de la fresa más 1 o 2 mm</b> (8 mm con una fresa de 6): así la fresa baja sin tocar el contorno y el tramo donde se activa la compensación es más largo que su radio, como piden muchos controles. Para usar tu programa, pulsa <b>📂 Cargar G-code</b> o arrastra el archivo (.nc, .gcode, .txt, .tap, .ngc) sobre la vista 3D.</p>
+      <p>Al abrir el simulador se carga un programa de ejemplo. En <b>📚 Ejemplos</b> hay tres programas incluidos: el contorno básico y el mismo contorno con compensación: con <code>G41</code> es un <b>corte interior</b> (un agujero con esa forma: la fresa va por dentro) y con <code>G42</code> un <b>corte exterior</b> (una pieza con esa forma: la fresa va por fuera), los dos recorriendo el contorno en sentido antihorario. Fíjate en cómo están escritos: bajan en la zona que sobra, activan la compensación en una recta que llega al centro de un lado (nunca en una esquina) y la anulan con <code>G40</code> en otra recta que se aleja. La entrada y la salida miden el <b>diámetro de la fresa más 1 o 2 mm</b> (8 mm con una fresa de 6): así la fresa baja sin tocar el contorno y el tramo donde se activa la compensación es más largo que su radio, como piden muchos controles. Para usar tu programa, pulsa <b>📂 Cargar G-code / plano</b> o arrastra el archivo (.nc, .gcode, .txt, .tap, .ngc) sobre la vista. El mismo botón abre el plano del ejercicio (.json del Calcador).</p>
       <p>La fresa empieza en X0 Y0 <b>Z10</b>, una posición de seguridad por encima de la pieza.</p>
 
       <h3>Código G que entiende</h3>
@@ -2078,6 +2081,32 @@ function muestrearEnt(e) {   // puntos SIN el inicial
 }
 
 let avisosCompensacion = [];   // se rellenan al calcular G41/G42 y los usa la revisión
+// Donde la fresa no cabe, el camino compensado se cruza consigo mismo: el bucle se reduce al punto del cruce
+// (la fresa pasa de largo y deja ese material sin cortar, en vez de meterse en la pieza)
+function quitarBuclesMuestras(muestras, k0, k1) {
+    const cruce = (a, b, c, d) => { const rx = b.x - a.x, ry = b.y - a.y, qx = d.x - c.x, qy = d.y - c.y, den = rx * qy - ry * qx; if (Math.abs(den) < 1e-12) return null;
+        const wx = c.x - a.x, wy = c.y - a.y, t = (wx * qy - wy * qx) / den, u = (wx * ry - wy * rx) / den;
+        return t > 1e-9 && t < 1 - 1e-9 && u > 1e-9 && u < 1 - 1e-9 ? { x:a.x + rx * t, y:a.y + ry * t } : null; };
+    for (let vuelta = 0; vuelta < 60; vuelta++) {
+        const P = []; for (let k = k0; k < k1; k++) (muestras[k] || []).forEach(p => P.push(p));
+        if (P.length < 4) return;
+        const acum = [0]; for (let i = 1; i < P.length; i++) acum.push(acum[i - 1] + Math.hypot(P[i].x - P[i - 1].x, P[i].y - P[i - 1].y));
+        const total = acum[P.length - 1]; let hecho = false;
+        for (let i = 0; i < P.length - 3 && !hecho; i++) {
+            const a = P[i], b = P[i + 1]; if (Math.hypot(b.x - a.x, b.y - a.y) < 1e-9) continue;
+            const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x), y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y);
+            for (let j = P.length - 2; j > i + 1; j--) {
+                const c = P[j], d = P[j + 1];
+                if (Math.max(c.x, d.x) < x0 || Math.min(c.x, d.x) > x1 || Math.max(c.y, d.y) < y0 || Math.min(c.y, d.y) > y1) continue;
+                if (acum[j] - acum[i + 1] > total * 0.5) continue;           // el bucle es la parte corta
+                const X = cruce(a, b, c, d); if (!X) continue;
+                for (let q = i + 1; q <= j; q++) { P[q].x = X.x; P[q].y = X.y; }
+                hecho = true; break;
+            }
+        }
+        if (!hecho) return;
+    }
+}
 function compensarCadena(moves, muestras, iEntrada, jFin, lado, r) {
     // Tramos del contorno (movimientos con desplazamiento en XY) y su entidad desplazada
     const tramos = [];
@@ -2152,6 +2181,7 @@ function compensarCadena(moves, muestras, iEntrada, jFin, lado, r) {
             muestras[k] = [{ x:pos.x, y:pos.y, z:m.z }];
         }
     }
+    quitarBuclesMuestras(muestras, iEntrada + 1, jFin);
 }
 
 function longitudTotalCorte(moves) {

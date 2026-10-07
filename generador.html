@@ -87,7 +87,7 @@
             padding: 3px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 300; }
 
         /* ACTION PANEL */
-        .action-panel { width: 210px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: calc(100vh - 120px); }
+        .action-panel { width: 226px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: calc(100vh - 120px); }
         .action-panel::-webkit-scrollbar { width: 4px; }
         .action-panel::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
         .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); font-weight: 700; }
@@ -714,7 +714,7 @@
 <div class="app-window">
 
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v79</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Generador de G-Code 2D — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v81</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="perfil_sin_nombre" placeholder="Nombre del proyecto">
             <span class="icon-gear" onclick="abrirCreditos()" title="Créditos y licencias" style="font-size:17px">ℹ</span>
@@ -749,7 +749,7 @@
             <input type="file" id="fileNCbar" accept=".nc,.gcode,.tap,.txt" style="display:none" onchange="cargarNC(this)">
             <div class="exp-sep"></div>
             <button class="exp-btn" id="btnDevolver" style="display:none" onclick="devolverAlCalcador()" title="Devuelve el proyecto (con el mecanizado y la entrada que hayas cambiado) a la pestaña del Calcador">⬅ CALCADOR</button>
-            <button class="exp-btn" onclick="window.open('Editor_Gcode.html', '_blank')" title="Abrir el editor/simulador de G-code independiente">EDITOR</button>
+            <button class="exp-btn" onclick="abrirEnCalcador()" title="Abre este proyecto en el Calcador de contornos (si vino del Calcador, se lo devuelve con los cambios)">➜ CALCADOR</button>
         </div>
     </div>
 
@@ -817,7 +817,7 @@
                         <label title="Sobreespesor que dejan las pasadas de desbaste; después, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. Escala ×10: 5 = 0,5 mm">Acabado <input type="number" id="gcAcabA" value="0" min="0" step="1" style="width:52px" title="Escala ×10: valor real = esto ÷ 10 mm (5 = 0,5 mm de sobreespesor)"></label>
                         <label>Paso Z <input type="number" id="gcZstepA" value="10" min="1" step="1" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
                         <label>Herramienta <input type="number" id="gcToolA" value="101" min="1" max="999" step="1" style="width:60px" title="Número de herramienta (T): tres cifras, como en TpaCAD (T101…)"></label>
-                        <label>De la base <span style="display:inline-flex;gap:4px"><select id="hbSelA" style="width:150px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
+                        <label title="Una fresa de la base de herramientas">Base <span style="display:inline-flex;gap:4px"><select id="hbSelA" style="width:136px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
                         <label>Radio herramienta <input type="number" id="gcToolRA" value="5" min="0" step="1" style="width:60px" title="Escala ×10: radio real = esto ÷ 10 mm"></label>
                         <label>Corrección herramienta
                             <select id="gcCompA" style="width:135px">
@@ -864,7 +864,7 @@
                         <label title="Sobreespesor que dejan las pasadas de desbaste; después, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. Escala ×10: 5 = 0,5 mm">Acabado <input type="number" id="gcAcab" value="0" min="0" step="1" style="width:52px" title="Escala ×10: valor real = esto ÷ 10 mm (5 = 0,5 mm de sobreespesor)"></label>
                         <label>Paso Z <input type="number" id="gcZstep" value="10" min="1" step="1" style="width:60px" title="Escala ×10: valor real = esto ÷ 10 mm"></label>
                         <label>Herramienta <input type="number" id="gcTool" value="101" min="1" max="999" step="1" style="width:60px" title="Número de herramienta (T): tres cifras, como en TpaCAD (T101…)"></label>
-                        <label>De la base <span style="display:inline-flex;gap:4px"><select id="hbSel" style="width:150px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
+                        <label title="Una fresa de la base de herramientas">Base <span style="display:inline-flex;gap:4px"><select id="hbSel" style="width:136px" title="Elige una fresa de la base de herramientas: rellena T, radio, avances, rotación y paso Z"></select><button type="button" onclick="HB.abrir(aplicarHerramientaGen)" title="Base de herramientas: añadir, editar, exportar…" style="padding:2px 6px">🧰</button></span></label>
                         <label>Radio herramienta <input type="number" id="gcToolR" value="5" min="0" step="1" style="width:60px" title="Escala ×10: radio real = esto ÷ 10 mm"></label>
                         <label>Corrección herramienta
                             <select id="gcComp" style="width:135px">
@@ -1322,7 +1322,8 @@
                     <table class="help-table">
                         <tr><td>Coordenadas</td><td><strong>G90 Absolutas</strong>: cada punto se escribe con su posición real en la máquina. <strong>G91 Incrementales</strong>: cada movimiento es la distancia relativa al punto anterior. El posicionamiento inicial y el retorno final siempre van en absoluto.</td></tr>
                         <tr><td>Unidades</td><td><strong>G71</strong>: milímetros (por defecto). <strong>G70</strong>: pulgadas. Se escribe al principio del G-code, antes de las coordenadas.</td></tr>
-                        <tr><td>Herramienta</td><td>Número de herramienta (1-999) que se escribe como <strong>T001</strong> (con ceros a la izquierda) al inicio del G-code. Por defecto T001.</td></tr>
+                        <tr><td>Herramienta</td><td>Número de herramienta (T) que se escribe al inicio del G-code: tres cifras, como en TpaCAD (<strong>T101</strong>, T102…). Por defecto T101.</td></tr>
+                        <tr><td>Base</td><td>Elige una fresa de la base de herramientas (la misma del Calcador y los Simuladores; <strong>🧰</strong> para añadir, editar, importar o exportar la lista en JSON o CSV). Rellena el número T, el radio, el avance, las revoluciones y el paso Z.</td></tr>
                         <tr><td>Estrategia</td><td><strong>Concordancia (Climb)</strong>: recorrido antihorario, recomendado en madera por mejor acabado. <strong>Oposición (Conventional)</strong>: recorrido horario, típico en desbaste. Si el sentido dibujado no coincide con el elegido, el programa invierte automáticamente el recorrido (asume corte de perfil exterior).</td></tr>
                         <tr><td>V. Corte (F)</td><td>Velocidad de avance durante el corte (mm/min), usada en los movimientos G1/G2/G3.</td></tr>
                         <tr><td>V. Máquina (G0)</td><td>Velocidad de los movimientos rápidos de posicionamiento (G0), normalmente mayor que el avance de corte.</td></tr>
@@ -1330,7 +1331,7 @@
                         <tr><td>Prof. total</td><td>Profundidad final del corte (valor negativo). Si es mayor que Paso Z, se generan varias pasadas sucesivas.</td></tr>
                         <tr><td>Paso Z</td><td>Incremento de profundidad por cada pasada. Por ejemplo, Prof. total -6 con Paso Z 2 genera tres pasadas: -2, -4, -6.</td></tr>
                         <tr><td>Acabado</td><td>Sobreespesor que dejan las pasadas de desbaste (en la misma escala ×10: 5 = 0,5 mm). Las pasadas recorren el contorno desplazado ese sobreespesor hacia la zona que sobra y, al final, una pasada de acabado a la profundidad total recorre el contorno exacto. 0 = sin pasada de acabado. No se aplica a grabados, cajeras ni trazados con puentes.</td></tr>
-                        <tr><td>Radio herramienta</td><td>Radio real de la fresa, usado para la simulación visual de corte.</td></tr>
+                        <tr><td>Radio herramienta</td><td>Radio real de la fresa (en la misma escala ×10 que Z: 30 = 3 mm). Se usa para calcular las cajeras, el ancho de los puentes y el desbaste con acabado, y para la simulación.</td></tr>
                         <tr><td>V. Rotación (S)</td><td>Velocidad de giro del husillo (rpm). Se emite como <code>M3 S…</code> al inicio del programa. Por defecto 10000 rpm.</td></tr>
                         <tr><td>Punto de entrada</td><td>Vértice del polígono desde el que arrancará el recorrido de corte.</td></tr>
                     </table>
@@ -1367,7 +1368,7 @@
                     <table class="help-table">
                         <tr><td>SVG</td><td>Exporta el dibujo vectorial completo (perfil, cotas, cuadrícula) como imagen SVG editable en Illustrator/Inkscape.</td></tr>
                         <tr><td>DXF</td><td>Exporta el contorno en formato DXF estándar, compatible con la mayoría de software CAD/CAM.</td></tr>
-                        <tr><td>NC</td><td>Descarga directamente el G-code generado con los parámetros configurados, listo para enviar a la máquina.</td></tr>
+                        <tr><td>NC</td><td>Descarga directamente el G-code generado con los parámetros configurados, listo para enviar a la máquina. Las coordenadas llevan hasta 3 decimales (0,001 mm).</td></tr>
                         <tr><td>💾 (Guardar JSON)</td><td>Guarda el estado completo del proyecto (vértices, cero pieza, colores) en un archivo para retomarlo más tarde.</td></tr>
                         <tr><td>📂 (Cargar JSON)</td><td>Recupera un proyecto guardado previamente, restaurando el polígono y la configuración exactos.</td></tr>
                         <tr><td>📥 NC (Cargar G-code)</td><td>Importa un fichero .nc/.gcode existente y reconstruye el polígono editable a partir de sus movimientos de corte (G1/G2/G3), detectando automáticamente si está cerrado.</td></tr>
@@ -5045,6 +5046,15 @@ function guardarJSON() {
 }
 
 // ── Proyecto enviado por el Calcador («➜ Abrir en el Generador») y vuelta ──
+function abrirEnCalcador() {
+    // vino del Calcador: se lo devuelve; si no, abre el Calcador con este proyecto
+    const b = document.getElementById('btnDevolver');
+    if (b && b.style.display !== 'none' && window.opener && !window.opener.closed) { devolverAlCalcador(); return; }
+    try { localStorage.setItem('suiteCNC:paraCalcador', JSON.stringify({ json: JSON.stringify(estadoActual()), t: Date.now() })); } catch (e) { snack('No se pudo preparar el proyecto'); return; }
+    const w = window.open('calcador.html#desdeGenerador', '_blank');
+    if (!w) snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo');
+    else snack('Abriendo el proyecto en el Calcador…');
+}
 function devolverAlCalcador() {
     if (!window.opener || window.opener.closed) { snack('La pestaña del Calcador ya no está abierta: guarda el JSON y ábrelo en él'); return; }
     window.opener.postMessage({ tipo:'proyecto-generador', json: JSON.stringify(estadoActual()) }, '*');

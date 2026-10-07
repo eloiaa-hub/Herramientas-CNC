@@ -9,12 +9,14 @@ sin instalar nada y también sin conexión a internet.
 | Archivo | Herramienta | Versión |
 |---|---|---|
 | `index.html` | Portada con enlaces a todo | — |
-| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v70 |
-| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v17 |
+| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v73 |
+| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v21 |
 | `manual_calcador.html` / `.pdf` | Manual del Calcador | — |
-| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras, puentes, desbaste y acabado) | v79 |
-| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V31 |
-| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V31 |
+| `manual_corrector.html` / `.pdf` | Manual del Corrector (profesorado) | — |
+| `guia_simulador.pdf` | Guía del Simulador para el alumnado | — |
+| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras, puentes, desbaste y acabado) | v81 |
+| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V34 |
+| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V34 |
 | `licencias.html` | Créditos y licencias (fuentes y bibliotecas de terceros) | — |
 | `LICENSE` | Licencia de los programas (EUPL-1.2) | — |
 | `LICENCIA-MANUAL.txt` | Licencia del manual (CC BY-SA 4.0) | — |
@@ -59,7 +61,7 @@ Para actualizar un programa basta con sustituir su archivo (manteniendo el mismo
   una versión modificada, debe publicarse también con la EUPL (o una licencia compatible) y con
   su código. La EUPL tiene la misma validez en todas las lenguas oficiales de la UE; la versión
   en castellano está en el Diario Oficial de la UE (Decisión de Ejecución (UE) 2017/863).
-- **Manual** (`manual_calcador.html` y `.pdf`): © 2026 Eloi A.A. — **Creative Commons
+- **Manual y guías** (`manual_calcador`, `manual_corrector` y `guia_simulador`): © 2026 Eloi A.A. — **Creative Commons
   Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)**, archivo `LICENCIA-MANUAL.txt`.
 - Los **componentes de terceros** (fuentes EMS y Hershey, opentype.js, Clipper, three.js) conservan sus
   propias licencias, todas compatibles: ver `licencias.html`.

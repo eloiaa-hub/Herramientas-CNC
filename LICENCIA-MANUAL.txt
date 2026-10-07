@@ -1,7 +1,9 @@
 Manual del Calcador de contornos (manual_calcador.html y manual_calcador.pdf)
+Manual del Corrector (manual_corrector.html y manual_corrector.pdf)
+y Guía del Simulador para el alumnado (guia_simulador.pdf)
 © 2026 Eloi A.A.
 
-Este manual se publica con licencia Creative Commons Atribución-CompartirIgual 4.0
+Estos documentos se publican con licencia Creative Commons Atribución-CompartirIgual 4.0
 Internacional (CC BY-SA 4.0): https://creativecommons.org/licenses/by-sa/4.0/deed.es
 Puedes copiarlo, adaptarlo y redistribuirlo, también en otros cursos y centros, siempre
 que cites al autor y compartas tus adaptaciones con la misma licencia.

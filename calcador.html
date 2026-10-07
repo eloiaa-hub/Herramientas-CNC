@@ -127,6 +127,9 @@
     .tool-strip { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px;
         width: 44px; display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 3px; height: fit-content; }
     .tool-divider { width: 28px; height: 1px; background: var(--border-color); margin: 3px 0; }
+    /* Si la barra no cabe a lo alto (portátil apaisado, pantalla táctil, zoom), pasa a dos o más columnas */
+    .tool-strip.multicol { display: grid; grid-template-columns: repeat(var(--cols, 2), 32px); width: auto; padding: 8px 6px; justify-content: center; align-content: start; }
+    .tool-strip.multicol .tool-divider { grid-column: 1 / -1; width: auto; justify-self: stretch; margin: 2px 2px; }
     .tool-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
         border-radius: 5px; cursor: pointer; border: 1px solid transparent;
         color: var(--text-main); user-select: none; transition: background .12s,color .12s; position: relative; }
@@ -137,7 +140,7 @@
         transform: translateY(-50%); background: rgba(0,0,0,.8); color: #fff; font-size: 11px;
         padding: 3px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 300; }
 
-    .action-panel { width: 228px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 2px; }
+    .action-panel { width: 244px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 2px; }
     .action-panel::-webkit-scrollbar, .right-panel::-webkit-scrollbar { width: 4px; }
     .action-panel::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
     .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); font-weight: 700; }
@@ -398,7 +401,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v70</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v73</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -653,7 +656,7 @@
                     </div>
                     <div class="ctx-nota" id="notaEscala"></div>
                     <div class="param-line"><span title="Solo DXF y SVG. Desmarcado, el DXF usa el cero pieza del plano como origen. El JSON siempre envía el cero pieza al Generador.">DXF: esquina de la pieza en 0,0</span><input type="checkbox" id="chkOrigen"></div>
-                    <button class="btn-action" onclick="exportarJSON()">💾 Guardar para el Generador (.json)</button>
+                    <button class="btn-action" onclick="exportarJSON()" title="Guarda el proyecto en un archivo JSON: lo abren el Calcador, el Corrector, el Generador y los Simuladores (como plano del ejercicio)">💾 Guardar (.json)</button>
                     <button class="btn-action sec" onclick="abrirEnGenerador()" title="Abre el Generador en otra pestaña con este proyecto, sin guardar ni buscar archivos. «⬅ Calcador» lo devuelve">➜ Abrir en el Generador</button>
                     <button class="btn-action sec" onclick="abrirEnSimulador()" title="Abre el Simulador del profesor con el plano de este ejercicio y el programa de su solución (el de la tabla, con las alturas), para verla mecanizada en 3D o en 2D">➜ Abrir en el Simulador</button>
                     <button class="btn-action sec" onclick="abrirVariantes()" title="Varias versiones del ejercicio (simetrías, giro, otro cero pieza…) con la misma dificultad y distinta solución, para exámenes">🎲 Variantes para examen…</button>
@@ -903,7 +906,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                 <tr><td>2. Calibrar</td><td>Herramienta 📏: clic en dos puntos del fondo cuya distancia conozcas (por ejemplo los extremos de una cota) y escribe la medida real. Puedes enderezar el plano y fijar el primer punto como origen.</td></tr>
                 <tr><td>3. Calcar</td><td>Línea, arcos, círculos y ranuras. Cambia de herramienta a mitad de contorno con <span class="kbd">L</span> <span class="kbd">A</span> <span class="kbd">T</span> sin cortar la polilínea. Clic en el primer punto para cerrarla.</td></tr>
                 <tr><td>4. Ajustar</td><td>Herramienta ✎ Editar: arrastra vértices, o arrastra el punto medio de un tramo para curvarlo (el arco pasa por el cursor). Clic derecho para medidas exactas.</td></tr>
-                <tr><td>5. Guardar</td><td>💾 Guardar para el Generador (.json) y ábrelo en el Generador con su botón 📂.</td></tr>
+                <tr><td>5. Guardar</td><td>💾 Guardar (.json) y ábrelo en el Generador con su botón 📂 (o pulsa ➜ Abrir en el Generador).</td></tr>
             </table>
             <h3>Herramientas</h3>
             <table class="help-table">
@@ -8450,7 +8453,7 @@ function comprobarCompensacion(prog, cortes, orden, tipos, R, tol, reqComp, usaC
     });
     porTramo.forEach(r => {
         if (!r.mal.length) return; const sg = r.mal[0];
-        fis.push({ tipo:'error', cat:'compensacion', linea:sg.linea, seg:sg,
+        fis.push({ tipo:'error', cat:'compensacion', linea:sg.linea, seg:sg, cortes:r.mal.length,
             msg:`${sg.etiqueta}: el trazado C${r.ci + 1} es ${r.interior ? 'INTERIOR: la fresa debe ir por dentro' : 'EXTERIOR: la fresa debe ir por fuera'}, y con G${sg.comp} va a la ${sg.comp === 41 ? 'izquierda' : 'derecha'} del avance, que aquí es ${r.interior ? 'fuera' : 'dentro'}: se come la pieza${R > 0 ? ` (el diámetro de la fresa, ${fmt(2 * R, 2)} mm)` : ''}${r.mal.length > 1 ? ` · ${r.mal.length} cortes con el lado equivocado` : ''}. «${sg.texto}»`,
             pista:`en este trazado ${r.interior ? 'interior' : 'exterior'}, con el sentido en que lo recorre el programa, corresponde G${r.debe} (G41: fresa a la izquierda del avance; G42: a la derecha)` });
     });
@@ -8477,6 +8480,20 @@ function comprobarCompensacion(prog, cortes, orden, tipos, R, tol, reqComp, usaC
                 vistas.add(it.linea);
                 fis.push({ tipo:'error', cat:'compensacion', linea:it.linea, seg:it.sg, msg:`${it.sg.etiqueta}: al ${activa ? 'activar' : 'anular'} la compensación cortando (Z bajo la superficie), la fresa pasa por la pieza${peor < 0 ? '' : ` (su centro se acerca a ${fmt(peor, 2)} mm del borde, menos que su radio)`}. «${it.sg.texto}»`,
                     pista: activa ? 'actívala en el G0 de aproximación, con la fresa por encima de la pieza, y baja después' : 'sube primero la fresa (G0 Z…) y anula después con G40, o sal con una recta que se aleje de la pieza' });
+            }
+        });
+    }
+    // La fresa no cabe en un arco cóncavo más pequeño que su radio: la máquina daría alarma o dejaría material
+    if (R > 0) {
+        const vistos = new Set();
+        cortes.forEach(sg => {
+            if (!(sg.comp === 41 || sg.comp === 42) || sg.tipo !== 'A' || vistos.has(sg.linea)) return;
+            const lado = sg.comp === 41 ? 1 : -1;
+            if (sg.r - lado * Math.sign(sg.theta) * R < -1e-6) {
+                vistos.add(sg.linea);
+                fis.push({ tipo:'aviso', cat:'compensacion', linea:sg.linea, seg:sg,
+                    msg:`${sg.etiqueta}: la fresa (Ø${fmt(2 * R, 2)}) no cabe en este arco cóncavo de R${fmt(sg.r, 2)}: en la máquina daría una alarma de interferencia o dejaría ese material sin cortar. «${sg.texto}»`,
+                    pista:`con G41/G42, un arco cóncavo necesita un radio de al menos el de la fresa; aquí cabe una fresa de hasta Ø${fmt(2 * sg.r, 2)}` });
             }
         });
     }
@@ -8741,6 +8758,58 @@ function ladoMalSimPlano(it) {
 }
 // Con G41/G42 la fresa va desplazada su radio a la izquierda (G41) o a la derecha (G42) del avance; en las
 // esquinas exteriores rodea el vértice con un arco. Cada movimiento recibe «cg», el camino de su centro.
+// ── Donde la fresa no cabe (un arco cóncavo más pequeño que su radio, un hueco más estrecho que su diámetro),
+//    el camino desplazado se cruza consigo mismo: se quita el bucle, como haría un CAM. La fresa pasa de un
+//    punto del cruce al otro y deja sin cortar el material del hueco, en vez de meterse en la pieza.
+function quitarBucles(out, R) {
+    const TAU2 = Math.PI * 2;
+    const angEn = (g, X) => { const a = Math.atan2(X.y - g.c.y, X.x - g.c.x); let d = (a - g.a1) * Math.sign(g.theta || 1); return ((d % TAU2) + TAU2) % TAU2; };
+    const cortarFin = (g, X) => { if (g.tipo === 'A' && g.r > 1e-6) { const d = angEn(g, X), s = Math.sign(g.theta) || 1; g.theta = s * Math.min(Math.abs(g.theta), d); } g.p2 = { ...X }; };
+    const cortarIni = (g, X) => { if (g.tipo === 'A' && g.r > 1e-6) { const d = angEn(g, X), s = Math.sign(g.theta) || 1; g.theta = s * Math.max(0, Math.abs(g.theta) - Math.min(Math.abs(g.theta), d)); g.a1 = Math.atan2(X.y - g.c.y, X.x - g.c.x); } g.p1 = { ...X }; };
+    const punto = (g, t) => g.tipo === 'A' && g.r > 1e-6 ? { x:g.c.x + g.r * Math.cos(g.a1 + g.theta * t), y:g.c.y + g.r * Math.sin(g.a1 + g.theta * t) } : { x:g.p1.x + (g.p2.x - g.p1.x) * t, y:g.p1.y + (g.p2.y - g.p1.y) * t };
+    const largo = g => g.tipo === 'A' && g.r > 1e-6 ? Math.abs(g.theta) * g.r : Math.hypot(g.p2.x - g.p1.x, g.p2.y - g.p1.y);
+    const cruceSeg = (a, b, c, d) => { const r = { x:b.x - a.x, y:b.y - a.y }, q = { x:d.x - c.x, y:d.y - c.y }, den = r.x * q.y - r.y * q.x; if (Math.abs(den) < 1e-12) return null;
+        const w = { x:c.x - a.x, y:c.y - a.y }, t = (w.x * q.y - w.y * q.x) / den, u = (w.x * r.y - w.y * r.x) / den;
+        return t > 1e-9 && t < 1 - 1e-9 && u > 1e-9 && u < 1 - 1e-9 ? { x:a.x + r.x * t, y:a.y + r.y * t } : null; };
+    // tramos seguidos con compensación (los rápidos y los cambios de compensación los separan)
+    const tramos = []; let cur = null;
+    out.forEach((it, k) => {
+        if (it.tipo !== 'xy') return;
+        const comp = (it.comp === 41 || it.comp === 42) && it.cg && it.cg !== it.sg && !it.rapido;
+        if (!comp) { cur = null; return; }
+        if (!cur) { cur = []; tramos.push(cur); }
+        cur.push(k);
+    });
+    const paso = Math.max(0.2, Math.min(2, R / 8));
+    tramos.forEach(ks => {
+        for (let vuelta = 0; vuelta < 60; vuelta++) {
+            // segmentos del camino del centro (incluidos los saltos entre tramos que no empalman)
+            const S = []; let ant = null, total = 0;
+            ks.forEach(k => { const g = out[k].cg; const n = Math.max(1, Math.min(400, Math.ceil(largo(g) / paso)));
+                for (let q = 0; q <= n; q++) { const p = punto(g, q / n); if (ant && Math.hypot(p.x - ant.p.x, p.y - ant.p.y) > 1e-9) { S.push({ a:ant.p, b:p, k, ka:ant.k }); total += Math.hypot(p.x - ant.p.x, p.y - ant.p.y); } ant = { p, k }; } });
+            if (S.length < 3) break;
+            S.forEach(sg => { sg.x0 = Math.min(sg.a.x, sg.b.x); sg.x1 = Math.max(sg.a.x, sg.b.x); sg.y0 = Math.min(sg.a.y, sg.b.y); sg.y1 = Math.max(sg.a.y, sg.b.y); });
+            const acum = [0]; S.forEach((sg, i) => acum.push(acum[i] + Math.hypot(sg.b.x - sg.a.x, sg.b.y - sg.a.y)));
+            let hecho = false;
+            for (let i = 0; i < S.length - 2 && !hecho; i++) {
+                const A = S[i];
+                for (let jj = S.length - 1; jj > i + 1; jj--) {
+                    const B = S[jj];
+                    if (B.x0 > A.x1 || B.x1 < A.x0 || B.y0 > A.y1 || B.y1 < A.y0) continue;
+                    if (acum[jj] - acum[i + 1] > total * 0.5) continue;           // el bucle es la parte corta
+                    const X = cruceSeg(A.a, A.b, B.a, B.b); if (!X) continue;
+                    const ka = A.ka === A.k ? A.k : A.k, kb = B.k;
+                    if (ka === kb) continue;
+                    cortarFin(out[ka].cg, X);
+                    ks.forEach(k => { if (k > ka && k < kb) out[k].cg = { tipo:'L', p1:{ ...X }, p2:{ ...X } }; });
+                    cortarIni(out[kb].cg, X);
+                    hecho = true; break;
+                }
+            }
+            if (!hecho) break;
+        }
+    });
+}
 function compensarItems(items, R) {
     if (!(R > 0) || !items.some(it => it.comp === 41 || it.comp === 42)) return items;
     const tgIni = g => g.tipo === 'A' ? (g.theta > 0 ? { x:-Math.sin(g.a1), y:Math.cos(g.a1) } : { x:Math.sin(g.a1), y:-Math.cos(g.a1) }) : norm(sub(g.p2, g.p1));
@@ -8825,6 +8894,7 @@ function compensarItems(items, R) {
         const ant = out.slice(0, ks[0]).reverse().find(x => x.tipo === 'xy' && x.cg);
         if (ant && ant.cg.tipo === 'L' && dist(ant.cg.p2, viejo) < 1e-6) ant.cg.p2 = { ...X };
     });
+    quitarBucles(out, R);
     return out;
 }
 function itemsDePrograma(prog, R, compForzado, trazados) {
@@ -9723,7 +9793,9 @@ function valorarCorreccion(r) {
     const N = critNota(), max = N.geo + N.pedido + N.seg || 1;
     if (!r || r.error) return { veredicto:'error', nota:0, cob:0, errGeo:0, incumple:0, seguridad:0, avisos:0, desglose:{ geo:0, pedido:0, seg:0 }, max };
     const H = r.hallazgos, esLinea = h => h.linea !== null && h.linea !== undefined;
-    const errGeo = H.filter(h => h.tipo === 'error' && h.cat === 'geometria' && (esLinea(h) || h.resumen)).reduce((n, h) => n + (h.resumen || 1), 0);
+    // los cortes que dañan la pieza: los de geometría y los de compensación (el lado equivocado, uno por cada corte afectado)
+    const errGeo = H.filter(h => h.tipo === 'error' && h.cat === 'geometria' && (esLinea(h) || h.resumen)).reduce((n, h) => n + (h.resumen || 1), 0)
+                 + H.filter(h => h.tipo === 'error' && h.cat === 'compensacion').reduce((n, h) => n + (h.cortes || 1), 0);
     const faltas = H.filter(h => h.tipo === 'error' && h.cat === 'geometria' && !esLinea(h) && !h.resumen).length;
     const incumple = H.filter(h => h.tipo === 'error' && h.cat === 'requisito').length;
     const seguridad = H.filter(h => h.tipo === 'error' && h.cat === 'seguridad').length;
@@ -10094,7 +10166,7 @@ function abrirEnGeneradorDesde(hash) {
     paraGenerador = JSON.stringify(datos);
     try { localStorage.setItem('suiteCNC:paraGenerador', JSON.stringify({ t: Date.now(), json: paraGenerador })); } catch (e) {}
     const w = window.open('generador.html' + hash, '_blank');
-    if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo, o usa «Guardar para el Generador»'); return; }
+    if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo, o usa «💾 Guardar (.json)»'); return; }
     snack(VISOR ? 'Abriendo el proyecto en el Generador…' : 'Abriendo el proyecto en el Generador… Al terminar, «⬅ Calcador» lo devuelve aquí');
 }
 // ── Abrir el plano y su solución en el Simulador del profesor ──
@@ -10501,6 +10573,24 @@ document.getElementById('vecHuecos').checked = cfgVec.huecos;
 document.getElementById('chkVerOcultas').checked = !!cfgCotas.verOcultas;
 herramienta = '';
 setHerramienta(VISOR ? 'editar' : 'linea');
+// ── La barra de herramientas en una, dos o más columnas, según la altura disponible ──
+function ajustarBarraHerramientas() {
+    const st = document.getElementById('toolStrip'); if (!st || VISOR) return;
+    const disp = st.parentElement.clientHeight - 24;
+    st.classList.remove('multicol'); st.style.removeProperty('--cols');
+    if (!(disp > 0) || st.scrollHeight <= disp) return;
+    for (let c = 2; c <= 4; c++) { st.classList.add('multicol'); st.style.setProperty('--cols', c); if (st.scrollHeight <= disp) return; }
+}
+window.addEventListener('resize', ajustarBarraHerramientas);       // también al cambiar el zoom del navegador
+ajustarBarraHerramientas(); setTimeout(ajustarBarraHerramientas, 300);
+// ── Proyecto enviado por el Generador («➜ CALCADOR») ──
+window.addEventListener('load', () => setTimeout(() => {
+    if (location.hash !== '#desdeGenerador') return;
+    try { const x = JSON.parse(localStorage.getItem('suiteCNC:paraCalcador') || 'null');
+        if (x && Date.now() - x.t < 120000) { guardarUndo(); abrirJSONDatos(JSON.parse(x.json)); setTimeout(() => SG.cambio(), 700); snack('Proyecto abierto desde el Generador (Ctrl+Z vuelve a lo que tenías)'); }
+        localStorage.removeItem('suiteCNC:paraCalcador'); history.replaceState(null, '', location.pathname + location.search);
+    } catch (e) { snack('No se pudo leer el proyecto del Generador'); }
+}, 400));
 if (!VISOR) SG.iniciar('calcador_sinGuardar');
 redimensionar();
 if (!habiaEstado) setTimeout(encuadrar, 30);
