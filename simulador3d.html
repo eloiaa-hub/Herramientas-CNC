@@ -14,7 +14,7 @@
         --viewport-bg: #dde3e8; --linea-activa: #fff3d6; --num-linea: #a4adb8;
         --codigo-g0: #8a939e; --codigo-com: #9aa3ad; --input-bg: #ffffff;
     }
-    /* Modo oscuro (mismos tonos que el Generador de G-Code) */
+    /* Modo oscuro (mismos tonos que el Calcador) */
     body.dark-mode {
         --bg-app: #1a1a1e; --bg-panel: #252528; --border-color: #3a3a3f;
         --text-main: #e8e8ec; --text-muted: #8a8a94; --accent-light: #1a2a3a;
@@ -51,7 +51,7 @@
 
     header { display:flex; align-items:center; gap:8px; padding:10px 16px;
         background: var(--bg-panel); border-bottom:1px solid var(--border-color); flex-shrink:0; z-index:5; }
-    header h1 { font-size:14px; margin:0; font-weight:700; white-space:nowrap; font-family:'Segoe UI', Geneva, Verdana, sans-serif; }   /* igual que el Calcador y el Generador */
+    header h1 { font-size:14px; margin:0; font-weight:700; white-space:nowrap; font-family:'Segoe UI', Geneva, Verdana, sans-serif; }   /* igual que el Calcador */
     header .sep { width:1px; height:24px; background:var(--border-color); }
     header .filename { font-size:12px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis;
         white-space:nowrap; max-width:220px; }
@@ -218,7 +218,7 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V34</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V38</span></h1>
         
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
@@ -289,7 +289,7 @@
         <div id="splitCodigo" title="Arrastra para ensanchar el panel de código (doble clic: ancho inicial)"></div>
         <div id="viewport">
             <div id="barraVistas" role="toolbar" aria-label="Vistas">
-                <button data-vista="planta" onclick="ponerVista('planta')" title="Vista desde arriba (plano XY), sin perspectiva. Compárala con el plano del Generador">⬛ Planta</button>
+                <button data-vista="planta" onclick="ponerVista('planta')" title="Vista desde arriba (plano XY), sin perspectiva. Compárala con el plano del Calcador">⬛ Planta</button>
                 <button data-vista="alzado" onclick="ponerVista('alzado')" title="Vista de frente (plano XZ), sin perspectiva. Muestra las profundidades de cada pasada">▭ Alzado</button>
                 <button data-vista="perfil" onclick="ponerVista('perfil')" title="Vista lateral desde la derecha (plano YZ), sin perspectiva">▯ Perfil</button>
                 <button data-vista="iso" class="activo" onclick="ponerVista('iso')" title="Vista isométrica en 3D, con perspectiva">🧊 Isométrica</button>
@@ -313,6 +313,7 @@
                 <div class="info-row"><span>Avance (F)</span><span id="infoF">—</span></div>
                 <div class="info-row"><span>Movimiento</span><span id="infoTipo">—</span></div>
                 <div class="info-row"><span>Compensación</span><span id="infoComp">—</span></div>
+                <div class="info-row" title="Herramienta que está trabajando: la del último T… M06 (de la base de herramientas) o, si el programa no la cambia, la del panel"><span>Herramienta</span><span id="infoHerr">—</span></div>
             </div>
             <div class="panel-sec">
                 <h3>Programa</h3>
@@ -325,7 +326,7 @@
                 <h3>Herramienta</h3>
                 <label class="etq">De la base de herramientas</label>
                 <div style="display:flex; gap:6px; margin-bottom:8px;">
-                    <select id="hbSel" style="flex:1; min-width:0;" title="Elige una fresa de la base de herramientas (la misma del Calcador y el Generador). Si el programa usa una T de la base, se elige sola"></select>
+                    <select id="hbSel" style="flex:1; min-width:0;" title="Elige una fresa de la base de herramientas (la misma del Calcador y del Corrector). Si el programa usa una T de la base, se elige sola"></select>
                     <button onclick="HB.abrir(aplicarHerramientaSim)" title="Base de herramientas: añadir, editar, exportar o importar la lista" style="padding:2px 8px;">🧰</button>
                 </div>
                 <label class="etq">Tipo de fresa</label>
@@ -478,7 +479,7 @@
       <h3>Vistas predefinidas</h3>
       <p>En la parte superior de la vista 3D hay una barra con las vistas:</p>
       <ul>
-        <li><b>⬛ Planta</b>: desde arriba (plano XY). Es la misma orientación que el plano del Generador de G-Code: X hacia la derecha e Y hacia arriba.</li>
+        <li><b>⬛ Planta</b>: desde arriba (plano XY). Es la misma orientación que el plano del Calcador: X hacia la derecha e Y hacia arriba.</li>
         <li><b>▭ Alzado</b>: de frente (plano XZ). Ideal para ver la profundidad de cada pasada y la altura de los rápidos. En modo sólido se activa sola la transparencia para ver las pasadas dentro del material (se quita al volver a planta o isométrica). Usa la rueda del ratón para acercarte a las pasadas.</li>
         <li><b>▯ Perfil</b>: desde la derecha (plano YZ).</li>
         <li><b>🧊 Isométrica</b>: vista en 3D.</li>
@@ -529,8 +530,8 @@
       <ul>
         <li><b>Posición actual</b>: X, Y, Z, avance, tipo de movimiento y compensación activa.</li>
         <li><b>Programa</b>: línea actual, pasadas en Z, longitud de corte y tiempo estimado.</li>
-        <li><b>Ancho del corte en la vista</b>: por defecto el material se quita con un ancho algo mayor que la fresa dibujada (que se dibuja a la mitad de su tamaño), para que se vea bien el recorrido. Con <b>Real</b> se quita el diámetro completo de la herramienta, como en la máquina; úsalo con G41/G42 para ver cómo el borde del corte coincide con el contorno programado.</li>
-        <li><b>Herramienta</b>: tipo de fresa (<b>plana</b>, <b>bola</b> o <b>en V</b> con su ángulo) y diámetro. Si el programa lo indica en un comentario, se lee al cargarlo: <code>(radio=0.5mm)</code> como escribe el Generador de G-Code, <code>diámetro=6</code>, <code>Ø6</code>, <code>bola</code> o <code>V 60°</code>.</li>
+        <li><b>Ancho del corte en la vista</b>: por defecto el material se quita con un ancho algo mayor que la fresa dibujada (que se dibuja a la mitad de su tamaño), para que se vea bien el recorrido. Con <b>Real</b> se quita el diámetro completo de la herramienta, como en la máquina; se pone solo al cargar un programa con G41/G42 o hecho con ⚙️ Mecanizar del Calcador, para ver cómo el borde del corte coincide con el contorno programado (se puede volver a cambiar a mano).</li>
+        <li><b>Herramienta</b>: tipo de fresa (<b>plana</b>, <b>bola</b> o <b>en V</b> con su ángulo) y diámetro. Si el programa lo indica en un comentario, se lee al cargarlo: <code>(radio=3mm)</code> como escribe ⚙️ Mecanizar del Calcador, <code>diámetro=6</code>, <code>Ø6</code>, <code>bola</code> o <code>V 60°</code>.</li>
         <li><b>Material</b>: en <b>Automático</b> el bloque es el trazado + un offset (10 mm por defecto) y el grosor es la profundidad máxima. En <b>Manual</b> se indican largo, ancho y grosor, y dónde está el origen X0 Y0 (una esquina o el centro). La cara superior siempre es Z0. En manual, la revisión avisa si la fresa corta más hondo que el grosor o se sale del bloque.</li>
       </ul>
       <p>Los botones <b>📜 Código</b> y <b>📊 Parámetros</b> de la cabecera ocultan o muestran cada panel por separado.</p>
@@ -1764,7 +1765,10 @@ function parsearGcode3D(texto) {
     let ultimoGMocion = null;
     let comp = 40;        // G40 / G41 / G42 (modal)
     let husillo = false;  // M3/M4 en marcha, M5 parado
-    const meta = { lineaComp: null, compFinal: 40, fin: false, comaDecimal: [], noSoportados: [], ciclosIncr: null };
+    const meta = { lineaComp: null, compFinal: 40, fin: false, comaDecimal: [], noSoportados: [], ciclosIncr: null, cambios: [], g28: null };
+    // Herramienta: con M06 en el programa, la T se cambia en el M06 (T102 M06); sin M06, vale la T escrita
+    const usaM06 = /(^|[^A-Z0-9])M0?6(?![0-9])/i.test(texto.replace(/\([^)]*\)/g, ' ').replace(/;.*$/gm, ' '));
+    let tSel = null, tAct = null, tras06 = false;
     let ciclo = null;          // ciclo fijo activo (G81, G82, G83, G73, G85, G86, G89)
     let retornoCiclo = 98;     // G98 = volver al plano inicial, G99 = volver al plano R
     const noSoportado = (codigo, linea, msg) => { if (!meta.noSoportados.some(n => n.codigo === codigo)) meta.noSoportados.push({ codigo, linea, msg }); };
@@ -1799,16 +1803,19 @@ function parsearGcode3D(texto) {
             else if (g === 98 || g === 99) retornoCiclo = g;
             else if ([81, 82, 83, 73, 85, 86, 89].includes(g)) ciclo = { g, zInicial: z, r: null, fondo: null, q: null };
             else if (g === 18 || g === 19) noSoportado('G' + g, idx+1, 'Plano de trabajo G' + g + ' no simulado: los arcos se dibujan siempre en el plano XY (G17).');
-            else if (g === 28 || g === 30) noSoportado('G' + g, idx+1, 'G' + g + ' (vuelta a referencia) no se simula: la fresa no se mueve en esta línea.');
+            else if (g === 28) { if (!meta.g28) meta.g28 = idx+1; }
+            else if (g === 30) noSoportado('G30', idx+1, 'G30 (vuelta a referencia) no se simula: la fresa no se mueve en esta línea.');
             else if (![4, 17, 43, 44, 49, 53, 54, 55, 56, 57, 58, 59, 61, 64, 94, 95].includes(g))
                 noSoportado('G' + g, idx+1, 'Código G' + g + ' no reconocido por el simulador: se ignora.');
         });
 
+        if ('T' in letras) { tSel = normT(letras.T); if (!usaM06) tAct = tSel; }
         palabras.forEach(pw => {
             if (pw[0].toUpperCase() !== 'M') return;
             const m = Math.round(parseFloat(pw.slice(1)));
             if (m === 3 || m === 4) husillo = true;
             else if (m === 5) husillo = false;
+            else if (m === 6) { meta.cambios.push({ linea: idx+1, T: tSel, z, husillo }); if (tSel !== null) { tAct = tSel; husillo = false; tras06 = true; } }
             else if (m === 30 || m === 2) { if (!meta.fin) meta.lineaFin = idx+1; meta.fin = true; }
         });
         if ('F' in letras) ultimoF = letras.F * unidadFactor;   // modal; en G20 pulg/min → mm/min
@@ -1827,7 +1834,7 @@ function parsearGcode3D(texto) {
             const zR = absoluto ? ciclo.r : ciclo.zInicial + ciclo.r;
             const zF = absoluto ? ciclo.fondo : zR + ciclo.fondo;
             const zVuelta = retornoCiclo === 99 ? zR : Math.max(ciclo.zInicial, zR);
-            const base = { f: ultimoF, linea: idx+1, textoLinea: linea.trim(), comp, xyProgramado: false, husillo, deCiclo: 'G' + ciclo.g };
+            const base = { f: ultimoF, linea: idx+1, textoLinea: linea.trim(), comp, xyProgramado: false, husillo, deCiclo: 'G' + ciclo.g, T: tAct, tras06 };
             const mover = (tipo, nx2, ny2, nz2) => {
                 if (Math.abs(nx2-x) < 1e-9 && Math.abs(ny2-y) < 1e-9 && Math.abs(nz2-z) < 1e-9) return;
                 moves.push({ ...base, fromX:x, fromY:y, fromZ:z, x:nx2, y:ny2, z:nz2, tipo });
@@ -1865,7 +1872,7 @@ function parsearGcode3D(texto) {
         const nz = 'Z' in letras ? (absoluto ? letras.Z*unidadFactor : (zConocida ? z : 0)+letras.Z*unidadFactor) : z;
         if ('Z' in letras) zConocida = true;
         const mov = { fromX:x, fromY:y, fromZ:z, x:nx, y:ny, z:nz, f:ultimoF, linea: idx+1, textoLinea: linea.trim(), comp,
-                      xyProgramado: ('X' in letras) || ('Y' in letras), husillo };
+                      xyProgramado: ('X' in letras) || ('Y' in letras), husillo, T: tAct, tras06 };
         if (ultimoGMocion === 0) mov.tipo = 'rapido';
         else if (ultimoGMocion === 1) mov.tipo = 'corte';
         else {
@@ -1884,6 +1891,21 @@ function parsearGcode3D(texto) {
     return moves;
 }
 
+// Herramienta de la base para cada movimiento con T (null: la del panel)
+function normT(t) { t = Math.round(+t); return t >= 1 && t < 100 ? t + 100 : t; }      // T1 → T101, como en la base
+function asignarHerramientas(moves) {
+    const base = new Map(HB.leer().map(h => [h.T, h])), faltan = new Set();
+    moves.forEach(m => { const h = m.T ? base.get(m.T) : null; m.herr = h ? { T:h.T, d:h.d, tipo:h.tipo, angulo:h.angulo, nombre:h.nombre } : null; if (m.T && !h) faltan.add(m.T); });
+    if (moves.meta) moves.meta.tSinBase = [...faltan];
+    return moves;
+}
+// Ejecuta f con la herramienta h como si fuera la del panel (diámetro, tipo y ángulo); null: la del panel
+function conHerramienta(h, f) {
+    if (!h) return f();
+    const antes = [diametroFresa, tipoFresa, anguloV];
+    diametroFresa = h.d; tipoFresa = h.tipo || 'plana'; anguloV = h.angulo || anguloV;
+    try { return f(); } finally { [diametroFresa, tipoFresa, anguloV] = antes; }
+}
 // Centro de un arco I/J (relativo al punto de partida, ya en las mismas unidades)
 function centroArcoIJ(mov) {
     return { cx: mov.fromX + (mov.i||0)*(1), cy: mov.fromY + (mov.j||0)*(1) };
@@ -1952,6 +1974,7 @@ function construirPuntosPlanos(moves) {
     // partida real es donde terminó el movimiento anterior)
     const muestras = moves.map(m => muestrearMovimiento(m).slice(1));
     avisosCompensacion = [];
+    asignarHerramientas(moves);
     aplicarCompensacion(moves, muestras, diametroFresa/2);
 
     const puntos = [];
@@ -1994,7 +2017,7 @@ function aplicarCompensacion(moves, muestras, r) {
         // i = movimiento de entrada. La cadena son los siguientes con la misma compensación.
         let j = i + 1;
         while (j < moves.length && moves[j].comp === m.comp) j++;
-        compensarCadena(moves, muestras, i, j, m.comp === 41 ? 1 : -1, r);
+        compensarCadena(moves, muestras, i, j, m.comp === 41 ? 1 : -1, m.herr ? m.herr.d / 2 : r);
         efectiva = m.comp;
         i = j;
     }
@@ -2310,6 +2333,7 @@ function construirHerramienta() {
 // Fresa sólida según su tipo: plana (cilindro), bola (punta semiesférica) o en V (punta cónica)
 const materialFresa = new THREE.MeshStandardMaterial({ color:0x8a94a3, metalness:0.35, roughness:0.45 });
 function reconstruirFresaSolida() {
+    herrVista = null;
     if (mallaFresaSolida) { grupoHerramienta.remove(mallaFresaSolida); mallaFresaSolida.traverse(o => o.geometry && o.geometry.dispose()); }
     const r = radioVisualFresa(), largo = 20;
     const g = new THREE.Group();
@@ -2347,7 +2371,7 @@ function aplicarModoVistaHerramienta() {
 let tipoFresa = 'plana', anguloV = 90;
 
 // Lee la herramienta de los comentarios del programa, p. ej. "(radio=0.5mm)"
-// del Generador de G-Code, "diámetro=6", "Ø6", "fresa bola" o "V 60°".
+// de ⚙️ Mecanizar del Calcador, "diámetro=6", "Ø6", "fresa bola" o "V 60°".
 function leerHerramientaDelPrograma(texto) {
     const nota = document.getElementById('notaHerrPrograma');
     nota.style.display = 'none';
@@ -2425,19 +2449,22 @@ function leerCfgMaterial() {
 // 'vista': un poco mayor que la fresa dibujada (que es la mitad de la real): 1,2 × radio dibujado.
 // 'real' : el diámetro real de la herramienta.
 const FACTOR_CORTE_VISTA = 1.2;
-let anchoCorte = 'vista';
+let anchoCorte = 'vista', anchoAuto = false;   // anchoAuto: «Real» puesto al cargar el programa
 function radioCorteVista() {
     return anchoCorte === 'real' ? diametroFresa/2 : radioVisualFresa() * FACTOR_CORTE_VISTA;
 }
 function cambiarAnchoCorte() {
-    anchoCorte = document.getElementById('anchoCorte').value;
+    anchoCorte = document.getElementById('anchoCorte').value; anchoAuto = false;
     actualizarNotaAnchoCorte();
     if (material) { reiniciarMaterial(); actualizarMaterial(indicePlano); }
 }
 function actualizarNotaAnchoCorte() {
     const hayComp = gcodeMoves.some(m => m.comp === 41 || m.comp === 42);
     const n = document.getElementById('notaAnchoCorte');
-    n.style.display = (anchoCorte === 'vista' && hayComp) ? 'block' : 'none';
+    n.textContent = anchoAuto ? 'Ancho «Real» puesto al cargar el programa (' + (hayComp ? 'tiene G41/G42' : 'hecho con ⚙️ Mecanizar') + '): el borde del corte coincide con la pieza.'
+                              : 'Con G41/G42, elige «Real» para que el borde del corte coincida con el contorno programado.';
+    n.style.color = anchoAuto ? 'var(--accent)' : 'var(--warn)';
+    n.style.display = anchoAuto || (anchoCorte === 'vista' && hayComp) ? 'block' : 'none';
 }
 
 function actualizarTipoFresa() {
@@ -2469,7 +2496,7 @@ function setModoVista(modo) {
     document.getElementById('btnTransparencia').disabled = (modo !== 'solido');
 }
 
-// ── Apariencia: modo oscuro y color entorno (como en el Generador) ──────
+// ── Apariencia: modo oscuro y color entorno (como en el Calcador) ──────
 let modoOscuro = false;
 let colorEntorno = '#005A9C';
 function toggleAjustes(e) { e.stopPropagation(); document.getElementById('panelAjustes').classList.toggle('active'); }
@@ -2715,6 +2742,12 @@ function cargarGcodeTexto(texto, nombre) {
     gcodeMoves = nuevos;
     textoPrograma = texto; nombrePrograma = nombre;
     leerHerramientaDelPrograma(texto);
+    // Con G41/G42, o con un programa de ⚙️ Mecanizar (Calcador), el corte se ve con su ancho real:
+    // así el borde del corte coincide con la pieza. Se puede volver a cambiar a mano.
+    anchoAuto = false;
+    if (anchoCorte !== 'real' && (/G-code generado por el Calcador/i.test(texto) || gcodeMoves.some(m => m.comp === 41 || m.comp === 42))) {
+        anchoCorte = 'real'; document.getElementById('anchoCorte').value = 'real'; anchoAuto = true;
+    }
     puntosPlanos = construirPuntosPlanos(gcodeMoves);
 
     let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,minZ=Infinity,maxZ=-Infinity;
@@ -2920,12 +2953,18 @@ function posicionEnIndice(idxFloat) {
     };
 }
 
+let herrVista = null, diamVista = null;      // herramienta dibujada ahora (cambia con T… M06)
 function moverHerramientaA(idxFloat, lineaForzada) {
     const pos = posicionEnIndice(idxFloat);
     if (!pos) return;
     grupoHerramienta.position.set(pos.x, pos.y, pos.z);
 
     const mov = gcodeMoves[pos.movIdx];
+    // la fresa dibujada cambia con el M06
+    const hM = mov && mov.herr, claveH = hM ? hM.T + '|' + hM.d + '|' + hM.tipo + '|' + hM.angulo : 'panel|' + diametroFresa + '|' + tipoFresa + '|' + anguloV;
+    if (claveH !== herrVista) { herrVista = claveH; conHerramienta(hM, reconstruirFresaSolida); diamVista = hM ? hM.d : diametroFresa; }
+    const iH = document.getElementById('infoHerr');
+    if (iH) iH.textContent = !mov ? '—' : hM ? `T${hM.T} · Ø${+(+hM.d).toFixed(2)}` : mov.T ? `T${mov.T} (no está en la base: Ø${+diametroFresa.toFixed(2)})` : `del panel · Ø${+diametroFresa.toFixed(2)}`;
     document.getElementById('infoX').textContent = pos.x.toFixed(2);
     document.getElementById('infoY').textContent = pos.y.toFixed(2);
     document.getElementById('infoZ').textContent = pos.z.toFixed(2);
@@ -3003,7 +3042,11 @@ function colocarRejillaBase() {
 // su diámetro REAL) cada nodo dentro de su círculo baja hasta la Z de la
 // punta. Los laterales y el fondo son una caja fija.
 const MARGEN_MATERIAL = 10;       // mm por cada lado alrededor del trazado
-const MAX_NODOS_LADO = 320;       // resolución máxima del mapa de alturas
+const MAX_NODOS_LADO = 400;       // resolución máxima del mapa de alturas
+// Bordes suaves: los nodos a menos de AJUSTE_BORDE celdas de una pared se desplazan en XY hasta el
+// círculo de la fresa (los de dentro hacia fuera, los de fuera hacia dentro): la pared sigue el corte real
+// en vez de ir en dientes de sierra de celda en celda. Solo cambia el dibujo, no las alturas.
+const AJUSTE_BORDE = 1.5;
 const COLOR_MADERA = new THREE.Color(0xdcb884);
 const COLOR_CORTE  = new THREE.Color(0x8a6238);
 let material = null;              // { x0,y0,nx,ny,paso,espesor,alturas,malla,geo, progreso }
@@ -3086,8 +3129,9 @@ function construirMaterial() {
     grupoMaterial.add(new THREE.Mesh(cajaGeo, [matLado, matLado, matLado, matLado, matOculto, matOculto]));
 
     aplicarTransparencia();
+    const lim = AJUSTE_BORDE * Math.max(px, py);
     material = { x0, y0, w, h, nx, ny, px, py, espesor, alturas: new Float32Array(n), malla, geo, geoF, idxOriginal, progreso: -1,
-                 sucio: null };
+                 sucio: null, lim, q: lim / 127, ox: new Int8Array(n), oy: new Int8Array(n), est: new Uint8Array(n) };
     document.getElementById('infoMatXY').textContent = w.toFixed(0) + ' × ' + h.toFixed(0) + ' mm';
     const masHondo = -zMin - espesor;
     document.getElementById('infoMatZ').textContent = espesor.toFixed(2) + ' mm' + (masHondo > 0.01 ? ` · ⚠ la fresa baja ${masHondo.toFixed(2)} mm más (corta el martiriño)` : '');
@@ -3097,7 +3141,7 @@ function construirMaterial() {
 function reiniciarMaterial() {
     if (!material) return;
     material.copias = new Map();
-    material.alturas.fill(0);
+    material.alturas.fill(0); material.ox.fill(0); material.oy.fill(0); material.est.fill(0);
     material.progreso = -1;
     material.sucio = { i0:0, i1:material.nx-1, j0:0, j1:material.ny-1 };
     volcarMaterialAMalla();
@@ -3109,27 +3153,56 @@ function estamparFresa(x, y, z) {
     // Si el bloque es muy grande y la celda del mapa de alturas supera a la
     // fresa, se ensancha un poco el estampado para que el corte no salga a puntos.
     const m = material, r = Math.max(radioCorteVista(), 0.75 * Math.max(m.px, m.py)), r2 = r*r;
-    const i0 = Math.max(0, Math.floor((x-r-m.x0)/m.px)), i1 = Math.min(m.nx-1, Math.ceil((x+r-m.x0)/m.px));
-    const j0 = Math.max(0, Math.floor((y-r-m.y0)/m.py)), j1 = Math.min(m.ny-1, Math.ceil((y+r-m.y0)/m.py));
+    // banda alrededor del círculo donde se ajustan los bordes del corte
+    const plana = tipoFresa !== 'bola' && tipoFresa !== 'v', rb = r + m.lim, rb2 = rb*rb;
+    const i0 = Math.max(0, Math.floor((x-rb-m.x0)/m.px)), i1 = Math.min(m.nx-1, Math.ceil((x+rb-m.x0)/m.px));
+    const j0 = Math.max(0, Math.floor((y-rb-m.y0)/m.py)), j1 = Math.min(m.ny-1, Math.ceil((y+rb-m.y0)/m.py));
+    // est: 0 sin ajuste · 1 dentro, en el borde · 2 dentro, lejos del borde · 3 fuera, junto a la pared
+    const Q = m.q, lim = m.lim;
+    const ponDentro = (k, dx, dy, d) => { const mi = r - d; if (!plana || d < 1e-9 || mi >= lim) { m.ox[k] = 0; m.oy[k] = 0; m.est[k] = 2; return; }
+        m.ox[k] = Math.round(dx / d * mi / Q); m.oy[k] = Math.round(dy / d * mi / Q); m.est[k] = 1; };
+    const desp2 = k => (m.ox[k]*m.ox[k] + m.oy[k]*m.oy[k]) * Q * Q;   // desplazamiento al cuadrado
     if (i0 > i1 || j0 > j1) return;
     const fondo = -m.espesor;
+    let tocado = false;
     // Perfil de la punta: altura extra sobre la punta a una distancia d del eje
     const tanV = Math.tan((anguloV/2) * Math.PI/180);
-    let tocado = false;
+    // Radio al que la fresa corta a la altura h (h por encima de la punta): cilindro, cono (V) o esfera (bola).
+    // Es el borde del corte en un nodo que está a esa altura: ahí se ajusta el nodo para que el borde siga el círculo.
+    const radioA = h => { const dz = h - z; if (dz <= 0) return 0;
+        if (tipoFresa === 'v') return Math.min(r, dz * tanV);
+        if (tipoFresa === 'bola') return dz >= r ? r : Math.sqrt(Math.max(0, r2 - (r - dz) * (r - dz)));
+        return r; };
+    // nodo que la fresa no corta, por encima de la punta: se acerca al borde del corte a su altura
+    const ajustarFuera = (k, dx, dy, d) => {
+        const h = m.alturas[k]; if (!(h > Math.max(z, fondo) + 1e-6)) return;
+        const rh = radioA(h);
+        // con V o bola, solo el borde de arriba (superficie de la tabla) o la parte vertical de la pared:
+        // los nodos de la pendiente ya tienen la altura exacta y no se mueven
+        if (!plana && h < -1e-6 && rh < r - 1e-9) return;
+        const mo = d - rh; if (mo < 0 || mo >= lim || d < 1e-9) return;
+        if (m.est[k] !== 3 || mo*mo < desp2(k)) { m.ox[k] = Math.round(-dx / d * mo / Q); m.oy[k] = Math.round(-dy / d * mo / Q); m.est[k] = 3; tocado = true; } };
     for (let j=j0;j<=j1;j++) {
         const dy = m.y0 + j*m.py - y, dy2 = dy*dy;
-        if (dy2 > r2) continue;
+        if (dy2 > rb2) continue;
         for (let i=i0;i<=i1;i++) {
             const dx = m.x0 + i*m.px - x;
             const d2 = dx*dx + dy2;
-            if (d2 > r2) continue;
+            if (d2 > rb2) continue;
+            const k = i + j*m.nx;
+            // fuera de la fresa, junto a la pared: el nodo se acerca al círculo (arriba de la pared)
+            if (d2 > r2) { ajustarFuera(k, dx, dy, Math.sqrt(d2)); continue; }
             let zc = z;
             if (tipoFresa === 'bola') zc = z + r - Math.sqrt(r2 - d2);
             else if (tipoFresa === 'v') zc = z + Math.sqrt(d2) / tanV;
-            if (zc >= 0) continue;
+            // dentro del círculo pero la punta (V o bola) no llega a su altura: también es borde
+            if (zc >= 0 || m.alturas[k] <= zc + 1e-6) { if (!plana) ajustarFuera(k, dx, dy, Math.sqrt(d2)); if (zc >= 0) continue; }
             if (zc < fondo) zc = fondo;
-            const k = i + j*m.nx;
-            if (m.alturas[k] > zc) { m.alturas[k] = zc; tocado = true; }
+            if (m.alturas[k] > zc + 1e-6) { m.alturas[k] = zc; ponDentro(k, dx, dy, Math.sqrt(d2)); tocado = true; }
+            else if (plana && m.alturas[k] > zc - 1e-6 && m.est[k] === 1) {
+                // ya cortado a esta altura: se queda con el borde más lejano (el contorno de la unión de círculos)
+                const d = Math.sqrt(d2), mi = r - d; if (mi > 0 && mi*mi > desp2(k)) { ponDentro(k, dx, dy, d); tocado = true; }
+            }
         }
     }
     if (!tocado) return;
@@ -3158,8 +3231,8 @@ function actualizarMaterial(idxFloat) {
     if (idxFloat < m.progreso - 1e-9) {
         let mejor = -1;
         m.copias.forEach((_, k) => { if (k <= idxFloat && k > mejor) mejor = k; });
-        if (mejor >= 0) { m.alturas.set(m.copias.get(mejor)); m.progreso = mejor; }
-        else { m.alturas.fill(0); m.progreso = -1; }
+        if (mejor >= 0) { const cp = m.copias.get(mejor); m.alturas.set(cp.alt); m.ox.set(cp.ox); m.oy.set(cp.oy); m.est.set(cp.est); m.progreso = mejor; }
+        else { m.alturas.fill(0); m.ox.fill(0); m.oy.fill(0); m.est.fill(0); m.progreso = -1; }
         m.sucio = { i0:0, i1:m.nx-1, j0:0, j1:m.ny-1 };
     }
     // Copias del material cada cierto nº de puntos (máx. ~25) para retroceder rápido
@@ -3172,9 +3245,10 @@ function actualizarMaterial(idxFloat) {
     let desde = m.progreso;
     while (desde < idxFloat - 1e-9) {
         const hasta = Math.min(idxFloat, Math.floor(desde) + 1);
-        estamparTramo(posicionEnIndice(desde), posicionEnIndice(hasta));
+        const pH = puntosPlanos[Math.min(puntosPlanos.length - 1, Math.ceil(hasta))], mH = pH ? gcodeMoves[pH.movIdx] : null;
+        conHerramienta(mH && mH.herr, () => estamparTramo(posicionEnIndice(desde), posicionEnIndice(hasta)));
         desde = hasta;
-        if (hasta === Math.floor(hasta) && hasta % cadaCopia === 0 && !m.copias.has(hasta)) m.copias.set(hasta, m.alturas.slice());
+        if (hasta === Math.floor(hasta) && hasta % cadaCopia === 0 && !m.copias.has(hasta)) m.copias.set(hasta, { alt: m.alturas.slice(), ox: m.ox.slice(), oy: m.oy.slice(), est: m.est.slice() });
     }
     m.progreso = Math.max(m.progreso, idxFloat);
     volcarMaterialAMalla();
@@ -3188,16 +3262,27 @@ function volcarMaterialAMalla() {
     const i0 = Math.max(0, m.sucio.i0-1), i1 = Math.min(nx-1, m.sucio.i1+1);
     const j0 = Math.max(0, m.sucio.j0-1), j1 = Math.min(ny-1, m.sucio.j1+1);
     const pos = m.geo.attributes.position.array, nor = m.geo.attributes.normal.array, col = m.geo.attributes.color.array;
+    const posF = m.geoF.attributes.position.array, Q = m.q, ox = m.ox, oy = m.oy;
     const esp = m.espesor || 1;
+    const X = k => m.x0 + (k % nx) * m.px + ox[k] * Q, Y = k => m.y0 + Math.floor(k / nx) * m.py + oy[k] * Q;
+    for (let j=j0;j<=j1;j++) for (let i=i0;i<=i1;i++) {
+        const k = i + j*nx, h = alturas[k];
+        pos[k*3] = posF[k*3] = X(k); pos[k*3+1] = posF[k*3+1] = Y(k);
+    }
     for (let j=j0;j<=j1;j++) for (let i=i0;i<=i1;i++) {
         const k = i + j*nx, h = alturas[k];
         pos[k*3+2] = h;
-        const hl = alturas[i>0 ? k-1 : k], hr = alturas[i<nx-1 ? k+1 : k];
-        const hd = alturas[j>0 ? k-nx : k], hu = alturas[j<ny-1 ? k+nx : k];
+        const kl = i>0 ? k-1 : k, kr = i<nx-1 ? k+1 : k, kd = j>0 ? k-nx : k, ku = j<ny-1 ? k+nx : k;
+        const hl = alturas[kl], hr = alturas[kr], hd = alturas[kd], hu = alturas[ku];
+        // pendiente con la rejilla original (las alturas son las de esos puntos); los nodos de pared llevan su normal abajo
         const ddx = (hr-hl) / ((i>0 && i<nx-1 ? 2 : 1) * m.px);
         const ddy = (hu-hd) / ((j>0 && j<ny-1 ? 2 : 1) * m.py);
         const inv = 1/Math.hypot(ddx, ddy, 1);
         nor[k*3] = -ddx*inv; nor[k*3+1] = -ddy*inv; nor[k*3+2] = inv;
+        // nodo ajustado a una pared: normal hacia el hueco (horizontal) mezclada con la vertical, sin rayas
+        const e = m.est[k];
+        if ((e === 1 || e === 3) && (ox[k] || oy[k]) && tipoFresa !== 'v' && tipoFresa !== 'bola') { const s = e === 3 ? 1 : -1, L = Math.hypot(ox[k], oy[k]), hx = s*ox[k]/L, hy = s*oy[k]/L, n2 = 1/Math.hypot(1, 0.8);
+            nor[k*3] = hx*n2; nor[k*3+1] = hy*n2; nor[k*3+2] = 0.8*n2; }
         // Más oscuro cuanto más profundo: se distinguen las pasadas
         const t = h < -1e-6 ? 0.35 + 0.65*Math.min(1, -h/esp) : 0;
         col[k*3]   = COLOR_MADERA.r + (COLOR_CORTE.r-COLOR_MADERA.r)*t;
@@ -3222,6 +3307,7 @@ function volcarMaterialAMalla() {
     }
     if (cambioIdx) { m.geo.index.needsUpdate = true; m.geoF.index.needsUpdate = true; }
     m.geo.attributes.position.needsUpdate = true;
+    m.geoF.attributes.position.needsUpdate = true;
     m.geo.attributes.normal.needsUpdate = true;
     m.geo.attributes.color.needsUpdate = true;
     m.sucio = null;
@@ -3322,11 +3408,22 @@ function revisarPrograma() {
         // 3) Corte sin avance F
         if (m.tipo === 'corte' && !(m.f > 0)) { if (!sinF) sinF = m.linea; sinFcuenta++; }
         // 4) Cortar con el husillo parado
-        if (!husilloAvisado && m.tipo === 'corte' && Math.min(m.fromZ, m.z) < -1e-6 && !m.husillo) {
+        if (!husilloAvisado && !m.tras06 && m.tipo === 'corte' && Math.min(m.fromZ, m.z) < -1e-6 && !m.husillo) {
             add(m.linea, 'aviso', 'Se entra en el material sin haber arrancado el husillo (falta M3 o M4 antes).');
             husilloAvisado = true;
         }
     });
+    // Cambio de herramienta (T… M06)
+    (meta.cambios || []).forEach(c => {
+        if (c.T === null) { add(c.linea, 'aviso', 'M06 sin herramienta: escribe la T antes (por ejemplo, T102 M06).'); return; }
+        if (c.z !== null && c.z !== undefined && c.z < -1e-6) add(c.linea, 'error', 'Cambio de herramienta (M06) con la fresa dentro de la pieza (Z' + (+c.z.toFixed(3)) + '). Antes del cambio, sube a la altura de seguridad (por ejemplo, G0 Z20).');
+        else if (c.z !== null && c.z !== undefined && c.z < 5 - 1e-6) add(c.linea, 'error', 'Cambio de herramienta (M06) con la fresa abajo (Z' + (+c.z.toFixed(3)) + '): sube antes a la altura de seguridad (por ejemplo, G0 Z20).');
+        if (c.husillo) add(c.linea, 'aviso', 'Cambio de herramienta con el husillo en marcha: falta M05 antes del M06 (muchas máquinas lo paran solas, pero conviene escribirlo).');
+    });
+    { const sinM3 = gcodeMoves.find(m => m.tras06 && !m.husillo && m.tipo === 'corte' && Math.min(m.fromZ, m.z) < -1e-6);
+      if (sinM3) add(sinM3.linea, 'error', 'Corta con el husillo parado: después del cambio de herramienta (M06) falta arrancarlo con M03 S….'); }
+    (meta.tSinBase || []).forEach(T => { const m = gcodeMoves.find(x => x.T === T); add(m ? m.linea : null, 'aviso', 'La herramienta T' + T + ' no está en la base de herramientas: se simula con la fresa del panel (Ø' + (+diametroFresa.toFixed(2)) + '). Añádela a la base (🧰) para verla con su diámetro.'); });
+    if (meta.g28) add(meta.g28, 'aviso', 'G28 depende del control (en Fanuc vuelve al punto de referencia; en Fagor es otra cosa) y no se simula. Para subir antes de un cambio de herramienta, usa G0 Z… (por ejemplo, G0 Z20).');
     if (sinF) add(sinF, 'error', 'Movimiento de corte sin avance F definido' + (sinFcuenta > 1 ? ' (' + sinFcuenta + ' líneas afectadas)' : '') + '. Se ha simulado a ' + AVANCE_POR_DEFECTO + ' mm/min.');
     // 5) Compensación
     avisosCompensacion.forEach(a => add(a.linea, a.nivel, a.msg));
@@ -3350,6 +3447,7 @@ function revisarPrograma() {
 
     res.sort((a, b) => a.linea - b.linea || (a.nivel === 'error' ? -1 : 1));
     mostrarRevision(res);
+    return res;
 }
 
 function mostrarRevision(res) {
@@ -3639,7 +3737,7 @@ function dibujar2D() {
     });
     // la fresa
     if (pos) {
-        const [x, y] = P(pos.x, pos.y), r = Math.max(5, diametroFresa / 2 * V.z), corta = pos.z < -1e-9;
+        const [x, y] = P(pos.x, pos.y), r = Math.max(5, (diamVista || diametroFresa) / 2 * V.z), corta = pos.z < -1e-9;
         g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = corta ? 'rgba(230,126,34,.45)' : 'rgba(255,255,255,.25)'; g.fill();
         g.strokeStyle = corta ? '#c4580c' : (modoOscuro ? '#c8d2dc' : '#5d6d7e'); g.lineWidth = 2; g.setLineDash(corta ? [] : [4, 3]); g.stroke(); g.setLineDash([]);
         g.beginPath(); g.moveTo(x - 6, y); g.lineTo(x + 6, y); g.moveTo(x, y - 6); g.lineTo(x, y + 6); g.strokeStyle = modoOscuro ? '#fff' : '#2c3e50'; g.lineWidth = 1.2; g.stroke();
@@ -3768,7 +3866,7 @@ window.addEventListener('load', () => setTimeout(() => {
     let recibido = false;
     const recibir = d => {
         if (recibido || !d) return; recibido = true;
-        try { const j = JSON.parse(d.json); if (d.herramienta && d.herramienta.tipo) { document.getElementById('tipoFresa').value = ['plana','bola','v'].includes(d.herramienta.tipo) ? d.herramienta.tipo : 'plana'; if (d.herramienta.angulo) document.getElementById('anguloV').value = d.herramienta.angulo; actualizarTipoFresa(); } if (d.diametro > 0) { document.getElementById('diamHerramienta').value = d.diametro; actualizarDiametroHerramienta(); } if (d.programa) cargarGcodeTexto(d.programa, (d.nombre || 'pieza') + ' (solución).nc'); cargarPlano(j, d.nombre); } catch (e) { mostrarSnack('No se pudo leer lo recibido del Calcador'); }
+        try { const j = JSON.parse(d.json); if (d.herramienta && d.herramienta.tipo) { document.getElementById('tipoFresa').value = ['plana','bola','v'].includes(d.herramienta.tipo) ? d.herramienta.tipo : 'plana'; if (d.herramienta.angulo) document.getElementById('anguloV').value = d.herramienta.angulo; actualizarTipoFresa(); } if (d.diametro > 0) { document.getElementById('diamHerramienta').value = d.diametro; actualizarDiametroHerramienta(); } if (d.programa) cargarGcodeTexto(d.programa, d.archivo || (d.nombre || 'pieza') + ' (solución).nc'); cargarPlano(j, d.nombre); } catch (e) { mostrarSnack('No se pudo leer lo recibido del Calcador'); }
         try { localStorage.removeItem('suiteCNC:paraSimulador'); history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     };
     window.addEventListener('message', e => { if (e.data && e.data.tipo === 'plano-calcador') recibir(e.data); });
@@ -3778,7 +3876,7 @@ window.addEventListener('load', () => setTimeout(() => {
 
 // ════════════════════════════════════════════════════════════════════
 //  BASE DE HERRAMIENTAS compartida por la suite (Calcador, Corrector,
-//  Generador y Simuladores). Se guarda en el navegador y se puede
+//  y Simuladores). Se guarda en el navegador y se puede
 //  exportar e importar para pasarla a otro ordenador o a los alumnos.
 // ════════════════════════════════════════════════════════════════════
 const HB = (() => {
@@ -3846,7 +3944,7 @@ const HB = (() => {
         f = document.createElement('div'); f.id = 'hbFondo'; f.className = 'hb-fondo';
         f.innerHTML = `<div class="hb-caja"><div class="hb-cab"><h2>🧰 Base de herramientas</h2><button class="hb-x" onclick="HB.cerrar()" title="Cerrar">✕</button></div>
 <div class="hb-cuerpo"><table class="hb-tabla"><thead><tr><th style="width:56px">T</th><th>Nombre</th><th style="width:96px">Tipo</th><th style="width:66px">Ø (mm)</th><th style="width:62px">V (°)</th><th style="width:76px">F corte</th><th style="width:76px">F bajada</th><th style="width:82px">S (rpm)</th><th style="width:72px">Pasada (mm)</th><th style="width:110px"></th></tr></thead><tbody id="hbFilas"></tbody></table>
-<p class="hb-nota">Una sola lista para el Calcador, el Corrector, el Generador y los Simuladores de este navegador. <b>T</b> es el número de herramienta de la máquina, de tres cifras como en TpaCAD (de T101 a T999): si un programa usa <code>T102</code>, el Simulador toma de aquí su diámetro y su tipo. «F corte» y «F bajada» en mm/min; «Pasada», la profundidad máxima por pasada. Los cambios se guardan al momento.</p></div>
+<p class="hb-nota">Una sola lista para el Calcador, el Corrector y los Simuladores de este navegador. <b>T</b> es el número de herramienta de la máquina, de tres cifras como en TpaCAD (de T101 a T999): si un programa usa <code>T102</code>, el Simulador toma de aquí su diámetro y su tipo. «F corte» y «F bajada» en mm/min; «Pasada», la profundidad máxima por pasada. Los cambios se guardan al momento.</p></div>
 <div class="hb-pie"><button class="hb-b hb-p" onclick="HB.anadir()">＋ Añadir herramienta</button><button class="hb-b" onclick="HB.exportar()" title="Guarda la lista en un archivo JSON para pasarla a otro ordenador o a los alumnos">⬇ Exportar JSON</button><button class="hb-b" onclick="HB.exportarCSV()" title="Guarda la lista como hoja de cálculo (CSV con punto y coma, se abre en Excel o LibreOffice)">⬇ Exportar CSV</button><button class="hb-b" onclick="document.getElementById('hbArchivo').click()" title="Carga una lista en JSON o CSV (sustituye la actual)">📥 Importar JSON o CSV</button><input type="file" id="hbArchivo" accept=".json,.csv,.txt" style="display:none"><span style="flex:1"></span><button class="hb-b" onclick="HB.restaurar()" title="Vuelve a las tres herramientas de ejemplo">Restaurar ejemplo</button></div></div>`;
         document.body.appendChild(f);
         f.addEventListener('click', e => { if (e.target === f) cerrar(); });
@@ -4193,7 +4291,7 @@ function abrirCreditos() {
         f = document.createElement('div'); f.id = 'credFondo'; f.className = 'cred-fondo';
         f.innerHTML = `<div class="cred-caja"><div class="cred-cab"><h2>ℹ Créditos y licencias</h2><button class="cred-x" onclick="cerrarCreditos()" title="Cerrar">✕</button></div><div class="cred-cuerpo">
 <h3>Simulador G-Code 3D</h3>
-<p>Programa: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador. Forma parte de la <strong>Suite CNC 2026.10</strong> (Calcador, Corrector, Generador y Simuladores).</p>
+<p>Programa: © 2026 Eloi A.A. Herramienta educativa, gratuita, que funciona entera en el navegador. Forma parte de la <strong>Suite CNC 2026.10</strong> (Calcador, Corrector y Simuladores).</p>
 <p><strong>Licencia:</strong> se publica con la <strong>European Union Public Licence v. 1.2 (EUPL-1.2)</strong>: puedes usarlo, estudiarlo, modificarlo y compartirlo; si distribuyes una versión modificada, debe publicarse con la misma licencia (o una compatible) y con su código. Texto completo en el archivo <em>LICENSE</em> de la carpeta de las herramientas; los créditos de toda la suite, en <a href="licencias.html" target="_blank" rel="noopener">licencias.html</a>.</p>
 <h3>Componentes de terceros</h3>
 <p><strong>three.js</strong> (con sus controles de cámara OrbitControls), la biblioteca que dibuja la vista 3D: © 2010-2021 three.js authors, con licencia <strong>MIT</strong>, que permite usarlo, copiarlo, modificarlo y redistribuirlo manteniendo este aviso:</p>

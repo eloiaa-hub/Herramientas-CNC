@@ -9,14 +9,17 @@ sin instalar nada y también sin conexión a internet.
 | Archivo | Herramienta | Versión |
 |---|---|---|
 | `index.html` | Portada con enlaces a todo | — |
-| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca | v73 |
-| `corrector.html` | Corrector: el Calcador sin dibujo, solo para corregir, imprimir, exportar y enviar al Generador (se genera a partir del Calcador) | v21 |
+| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca. Genera el G-code de la máquina (⚙️ Mecanizar) | v80 |
+| `corrector.html` | Corrector: el Calcador sin dibujo, para corregir, simular, imprimir, exportar y generar el G-code con ⚙️ Mecanizar (se genera a partir del Calcador) | v28 |
 | `manual_calcador.html` / `.pdf` | Manual del Calcador | — |
 | `manual_corrector.html` / `.pdf` | Manual del Corrector (profesorado) | — |
+| `manual_anidador.html` / `.pdf` | Manual del Anidador de tableros (profesorado) | — |
+| `manual_calculadora.html` / `.pdf` | Manual de la Calculadora de taller (alumnado) | — |
 | `guia_simulador.pdf` | Guía del Simulador para el alumnado | — |
-| `generador.html` | Generador de G-Code 2D (cortes, grabados, cajeras, puentes, desbaste y acabado) | v81 |
-| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V34 |
-| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V34 |
+| `anidador.html` | Anidador de tableros: coloca piezas del Calcador (.json) o de un despiece (.csv) en tableros con colocación a mano, giro y escala con el ratón, y los devuelve como proyectos del Calcador o en PNG, SVG y DXF (profesorado) | v6 |
+| `simulador3d.html` | Simulador G-Code 3D, con vista 2D en planta (alumnado) | V38 |
+| `simulador3d_profesor.html` | Simulador G-Code 3D con editor y vista 2D (profesorado) | V38 |
+| `calculadora.html` | Calculadora de taller: recta inclinada, polares, arcos (centro, I J y R), G90 ↔ G91 y velocidades de corte (alumnado) | v4 |
 | `licencias.html` | Créditos y licencias (fuentes y bibliotecas de terceros) | — |
 | `LICENSE` | Licencia de los programas (EUPL-1.2) | — |
 | `LICENCIA-MANUAL.txt` | Licencia del manual (CC BY-SA 4.0) | — |
@@ -55,14 +58,18 @@ Para actualizar un programa basta con sustituir su archivo (manteniendo el mismo
 
 ## Licencia
 
-- **Programas** (`calcador.html`, `generador.html`, `simulador3d.html`, `simulador3d_profesor.html`
+- **Programas** (`calcador.html`, `corrector.html`, `simulador3d.html`, `simulador3d_profesor.html`, `calculadora.html`, `anidador.html`
   e `index.html`): © 2026 Eloi A.A. — **European Union Public Licence v. 1.2 (EUPL-1.2)**,
   archivo `LICENSE`. Puedes usarlos, estudiarlos, modificarlos y redistribuirlos; si distribuyes
   una versión modificada, debe publicarse también con la EUPL (o una licencia compatible) y con
   su código. La EUPL tiene la misma validez en todas las lenguas oficiales de la UE; la versión
   en castellano está en el Diario Oficial de la UE (Decisión de Ejecución (UE) 2017/863).
-- **Manual y guías** (`manual_calcador`, `manual_corrector` y `guia_simulador`): © 2026 Eloi A.A. — **Creative Commons
+- **Manual y guías** (`manual_calcador`, `manual_corrector`, `manual_anidador`, `manual_calculadora` y `guia_simulador`): © 2026 Eloi A.A. — **Creative Commons
   Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)**, archivo `LICENCIA-MANUAL.txt`.
 - Los **componentes de terceros** (fuentes EMS y Hershey, opentype.js, Clipper, three.js) conservan sus
   propias licencias, todas compatibles: ver `licencias.html`.
 
+
+## Herramientas de desarrollo
+
+La carpeta `herramientas_desarrollo/` no se usa en clase: guarda los scripts que construyen el Corrector a partir del Calcador, las fuentes del motor de ⚙️ Mecanizar y las pruebas automáticas. Ver su `LEEME.md`.

@@ -1,0 +1,157 @@
+<style>section + section { page-break-before: auto; break-before: auto; margin-top: 9mm; } h2.cap { break-after: avoid-page; page-break-after: avoid; }</style>
+<div class="portada"><div class="sup">Suite CNC · Manual para el alumnado</div><h1>Calculadora de taller</h1><h2>Las cuentas que hacen falta para programar en ISO: rectas inclinadas, polares, arcos, G90 ↔ G91 y velocidades de corte</h2>
+{{img:calc_recta.png}}<div class="pie">Calculadora de taller · Suite CNC 2026.10 · © 2026 Eloi A.A.<br>Manual publicado con licencia CC BY-SA 4.0. El programa, con licencia EUPL-1.2.</div></div>
+<div class="indice"><h2>Contenido</h2><ol><li>Qué es la Calculadora de taller</li><li>La pantalla</li><li>Recta inclinada</li><li>Polares</li><li>Arco: centro, I J y R</li><li>G90 ↔ G91</li><li>Velocidades de corte</li><li>Trucos</li><li>Problemas frecuentes</li></ol></div>
+
+<section><h2 class="cap"><span>1</span>Qué es la Calculadora de taller</h2>
+<p>La <strong>Calculadora de taller</strong> hace las cuentas que aparecen al pasar un plano a un programa ISO. Le das los datos que trae el plano y te devuelve las coordenadas, con <strong>un dibujo</strong> para que veas qué ha calculado y <strong>las líneas ISO</strong> listas para copiar.</p>
+<ul>
+<li><strong>Recta inclinada</strong>: de la longitud y el ángulo del plano a las coordenadas del punto final (y al revés).</li>
+<li><strong>Polares</strong>: de un radio y un ángulo a X e Y (y al revés).</li>
+<li><strong>Arco</strong>: el centro, los valores I J y el radio R de un arco G2 o G3.</li>
+<li><strong>G90 ↔ G91</strong>: pasa un programa entero de absolutas a incrementales, a mixta o al revés.</li>
+<li><strong>Velocidades de corte</strong>: revoluciones S, avance F y tiempo de mecanizado.</li>
+</ul>
+<div class="nota"><strong>💡 Para qué sirve.</strong> Para comprobar tus cuentas y para no atascarte en un cálculo. Haz primero la cuenta en tu cuaderno y usa la calculadora para ver si te sale lo mismo: así aprendes a hacerlo tú, que es lo que tendrás que hacer en el examen.</div>
+<p>Funciona en el navegador, sin instalar nada y sin conexión, también en el móvil. Recuerda la pestaña y los datos que usaste la última vez.</p>
+</section>
+
+<section><h2 class="cap"><span>2</span>La pantalla</h2>
+<figure>{{img:calc_pantalla.png|74%}}<figcaption>La Calculadora con la pestaña Recta inclinada.</figcaption></figure>
+<table class="zonas">
+<tr><td class="n">1</td><td><strong>Barra superior.</strong> <span class="boton">⌂</span> vuelve a la portada de la suite. Al lado, el nombre y la versión del programa.</td></tr>
+<tr><td class="n">2</td><td><strong>Pestañas.</strong> Cada una es un tipo de cálculo. La que está en azul es la que ves.</td></tr>
+<tr><td class="n">3</td><td><strong>Datos.</strong> Lo que te da el plano. Arriba eliges <strong>qué datos tienes</strong> (por ejemplo, «Longitud y ángulo» o «ΔX y ΔY») y la calculadora pide solo esos. Los resultados cambian mientras escribes: no hay que pulsar ningún botón.</td></tr>
+<tr><td class="n">4</td><td><strong>Resultado.</strong> Los valores calculados (los que tienen el borde azul son los que buscabas) y debajo las <strong>líneas ISO</strong> con su botón <span class="boton">Copiar</span>. Si algo no cuadra, aparece aquí un aviso en naranja o rojo.</td></tr>
+<tr><td class="n">5</td><td><span class="boton">❓ Ayuda</span> (o la tecla <code>F1</code>) explica la pestaña que estás viendo, con sus fórmulas. <span class="boton">🌓</span> cambia a modo oscuro y <span class="boton">ℹ</span> muestra los créditos.</td></tr>
+<tr><td class="n">6</td><td><strong>Dibujo.</strong> Lo que has calculado, a escala, con el <strong>cero pieza</strong> dibujado con el mismo símbolo que en los planos del Calcador.</td></tr>
+</table>
+<h3>El cero pieza y el sentido de los ángulos</h3>
+<ul>
+<li>Las coordenadas se miden desde el <strong>cero pieza</strong> (X0 Y0), el círculo con dos cuartos negros. Si el cero queda lejos del dibujo, en la esquina pone «Cero pieza fuera del dibujo».</li>
+<li>X crece hacia la <strong>derecha</strong> e Y hacia <strong>arriba</strong>, como ves la pieza desde arriba en la máquina.</li>
+<li>Los <strong>ángulos</strong> se miden desde el eje +X y en <strong>sentido antihorario</strong>: 0° a la derecha, 90° hacia arriba, 180° a la izquierda y −90° (o 270°) hacia abajo.</li>
+</ul>
+<div class="nota"><strong>💡 Ayudas emergentes.</strong> Deja el ratón quieto encima de cualquier campo, opción o resultado y aparece una explicación de qué es y cómo se usa.</div>
+</section>
+
+<section><h2 class="cap"><span>3</span>Recta inclinada</h2>
+<p>En un programa, una recta se escribe con su <strong>punto final</strong>. Pero el plano muchas veces da su <strong>longitud</strong> y su <strong>ángulo</strong>. Esta pestaña saca lo que avanza la recta en X y en Y (sus <strong>proyecciones</strong> ΔX y ΔY) y el punto final.</p>
+<figure>{{img:calc_recta.png|60%}}<figcaption>Una recta de 50 mm a 30° que empieza en (20, 10).</figcaption></figure>
+<p><strong>Ejemplo.</strong> El plano dice que desde el punto (20, 10) sale una recta de <strong>50 mm a 30°</strong>.</p>
+<ol>
+<li>Elige <span class="boton">Longitud y ángulo</span>.</li>
+<li>Escribe <code>50</code> en Longitud, <code>30</code> en Ángulo y <code>20</code> <code>10</code> en Punto de partida.</li>
+<li>Resultado: ΔX = <strong>43.301</strong>, ΔY = <strong>25</strong> y el punto final es <strong>X63.301 Y35</strong>.</li>
+</ol>
+<div class="formula">ΔX = L · cos(ángulo) = 50 · cos 30° = 43.301<br>ΔY = L · sen(ángulo) = 50 · sen 30° = 25<br>Punto final = partida + (ΔX, ΔY) = (20 + 43.301, 10 + 25) = (63.301, 35)</div>
+<p>Las dos líneas ISO dicen lo mismo de dos formas:</p>
+<ul>
+<li>En <strong>absolutas</strong> (G90), el punto final medido desde el cero pieza: <code>G90 G1 X63.301 Y35</code>.</li>
+<li>En <strong>incrementales</strong> (G91), lo que avanza desde donde está la fresa: <code>G91 G1 X43.301 Y25</code>. En incrementales no hace falta el punto de partida.</li>
+</ul>
+<h3>Otros datos del plano</h3>
+<div class="par"><div>
+<p>Si el plano no da la longitud, elige arriba los datos que tienes: <span class="boton">ΔX y ΔY</span>, <span class="boton">ΔX y ángulo</span> o <span class="boton">ΔY y ángulo</span>. La calculadora saca lo que falta.</p>
+<div class="nota atencion"><strong>⚠️ El signo.</strong> ΔX y ΔY llevan signo: negativo si la recta va hacia la izquierda o hacia abajo. Un ángulo de −25° es lo mismo que 335°. Con 90° o 270° la recta es vertical y ΔX no basta para saber su longitud (y con 0° o 180°, ΔY tampoco): la calculadora te lo avisa.</div>
+</div><div><figure>{{img:calc_recta_xa.png}}<figcaption>Con ΔX = 40 y −25°: la recta baja. La longitud es 44.135 y ΔY = −18.652.</figcaption></figure></div></div>
+</section>
+
+<section><h2 class="cap"><span>4</span>Polares</h2>
+<p>Algunos planos dan un punto en <strong>polares</strong>: su distancia a un punto de referencia (el <strong>polo</strong>) y su ángulo. Para programarlo en cartesianas necesitas su X y su Y.</p>
+<figure>{{img:calc_polar.png|68%}}<figcaption>Un punto a 60 mm del cero pieza y a 30°.</figcaption></figure>
+<p><strong>Ejemplo.</strong> Un taladro a <strong>60 mm</strong> del cero pieza y a <strong>30°</strong>. Elige <span class="boton">Polares → X Y</span>, escribe <code>60</code> y <code>30</code> y deja el polo en <code>0 0</code>: el punto es <strong>X51.962 Y30</strong>.</p>
+<div class="formula">X = polo X + r · cos(ángulo) = 0 + 60 · cos 30° = 51.962<br>Y = polo Y + r · sen(ángulo) = 0 + 60 · sen 30° = 30</div>
+<p>La calculadora te da también la línea en polares con <code>G16</code>: en ISO, después de <code>G16</code> la X es el <strong>radio</strong> y la Y el <strong>ángulo</strong> (<code>G90 G16 G1 X60 Y30</code>), con el polo en el cero pieza. <code>G15</code> vuelve a cartesianas.</p>
+<h3>Al revés: de X Y a polares</h3>
+<div class="par"><div>
+<p>Con <span class="boton">X Y → polares</span> das un punto y el polo, y sale su radio y su ángulo. Por ejemplo, el punto (40, 40) visto desde un polo en (10, 10) está a <strong>42.426 mm</strong> y a <strong>45°</strong>.</p>
+<div class="nota atencion"><strong>⚠️ El polo.</strong> En la suite, <code>G16</code> usa siempre el cero pieza como polo. Si el plano mide el ángulo desde otro punto (el centro de una pieza redonda, por ejemplo), programa en cartesianas con la X y la Y que te da la calculadora.</div>
+</div><div><figure>{{img:calc_polar_cp.png}}<figcaption>Con el polo fuera del cero pieza, la línea con G16 no sirve tal cual: la calculadora lo avisa.</figcaption></figure></div></div>
+</section>
+
+<section><h2 class="cap"><span>5</span>Arco: centro, I J y R</h2>
+<p>Un arco se programa con <code>G2</code> (sentido <strong>horario</strong>) o <code>G3</code> (<strong>antihorario</strong>), su <strong>punto final</strong> y, además, una de estas dos cosas:</p>
+<ul>
+<li><strong>I J</strong>: lo que hay que avanzar desde el <strong>inicio del arco</strong> hasta su <strong>centro</strong> (I en X, J en Y). Son siempre incrementales, aunque el programa esté en G90.</li>
+<li><strong>R</strong>: el radio.</li>
+</ul>
+<figure>{{img:calc_arco_r.png|68%}}<figcaption>Un arco G3 de radio 20 de (80, 10) a (100, 30): el centro está en (80, 30).</figcaption></figure>
+<p><strong>Ejemplo.</strong> Un arco <strong>antihorario</strong> de radio <strong>20</strong> que va de (80, 10) a (100, 30).</p>
+<ol>
+<li>Escribe el inicio <code>80 10</code> y el final <code>100 30</code>.</li>
+<li>Elige <span class="boton">G3 · antihorario</span> y <span class="boton">Conozco el radio</span>, y escribe <code>20</code>.</li>
+<li>Resultado: el centro es (80, 30), <strong>I0 J20</strong>, y las líneas <code>G90 G3 X100 Y30 I0 J20</code> o <code>G90 G3 X100 Y30 R20</code>.</li>
+</ol>
+<div class="formula">I = centro X − inicio X = 80 − 80 = 0<br>J = centro Y − inicio Y = 30 − 10 = 20</div>
+<h3>Arco corto y arco largo</h3>
+<div class="par"><div>
+<p>Entre dos puntos hay <strong>dos arcos</strong> del mismo radio y del mismo sentido: uno corto y otro largo. Elige el que dibuja el plano con <span class="boton">Arco corto (≤ 180°)</span> o <span class="boton">Arco largo (&gt; 180°)</span>.</p>
+</div><div><figure>{{img:calc_arco_largo.png}}<figcaption>El arco largo (270°): el centro pasa a (100, 10) y con R se escribe en negativo.</figcaption></figure></div></div>
+<div class="nota atencion"><strong>⚠️ R negativo.</strong> Con R, el arco de más de 180° se escribe con el radio en <strong>negativo</strong>: <code>G3 X100 Y30 R-20</code>. Con I J no hay que hacer nada especial, porque el centro no deja dudas. Y una <strong>circunferencia completa</strong> (inicio = final) solo se puede programar con I J.</div>
+<h3>Si el plano da el centro</h3>
+<div class="par"><div>
+<p>Elige <span class="boton">Conozco el centro</span> y escribe sus coordenadas. La calculadora comprueba que el centro esté <strong>a la misma distancia</strong> del inicio y del final. Si no lo está, el arco no existe: la máquina daría error o haría otra cosa, y te lo avisa con las dos distancias.</p>
+</div><div><figure>{{img:calc_arco_mal.png}}<figcaption>Un centro mal calculado: está a 20.616 mm del inicio y a 15 mm del final.</figcaption></figure></div></div>
+</section>
+
+<section><h2 class="cap"><span>6</span>G90 ↔ G91</h2>
+<p>Esta pestaña <strong>convierte un programa entero</strong>. Pega un programa (en G90, en G91 o mezclado) y elige cómo lo quieres:</p>
+<ul>
+<li><span class="boton">Todo en G90 (absolutas)</span>: cada punto medido desde el cero pieza.</li>
+<li><span class="boton">Todo en G91 (incrementales)</span>: cada punto medido desde el anterior.</li>
+<li><span class="boton">Mixta</span>: los rápidos (<code>G0</code>) y las subidas y bajadas en Z en absolutas, y los cortes en el plano (<code>G1</code>, <code>G2</code>, <code>G3</code>) en incrementales, como en las tablas de soluciones del Calcador.</li>
+</ul>
+<figure>{{img:calc_conv_g91.png|62%}}<figcaption>El programa de ejemplo pasado a G91.</figcaption></figure>
+<p>La calculadora sigue el programa línea a línea y reescribe X, Y y Z. <strong>I, J y R no cambian</strong>: I J ya son incrementales desde el inicio del arco y R es una medida. <code>G90</code> y <code>G91</code> se escriben solo donde cambia el modo, al principio del bloque.</p>
+<ul>
+<li><span class="boton">Ejemplo</span> pone un programa de prueba y <span class="boton">Borrar</span> vacía el cuadro.</li>
+<li><span class="boton">Copiar</span> copia el programa convertido y <span class="boton">Guardar .nc</span> lo guarda en un archivo.</li>
+<li><strong>Posición al empezar</strong>: dónde está la fresa antes de la primera línea. Solo hace falta si el programa empieza moviéndose en G91.</li>
+</ul>
+<div class="par"><div><figure>{{img:calc_conv_mix.png}}<figcaption>El mismo programa en mixta: <code>G0</code> y Z en absolutas, cortes en incrementales.</figcaption></figure></div><div>
+<div class="nota clase" style="margin-top:0"><strong>✅ Comprueba tu programa.</strong> Convierte tu programa a G91 y vuelve a convertirlo a G90. Si sale lo mismo que tenías, las cuentas cuadran. Las coordenadas polares (<code>G16</code>) no se convierten.</div>
+</div></div>
+</section>
+
+<section><h2 class="cap"><span>7</span>Velocidades de corte</h2>
+<p>Para el programa necesitas las <strong>revoluciones</strong> del husillo (<code>S</code>, en rpm) y el <strong>avance</strong> (<code>F</code>, en mm/min). Esta pestaña los relaciona con la fresa:</p>
+<ul>
+<li><strong>Ø</strong>: el diámetro de la fresa. <strong>Z</strong>: su número de dientes (filos).</li>
+<li><strong>Vc</strong> (velocidad de corte, m/min): lo rápido que pasa el filo por la madera.</li>
+<li><strong>fz</strong> (avance por diente, mm/diente): el grueso de la viruta que saca cada filo.</li>
+</ul>
+<figure>{{img:calc_corte.png|60%}}<figcaption>Fresa de Ø6 y dos filos a 18 000 rpm con fz = 0.08.</figcaption></figure>
+<p><strong>Ejemplo.</strong> Fresa de <strong>Ø6</strong> con <strong>2 filos</strong>, a <strong>18 000 rpm</strong> y con un avance por diente de <strong>0.08 mm</strong>:</p>
+<div class="formula">Vc = π · Ø · S / 1000 = π · 6 · 18000 / 1000 = 339.29 m/min<br>F = fz · Z · S = 0.08 · 2 · 18000 = 2880 mm/min</div>
+<p>Abajo tienes las líneas para el programa: <code>M3 S18000</code> y el avance <code>F2880</code> de los cortes.</p>
+<p>Si el catálogo de la fresa te da la <strong>velocidad de corte</strong> en lugar de las revoluciones, elige <span class="boton">Conozco la velocidad de corte Vc</span>: con Vc = 300 m/min salen S = <strong>15 915 rpm</strong> y F = 2546 mm/min. Del mismo modo, con <span class="boton">Conozco el avance F</span> sale el avance por diente.</p>
+<h3>Tiempo de mecanizado</h3>
+<p>Escribe lo que recorre la fresa <strong>cortando</strong> y <strong>en rápido</strong>, y el avance del rápido de tu máquina. En el ejemplo, 1250 mm cortando y 900 mm en rápido a 10 000 mm/min salen unos <strong>31 s</strong>. ⚙️ Mecanizar del Calcador da los dos recorridos en el resumen del programa.</p>
+<div class="nota atencion"><strong>⚠️ Es un mínimo.</strong> El tiempo no cuenta las aceleraciones, los cambios de herramienta ni las bajadas: la máquina tardará algo más.</div>
+<div class="nota"><strong>💡 Orientación.</strong> Con un avance por diente muy pequeño la fresa <strong>roza</strong> en lugar de cortar, se calienta y <strong>quema</strong> la madera. Con uno muy grande <strong>astilla</strong> la pieza o <strong>rompe</strong> la fresa. Los buenos valores dependen de la fresa, del material y de la máquina: consulta el catálogo del fabricante de la fresa y no pases nunca de las revoluciones máximas que indica.</div>
+</section>
+
+<section><h2 class="cap"><span>8</span>Trucos</h2>
+<ul>
+<li><strong>Copiar</strong>: cada línea ISO tiene su botón <span class="boton">Copiar</span>. Pégala en tu programa con <code>Ctrl+V</code>.</li>
+<li><strong>Recuerda lo último</strong>: al volver a abrir la calculadora, sigue en la misma pestaña y con los mismos datos.</li>
+<li><strong>Ayuda</strong>: <span class="boton">❓ Ayuda</span> o <code>F1</code> explica la pestaña que estás viendo. <code>Esc</code> la cierra.</li>
+<li><strong>Modo oscuro</strong>: <span class="boton">🌓</span>. La calculadora lo recuerda.</li>
+<li><strong>En el móvil</strong>: funciona igual. Las pestañas se desplazan con el dedo y las cajas se ponen una debajo de otra.</li>
+<li><strong>Decimales</strong>: puedes escribir con punto o con coma (<code>0.08</code> o <code>0,08</code>). Los resultados salen con punto, como en el programa ISO.</li>
+</ul>
+<div class="par"><div><figure>{{img:calc_ayuda.png}}<figcaption>La ayuda de la pestaña del arco (F1).</figcaption></figure></div><div style="flex:.42"><figure>{{img:calc_movil.png}}<figcaption>En el móvil.</figcaption></figure></div></div>
+</section>
+
+<section><h2 class="cap"><span>9</span>Problemas frecuentes</h2>
+<dl class="faq">
+<dt>Un campo se pone en rojo.</dt><dd>No es un número válido o falta. Revisa que no haya letras ni espacios de más.</dd>
+<dt>El punto final no coincide con el plano.</dt><dd>Comprueba el <strong>punto de partida</strong> y el <strong>ángulo</strong>: se mide desde +X en sentido antihorario. Un ángulo medido desde el eje Y, o en sentido horario, da otro resultado.</dd>
+<dt>El arco sale hacia el otro lado.</dt><dd>Revisa el sentido: <code>G2</code> es <strong>horario</strong> y <code>G3</code> <strong>antihorario</strong>, mirando la pieza desde arriba. Y si va por el lado largo, elige <span class="boton">Arco largo</span>.</dd>
+<dt>Sale el aviso «el centro no está a la misma distancia».</dt><dd>El centro que has puesto no puede ser el de ese arco. Suele pasar por un error en las cuentas del centro o por cambiar inicio y final.</dd>
+<dt>Con R no puedo hacer la circunferencia completa.</dt><dd>Es así: si el inicio y el final son el mismo punto, hay infinitas circunferencias de ese radio. Usa I J.</dd>
+<dt>La conversión G90 ↔ G91 no cambia las líneas con G16.</dt><dd>Las coordenadas polares no se convierten. Pásalas antes a cartesianas con la pestaña Polares.</dd>
+<dt>Las revoluciones que salen son más altas que las de mi máquina.</dt><dd>Usa las revoluciones máximas de tu máquina (o de la fresa, si son menores) y recalcula el avance con <span class="boton">Conozco las revoluciones S</span>.</dd>
+</dl>
+</section>
