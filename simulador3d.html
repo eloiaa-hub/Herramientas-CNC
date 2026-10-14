@@ -512,7 +512,7 @@
       <button class="panel-cerrar" onclick="cerrarAyuda()" title="Cerrar (Esc)">✕</button>
     </div>
     <div class="cuerpo">
-      <p style="margin:0 0 10px;font-size:13px">📖 Hay una <a href="guia_simulador.pdf" target="_blank" rel="noopener"><b>guía para el alumnado en PDF</b></a>, con capturas y una lista de comprobación antes de entregar (en la misma carpeta que el simulador).</p>
+      <p style="margin:0 0 10px;font-size:13px">📖 Hay una <a href="guia_simulador.html" target="_blank" rel="noopener"><b>guía del simulador</b></a> (también en <a href="guia_simulador.pdf" target="_blank" rel="noopener">PDF</a>), con capturas y una lista de comprobación antes de entregar (en la misma carpeta que el simulador).</p>
       <h3>Cargar un programa</h3>
       <p>Al abrir el simulador se carga un programa de ejemplo. En <b>📚 Ejemplos</b> hay tres programas incluidos: el contorno básico y el mismo contorno con compensación: con <code>G41</code> es un <b>corte interior</b> (un agujero con esa forma: la fresa va por dentro) y con <code>G42</code> un <b>corte exterior</b> (una pieza con esa forma: la fresa va por fuera), los dos recorriendo el contorno en sentido antihorario. Fíjate en cómo están escritos: bajan en la zona que sobra, activan la compensación en una recta que llega al centro de un lado (nunca en una esquina) y la anulan con <code>G40</code> en otra recta que se aleja. La entrada y la salida miden el <b>diámetro de la fresa más 1 o 2 mm</b> (8 mm con una fresa de 6): así la fresa baja sin tocar el contorno y el tramo donde se activa la compensación es más largo que su radio, como piden muchos controles. Para usar tu programa, pulsa <b>📂 Cargar G-code / plano</b> o arrastra el archivo (.nc, .gcode, .txt, .tap, .ngc) sobre la vista. El mismo botón abre el plano del ejercicio (.json del Calcador).</p>
       <p>La fresa empieza en X0 Y0 <b>Z10</b>, una posición de seguridad por encima de la pieza.</p>
@@ -523,7 +523,7 @@
         <li><code>G90</code>/<code>G91</code> coordenadas absolutas/incrementales, <code>G70</code>/<code>G71</code> o <code>G20</code>/<code>G21</code> pulgadas/milímetros (se aceptan las dos formas).</li>
         <li><code>G41</code>/<code>G42</code>/<code>G40</code> compensación del radio de la herramienta (ver más abajo).</li>
         <li>Ciclos de taladrado <code>G81</code>, <code>G82</code>, <code>G83</code> y <code>G73</code> (con picoteo <code>Q</code>), <code>G85</code>/<code>G86</code>/<code>G89</code>, con retorno <code>G98</code>/<code>G99</code> y anulación <code>G80</code>.</li>
-        <li><code>M3</code>/<code>M4</code>/<code>M5</code> (husillo) y <code>M30</code>/<code>M2</code> (fin), solo para la revisión.</li>
+        <li><code>M03</code>/<code>M04</code>/<code>M05</code> (husillo, con sus revoluciones delante: <code>S12000 M03</code>), <code>T… M06</code> (cambio de herramienta) y <code>M30</code>/<code>M02</code> (fin), para la revisión.</li>
         <li>Comentarios entre paréntesis <code>( )</code> o después de <code>;</code>. Varias palabras G en la misma línea, con o sin espacios (<code>G1X10Y5</code>, <code>X 10</code>), minúsculas y números de línea <code>N</code>.</li>
         <li>Otros códigos (<code>G18</code>, <code>G19</code>, <code>G28</code>…) no se simulan y aparecen como aviso en la revisión. Archivos en UTF-8 o en la codificación antigua de Windows.</li>
       </ul>
@@ -636,7 +636,8 @@
 ; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
 ; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-T101 M3 S12000
+T101 M06
+S12000 M03
 G0 X30 Y8 Z10         ; encima de un punto DENTRO del agujero, a 8 mm del contorno
 G1 Z-3 F150           ; baja en la zona que sobra
 G41 G1 X30 Y0 F1000   ; activa G41 en una recta hasta el contorno
@@ -650,7 +651,8 @@ G1 X0 Y0
 G1 X30                ; termina donde empezo
 G40 G1 X30 Y8         ; anula con G40 en una recta que se aleja hacia dentro
 G0 Z10
-M02
+M05
+M30
 ; Fin de programa
 </script>
 <script type="text/plain" id="gcodeEjemploG42">
@@ -664,7 +666,8 @@ M02
 ; (fresa de 6 mm: 8 mm). Asi la fresa baja sin tocar el contorno y el
 ; tramo donde se activa la compensacion es mas largo que su radio.
 G71 G90
-T101 M3 S12000
+T101 M06
+S12000 M03
 G0 X30 Y-8 Z10        ; encima de un punto FUERA de la pieza, a 8 mm del contorno
 G1 Z-3 F150           ; baja en la zona que sobra
 G42 G1 X30 Y0 F1000   ; activa G42 en una recta hasta el contorno
@@ -678,13 +681,15 @@ G1 X0 Y0
 G1 X30                ; termina donde empezo
 G40 G1 X30 Y-8        ; anula con G40 en una recta que se aleja hacia fuera
 G0 Z10
-M02
+M05
+M30
 ; Fin de programa
 </script>
 <script type="text/plain" id="gcodeEjemplo">
 ;(Ejemplo básico)
 G71 G90
-T101 M3 S12000
+T101 M06
+S12000 M03
 G0 X0 Y0 Z10
 G1 Z-3 F150
 G1 X55 F1000
@@ -694,8 +699,9 @@ G2 X60 Y60 I0 J10
 G1 X5
 G3 X0 Y55 I0 J-5
 G1 X0 Y0
-G1 Z10 F150
-M02
+G0 Z10
+M05
+M30
 ; Fin de programa
 </script>
 <script>
@@ -3736,7 +3742,7 @@ function revisarPrograma() {
         if (m.tipo === 'corte' && !(m.f > 0)) { if (!sinF) sinF = m.linea; sinFcuenta++; }
         // 4) Cortar con el husillo parado
         if (!husilloAvisado && !m.tras06 && m.tipo === 'corte' && Math.min(m.fromZ, m.z) < -1e-6 && !m.husillo) {
-            add(m.linea, 'aviso', 'Se entra en el material sin haber arrancado el husillo (falta M3 o M4 antes).');
+            add(m.linea, 'aviso', 'Se entra en el material sin haber arrancado el husillo (falta S… M03 antes, o M04).');
             husilloAvisado = true;
         }
     });
@@ -3748,7 +3754,7 @@ function revisarPrograma() {
         if (c.husillo) add(c.linea, 'aviso', 'Cambio de herramienta con el husillo en marcha: falta M05 antes del M06 (muchas máquinas lo paran solas, pero conviene escribirlo).');
     });
     { const sinM3 = gcodeMoves.find(m => m.tras06 && !m.husillo && m.tipo === 'corte' && Math.min(m.fromZ, m.z) < -1e-6);
-      if (sinM3) add(sinM3.linea, 'error', 'Corta con el husillo parado: después del cambio de herramienta (M06) falta arrancarlo con M03 S….'); }
+      if (sinM3) add(sinM3.linea, 'error', 'Corta con el husillo parado: después del cambio de herramienta (M06) falta arrancarlo con S… M03.'); }
     (meta.tSinBase || []).forEach(T => { const m = gcodeMoves.find(x => x.T === T); add(m ? m.linea : null, 'aviso', 'La herramienta T' + T + ' no está en la base de herramientas: se simula con la fresa del panel (Ø' + (+diametroFresa.toFixed(2)) + '). Añádela a la base (🧰) para verla con su diámetro.'); });
     if (meta.g28) add(meta.g28, 'aviso', 'G28 depende del control (en Fanuc vuelve al punto de referencia; en Fagor es otra cosa) y no se simula. Para subir antes de un cambio de herramienta, usa G0 Z… (por ejemplo, G0 Z20).');
     if (sinF) add(sinF, 'error', 'Movimiento de corte sin avance F definido' + (sinFcuenta > 1 ? ' (' + sinFcuenta + ' líneas afectadas)' : '') + '. Se ha simulado a ' + AVANCE_POR_DEFECTO + ' mm/min.');
@@ -4649,7 +4655,7 @@ function descartarEdicion() {
 }
 function nuevoPrograma() {
     if (!confirmarDescarteEdicion()) return;
-    const plantilla = '( Programa nuevo )\nG71 G90\nT101 M3 S12000\nG0 X0 Y0 Z10\n\nG0 Z10\nM5\nM30\n';
+    const plantilla = '( Programa nuevo )\nG71 G90\nT101 M06\nS12000 M03\nG0 X0 Y0 Z10\n\nG0 Z10\nM05\nM30\n';
     if (!editando) { textoAntesDeEditar = textoPrograma; mostrarModoEdicion(true); }
     editorTexto().value = plantilla;
     nombrePrograma = 'programa_nuevo.nc';

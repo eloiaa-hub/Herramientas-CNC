@@ -434,7 +434,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v90)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v38</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v91)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v39</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -1292,10 +1292,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
         <div class="cr-cuerpo mec-cuerpo">
             <div class="cr-izq mec-izq">
                 <div class="mec-sec">Herramienta</div>
-                <div class="param-line">Base <span style="display:flex;gap:4px;align-items:center"><select id="mecHerr" style="max-width:150px" title="Una fresa de la base de herramientas: pone el número T, el diámetro, el avance, las revoluciones y el paso en Z"></select><button type="button" onclick="HB.abrir(h => { document.getElementById('mecHerr').value = h.id; document.getElementById('mecHerr').dispatchEvent(new Event('change')); })" title="Base de herramientas: añadir, editar, exportar…" style="border:1px solid var(--border-color);background:transparent;border-radius:6px;padding:2px 6px;cursor:pointer">🧰</button></span></div>
+                <div class="param-line">Base <span style="display:flex;gap:4px;align-items:center"><select id="mecHerr" style="max-width:150px" title="Una fresa de la base de herramientas: pone el número T, el diámetro, los avances de corte y de bajada, las revoluciones y el paso en Z"></select><button type="button" onclick="HB.abrir(h => { document.getElementById('mecHerr').value = h.id; document.getElementById('mecHerr').dispatchEvent(new Event('change')); })" title="Base de herramientas: añadir, editar, exportar…" style="border:1px solid var(--border-color);background:transparent;border-radius:6px;padding:2px 6px;cursor:pointer">🧰</button></span></div>
                 <div class="param-line" title="Número de herramienta de la máquina (tres cifras, como en TpaCAD)">Número T <input type="number" id="mecT" min="1" max="999" step="1"></div>
                 <div class="param-line" title="El mismo de la sección Fresa del panel izquierdo">Diámetro (mm) <input type="number" id="mecD" min="0.1" step="0.5"></div>
-                <div class="param-line">Avance de corte F (mm/min) <input type="number" id="mecF" min="1" step="50"></div>
+                <div class="param-line" title="Velocidad al recorrer el contorno, ya dentro del material">Avance de corte F (mm/min) <input type="number" id="mecF" min="1" step="50"></div>
+                <div class="param-line" title="Velocidad al bajar en Z dentro del material (cada pasada de profundidad): más lenta que la de corte, como F150 bajando y F1500 cortando. Lo pone la fresa de la base («F bajada»); los contornos con herramienta propia usan el de su fresa. Si es mayor que el avance de corte, se usa el de corte">Avance de penetración F (mm/min) <input type="number" id="mecFz" min="1" step="50"></div>
                 <div class="param-line">Rápido G0 (mm/min) <input type="number" id="mecF0" min="1" step="100"></div>
                 <div class="param-line">Revoluciones S (rpm) <input type="number" id="mecS" min="1" step="500"></div>
                 <div class="mec-sec">Profundidad</div>
@@ -1962,7 +1963,7 @@ let aux = [];
 let auxPend = null;
 let cfgAux = { modo:'2p', ang:0, dist:10, radio:0 };
 let cfgFresa = { ver:false, d:6, herr:null };
-let cfgMec = { T:101, F:1000, F0:5000, S:12000, zSeg:20, prof:3, paso:3, acab:0, coord:'G90', comp:'G40', estr:'plano', unid:'G71', ancho:true, orden:'int' };   // ⚙️ Mecanizar   // herr: la herramienta de la base elegida (si la hay)
+let cfgMec = { T:101, F:1000, Fz:300, F0:5000, S:12000, zSeg:20, prof:3, paso:3, acab:0, coord:'G90', comp:'G40', estr:'plano', unid:'G71', ancho:true, orden:'int' };   // ⚙️ Mecanizar   // herr: la herramienta de la base elegida (si la hay)
 let fresaRes = null;
 let cfgCotas = { ver:false, nivel:'todo', incl:'proy', cero:true, entrada:true, sentido:true, centros:true, cadena:true, verOcultas:false };
 let cotasAjuste = {};   // clave de cota → { oculta, dn, dt, v } (posición manual u ocultación)
@@ -6901,7 +6902,7 @@ function textoTabla(modo) {
         const lineas = [`(${sinTildes(nombreProyecto().toUpperCase())} - COORDENADAS ${sinTildes(PROG_TXT[d.prog]).toUpperCase()})`, `(ALTURA DE SEGURIDAD Z${zSeg} ENTRE CONTORNOS; SIN COMPENSACION DE RADIO)`];
         let modal = null;
         const zLinea = t => { if (modal === 'G91') { lineas.push('G90 ' + t); modal = 'G90'; } else lineas.push(t); };
-        // Con varias herramientas: antes de cada contorno que cambia de herramienta, ya arriba, M05 · T… M06 · M03 S…
+        // Con varias herramientas: antes de cada contorno que cambia de herramienta, ya arriba, M05 · T… M06 · S… M03
         const cambiaHerr = variasHerramientas();
         let tActual = null;
         if (cambiaHerr) lineas.push('(CAMBIO DE HERRAMIENTA CON T... M06, A LA ALTURA DE SEGURIDAD)');
@@ -6912,7 +6913,7 @@ function textoTabla(modo) {
             if (tG && tG !== tActual) {
                 const h = HB.porT(tG);
                 if (tActual !== null) lineas.push('M05');
-                lineas.push(`T${tG} M06`, `M03 S${h && +h.S > 0 ? Math.round(+h.S) : 12000}`);
+                lineas.push(`T${tG} M06`, `S${h && +h.S > 0 ? Math.round(+h.S) : 12000} M03`);
                 tActual = tG;
             }
             g.filas.forEach((r, k) => {
@@ -9173,7 +9174,7 @@ function interpretarISO(texto) {
         if (est.compPend) { base.cambioComp = est.compPend; est.compPend = null; }
         const corta = hayZ ? (Math.min(z0 === null ? 1 : z0, z1 === null ? 1 : z1) < -1e-9) : est.mov !== 0;
         // después de un cambio de herramienta, cortar sin haber arrancado el husillo
-        if (corta && est.mov !== 0 && est.tras06 && est.husillo === false) { nota('error', li, `${etiqueta}: corta con el husillo parado: después del cambio de herramienta (M06) falta arrancarlo con M03 S….`, { cat:'seguridad', pista:'después de T… M06, arranca el husillo: M03 S… (con las revoluciones de la nueva fresa)' }); est.husillo = true; }
+        if (corta && est.mov !== 0 && est.tras06 && est.husillo === false) { nota('error', li, `${etiqueta}: corta con el husillo parado: después del cambio de herramienta (M06) falta arrancarlo con S… M03.`, { cat:'seguridad', pista:'después de T… M06, arranca el husillo: S… M03 (con las revoluciones de la nueva fresa)' }); est.husillo = true; }
         if (est.mov === 0) {
             if (hayZ && corta && dist(pos, p1) > 1e-9) nota('error', li, `${etiqueta}: desplazamiento en rápido (G0) con la herramienta por debajo de la superficie (Z${fmt(Math.min(z0, z1), 3)}).`, { cat:'seguridad' });
             segs.push(Object.assign({ tipo:'L', p1:{ ...pos }, p2:p1, rapido:true, corte:false }, base));
@@ -9440,7 +9441,7 @@ function comprobarHerramientas(prog, cortes, orden, solTramos, tol, paso, idxSol
     if (!cortes.some(s => s.T !== null && s.T !== undefined)) {
         const pide = [...new Set(orden.map(o => tDeContorno(o.c)))].map(T => 'T' + T).join(', ');
         H.push({ tipo:'error', cat:'herramienta', linea:null, msg:`El ejercicio pide varias herramientas (${pide}) y el programa no indica ninguna: escribe T… M06 antes de los contornos de cada una.`,
-            pista:'antes de cada grupo de contornos: G0 Z20 · M05 · T102 M06 · M03 S…' });
+            pista:'antes de cada grupo de contornos: G0 Z20 · M05 · T102 M06 · S… M03' });
         return H;
     }
     // cada corte que va sobre el contorno: ¿de qué contorno es y con qué herramienta lo corta?
@@ -9458,7 +9459,7 @@ function comprobarHerramientas(prog, cortes, orden, solTramos, tol, paso, idxSol
         const pide = tDeContorno(contornos[r.ci]), h = HB.porT(pide), sg = r.mal[0];
         H.push({ tipo:'error', cat:'herramienta', linea:sg.linea, seg:sg, cortes:r.mal.length,
             msg:`${sg.etiqueta}: el contorno E${r.entrada} (C${r.ci + 1}) se corta con ${sg.T ? 'T' + sg.T : 'ninguna herramienta indicada'} y el plano pide T${pide}${h ? ' (' + h.nombre + ')' : ''}.`,
-            pista:`antes de este contorno, cambia de herramienta: G0 Z20 · M05 · T${pide} M06 · M03 S${h ? h.S : '…'}` });
+            pista:`antes de este contorno, cambia de herramienta: G0 Z20 · M05 · T${pide} M06 · S${h ? h.S : '…'} M03` });
     });
     return H;
 }
@@ -12368,8 +12369,8 @@ function offsetRecorrido(segs, s, izq) {
 //             puentes:{ n, ancho, alto, pts:[{x,y}] }, tramos:[{ p1, p2, b }] }
 //    (tramos en mm respecto al cero pieza, en el orden dibujado y empezando por la entrada;
 //     b es la curvatura del tramo: 0 recta, > 0 arco antihorario, < 0 horario)
-//  trazado.herr (opcional): { T, d, F, S, paso, nombre } — herramienta propia del contorno (si no, la general de P)
-//  P: { feed, feedPos, tool, toolR, spindle, zSafe, zTotal, zStep, sobre,
+//  trazado.herr (opcional): { T, d, F, Fz, S, paso, nombre } — herramienta propia del contorno (si no, la general de P)
+//  P: { feed, feedZ (avance de penetración, opcional), feedPos, tool, toolR, spindle, zSafe, zTotal, zStep, sobre,
 //       coord:'G90'|'G91'|'mixta' (G90 en la entrada y el cierre, G91 en el recorrido), comp:'G40'|'G41'|'G42'|'auto' (según el trazado), estrategia:'plano'|'concordancia'|'oposicion',
 //       orden:'int' (interiores antes que exteriores, por defecto) | 'ext' (exteriores antes),
 //       unidades:'G71'|'G70', nombre, origen:'el Calcador' }
@@ -12478,7 +12479,10 @@ const MEC = (() => {
     function generar(trazados, P) {
         if (!trazados.length) return { error:'No hay ningún contorno que mecanizar' };
         // (feed, toolR, spindle, zStep y toolStr son los de la herramienta que está trabajando: cambian con cada M06)
-        let feed = Math.max(1, Math.abs(+P.feed || 300)); const feedPos = Math.max(1, Math.abs(+P.feedPos || 1200));
+        let feed = Math.max(1, Math.abs(+P.feed || 300)); const feedZ0 = Math.abs(+P.feedZ || 0); let feedZ = feedZ0;
+        // avance de penetración (al bajar en Z dentro del material): el de la fresa que trabaja, pero nunca más rápido que su avance de corte
+        const fz = () => feedZ > 0 ? Math.min(feedZ, feed) : feed;
+        const feedPos = Math.max(1, Math.abs(+P.feedPos || 1200));
         const toolNum = Math.min(999, Math.max(1, parseInt(P.tool) || 101)); let toolStr = String(toolNum).padStart(3, '0');
         let toolR = Math.max(0, +P.toolR || 0), spindle = Math.max(1, Math.abs(parseInt(P.spindle) || 10000));
         const zSafe = +P.zSafe, zTotal = +P.zTotal;
@@ -12513,7 +12517,7 @@ const MEC = (() => {
         if (!orden0.length) return { error:'No hay nada que mecanizar (solo islas)' };
         // Herramientas: cada contorno con la suya (o la general). Se mecaniza por herramientas, en el orden
         // en que aparecen, y dentro de cada una con el orden de siempre: así hay un cambio (M06) por herramienta
-        const hG = { T:toolNum, d:2 * toolR, F:feed, S:spindle, paso:zStep, nombre:P.nombreHerr || '' };
+        const hG = { T:toolNum, d:2 * toolR, F:feed, Fz:feedZ0, S:spindle, paso:zStep, nombre:P.nombreHerr || '' };
         const herrDe = t => t.herr && isFinite(+t.herr.T) && +t.herr.d > 0 ? t.herr : hG;
         const claveH = h => (+h.T) + '|' + (+h.d);
         const grupos = [];
@@ -12523,7 +12527,7 @@ const MEC = (() => {
         const usar = h => {
             hActual = h;
             const T = Math.min(999, Math.max(1, parseInt(h.T) || toolNum)); toolStr = String(T).padStart(3, '0');
-            toolR = Math.max(0, +h.d / 2 || 0); feed = Math.max(1, Math.abs(+h.F || feed)); spindle = Math.max(1, Math.abs(parseInt(h.S) || spindle));
+            toolR = Math.max(0, +h.d / 2 || 0); feed = Math.max(1, Math.abs(+h.F || feed)); feedZ = h === hG ? feedZ0 : Math.abs(+h.Fz || feedZ0); spindle = Math.max(1, Math.abs(parseInt(h.S) || spindle));
             zStep = h === hG ? hG.paso : limitarPaso(Math.abs(+h.paso) || hG.paso, T);
         };
         usar(grupos[0].h);
@@ -12565,7 +12569,7 @@ const MEC = (() => {
         nc += `${unitsMode}              ; unidades ${unitsMode === 'G70' ? 'pulgadas' : 'mm'}\n`;
         nc += `${coordMode}           ; coordenadas ${isIncr ? 'incrementales' : isMix ? 'absolutas (el recorrido de cada contorno, en G91)' : 'absolutas'}\n`;
         nc += `T${toolStr} M06         ; herramienta${multi ? ` 1 de ${grupos.length}` : ''}\n`;
-        nc += `M03 S${spindle}        ; arrancar el husillo\n`;
+        nc += `S${spindle} M03        ; arrancar el husillo\n`;
         nc += compAuto || compMode !== 'G40' ? `G40           ; sin corrección: G41/G42 se activa en la entrada de cada contorno (radio=${toolR}mm)\n` : `${compMode}           ; corrección herramienta (radio=${toolR}mm)\n`;
         let compEstado = 'G40';
         if (isIncr) nc += `G90              ; absoluto para posicionamiento inicial\n`;
@@ -12620,8 +12624,8 @@ const MEC = (() => {
                                 const seq = sentido === 1 ? tramo.slice(1) : tramo.slice(0, -1).reverse(); let prev = sentido === 1 ? tramo[0] : tramo[tramo.length - 1];
                                 seq.forEach(q => { z -= Math.hypot(q.x - prev.x, q.y - prev.y) * dz; nc += tramoXY(q, fmtZ(Math.max(zPass, z))) + '\n'; moveCur(q.x, q.y, Math.max(zPass, z)); prev = q; });
                             }
-                            nc += `G1 ${fmtZ(zPass)} F${feed}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
-                        } else { nc += `G1 ${fmtZ(zPass)} F${feed}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass); }
+                            nc += `G1 ${fmtZ(zPass)} F${fz()}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
+                        } else { nc += `G1 ${fmtZ(zPass)} F${fz()}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass); }
                         abajo = true;
                     }
                     // (el ajuste de arcos de cada trayectoria es el mismo en todas las pasadas: se calcula una vez)
@@ -12653,7 +12657,7 @@ const MEC = (() => {
             nc += `M05              ; parar el husillo\n`;
             usar(h);
             nc += `T${toolStr} M06         ; cambio de herramienta\n`;
-            nc += `M03 S${spindle}        ; arrancar el husillo\n`;
+            nc += `S${spindle} M03        ; arrancar el husillo\n`;
         };
         orden.forEach((t, ti) => {
             if (claveH(herrDe(t)) !== claveH(hActual)) cambiarHerramienta(herrDe(t));
@@ -12773,7 +12777,7 @@ const MEC = (() => {
                     nc += `; ── Desbaste ${passIdx + 1} / ${zDepthsT.length}  (Z=${fmtNum(zPass)}, sobreespesor ${fmtNum(sobre)}) ──\n`;
                     nc += `G0 ${fmtXY(ini.x, ini.y)} F${feedPos}   ; inicio del desbaste\n`; moveCur(ini.x, ini.y);
                     nc += `G1 ${fmtZ(0)} F${feed}       ; bajar a Z0\n`; moveCur(undefined, undefined, 0);
-                    nc += `G1 ${fmtZ(zPass)} F${feed}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
+                    nc += `G1 ${fmtZ(zPass)} F${fz()}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
                     if (ESR) { nc += `${compT} G1 ${fmtXY(segR[0].p1.x, segR[0].p1.y)} F${feed}   ; entrada: activa ${compT}\n`; moveCur(segR[0].p1.x, segR[0].p1.y); }
                     escribirRecorrido(segR);
                     if (ESR) { nc += `G40 G1 ${fmtXY(ESR.sal.x, ESR.sal.y)} F${feed}   ; salida: anula la compensación\n`; moveCur(ESR.sal.x, ESR.sal.y); }
@@ -12782,7 +12786,7 @@ const MEC = (() => {
                 nc += `; ── Acabado (Z=${fmtNum(zTotalT)}): el contorno exacto ──\n`;
                 nc += `G0 ${fmtXY(pIni.x, pIni.y)} F${feedPos}   ; volver a punto ${ES ? 'de aproximación' : 'entrada'}\n`; moveCur(pIni.x, pIni.y);
                 nc += `G1 ${fmtZ(0)} F${feed}       ; bajar a Z0\n`; moveCur(undefined, undefined, 0);
-                nc += `G1 ${fmtZ(zTotalT)} F${feed}     ; profundidad ${fmtNum(zTotalT)}\n`; moveCur(undefined, undefined, zTotalT);
+                nc += `G1 ${fmtZ(zTotalT)} F${fz()}     ; profundidad ${fmtNum(zTotalT)}\n`; moveCur(undefined, undefined, zTotalT);
                 entrar(pE);
                 escribirRecorrido(segM.filter(sg => !sg.nulo));
                 if (ES) salir(ES.sal);
@@ -12792,7 +12796,7 @@ const MEC = (() => {
             zDepthsT.forEach((zPass, passIdx) => {
                 nc += `; ── Pasada ${passIdx + 1} / ${zDepthsT.length}  (Z=${fmtNum(zPass)}) ──\n`;
                 nc += `G1 ${fmtZ(0)} F${feed}       ; bajar a Z0\n`; moveCur(undefined, undefined, 0);
-                nc += `G1 ${fmtZ(zPass)} F${feed}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
+                nc += `G1 ${fmtZ(zPass)} F${fz()}     ; profundidad ${fmtNum(zPass)}\n`; moveCur(undefined, undefined, zPass);
                 entrar(pE);
                 const conPuentes = tabs.length && zPass < zTab - 1e-9;
                 let s0 = 0, elevado = false;
@@ -12807,7 +12811,7 @@ const MEC = (() => {
                         if (tb - ta < 1e-9) continue;
                         const medio = s0 + (ta + tb) / 2, enPuente = conPuentes && tabs.some(([a, b]) => medio > a && medio < b);
                         if (enPuente && !elevado) { nc += `G1 ${fmtZ(zTab)} F${feed}     ; puente\n`; moveCur(undefined, undefined, zTab); elevado = true; }
-                        if (!enPuente && elevado) { nc += `G1 ${fmtZ(zPass)} F${feed}     ; fin de puente\n`; moveCur(undefined, undefined, zPass); elevado = false; }
+                        if (!enPuente && elevado) { nc += `G1 ${fmtZ(zPass)} F${fz()}     ; fin de puente\n`; moveCur(undefined, undefined, zPass); elevado = false; }
                         const q = puntoEn(sg, tb);
                         if (sg.recta || Math.hypot(q.x - cur.x, q.y - cur.y) < 0.002) nc += `${mk}G1 ${fmtXY(q.x, q.y)} F${feed}\n`;
                         else nc += `${mk}${sg.g} ${fmtXY(q.x, q.y)} I${fmtNum(sg.c.x - cur.x)} J${fmtNum(sg.c.y - cur.y)} F${feed}\n`;
@@ -12853,7 +12857,7 @@ function trazadosParaMecanizar() {
         if (t.puentes.n > 0) { const pzs = puentesDe(c); if (pzs.length) { t.puentes.pts = pzs.map(q => ({ x:q.p.x, y:q.p.y })); t.puentes.n = pzs.length; } }
         // herramienta propia del contorno (de la base compartida); si no está en la base, la general
         const Tc = c.mec && +c.mec.T;
-        if (Tc && t.op !== 'isla') { const h = HB.porT(Tc); if (h) t.herr = { T:h.T, d:h.d, F:h.F, S:h.S, paso:h.paso, nombre:h.nombre }; else t.herrFalta = Tc; }
+        if (Tc && t.op !== 'isla') { const h = HB.porT(Tc); if (h) t.herr = { T:h.T, d:h.d, F:h.F, Fz:h.Fz, S:h.S, paso:h.paso, nombre:h.nombre }; else t.herrFalta = Tc; }
         return t;
     }).filter(t => t.tramos.length);
 }
@@ -12865,14 +12869,14 @@ function trazadosParaMecanizar() {
 // (cfgMec se declara junto a cfgFresa, en el script principal)
 let ultimoMec = null, mecMontado = false;
 const escMec = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
-const MEC_CAMPOS = { mecT:'T', mecF:'F', mecF0:'F0', mecS:'S', mecZseg:'zSeg', mecProf:'prof', mecPaso:'paso', mecAcab:'acab', mecCoord:'coord', mecComp:'comp', mecEstr:'estr', mecUnid:'unid', mecOrden:'orden' };
+const MEC_CAMPOS = { mecT:'T', mecF:'F', mecFz:'Fz', mecF0:'F0', mecS:'S', mecZseg:'zSeg', mecProf:'prof', mecPaso:'paso', mecAcab:'acab', mecCoord:'coord', mecComp:'comp', mecEstr:'estr', mecUnid:'unid', mecOrden:'orden' };
 function abrirMec() {
     if (!contornos.some(c => c.pts.length >= 2)) { snack('Dibuja o abre primero la pieza'); return; }
     if (!mecMontado) {
         mecMontado = true;
         HB.montarSelector(document.getElementById('mecHerr'), h => {
             aplicarHerramientaCalc(h);
-            Object.assign(cfgMec, { T:h.T, F:h.F, S:h.S }); if (h.paso > 0) cfgMec.paso = h.paso;
+            Object.assign(cfgMec, { T:h.T, F:h.F, S:h.S }); if (h.Fz > 0) cfgMec.Fz = h.Fz; if (h.paso > 0) cfgMec.paso = h.paso;
             pintarCamposMec(); generarMec();
         });
         Object.keys(MEC_CAMPOS).forEach(id => document.getElementById(id).addEventListener(document.getElementById(id).tagName === 'SELECT' ? 'change' : 'input', () => { leerMec(); generarMecPronto(); }));
@@ -12908,7 +12912,7 @@ function leerMec() {
 // al cambiar el orden de corte, el plano renumera sus entradas E1, E2…
 window.addEventListener('load', () => { const el = document.getElementById('mecOrden'); if (el) el.addEventListener('change', () => { cfgMec.orden = el.value; try { refrescar(); } catch (e) {} }); });
 function generarMec() {
-    const P = { feed:cfgMec.F, feedPos:cfgMec.F0, tool:cfgMec.T, toolR:(+cfgFresa.d || 0) / 2, spindle:cfgMec.S, zSafe:Math.abs(+cfgMec.zSeg),
+    const P = { feed:cfgMec.F, feedZ:cfgMec.Fz, feedPos:cfgMec.F0, tool:cfgMec.T, toolR:(+cfgFresa.d || 0) / 2, spindle:cfgMec.S, zSafe:Math.abs(+cfgMec.zSeg),
         zTotal:-Math.abs(+cfgMec.prof), zStep:Math.abs(+cfgMec.paso), sobre:Math.max(0, +cfgMec.acab || 0), coord:cfgMec.coord, comp:cfgMec.comp,
         estrategia:cfgMec.estr, unidades:cfgMec.unid, orden:cfgMec.orden, nombre:nombreProyecto(), nombreHerr: cfgFresa.herr ? cfgFresa.herr.nombre : '' };
     const res = document.getElementById('mecResumen'), txt = document.getElementById('mecTexto');

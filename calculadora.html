@@ -97,7 +97,7 @@
 </head>
 <body>
 <div class="barra">
-  <h1><a class="casa" href="index.html" title="Portada de las herramientas">⌂</a> 🧮 Calculadora de taller — Por Eloi A.A. <span class="ver" title="Versión del programa">v4</span></h1>
+  <h1><a class="casa" href="index.html" title="Portada de las herramientas">⌂</a> 🧮 Calculadora de taller — Por Eloi A.A. <span class="ver" title="Versión del programa">v5</span></h1>
   <button id="btnAyuda" title="Ayuda de la pestaña abierta: qué calcula y cómo se usa (F1)">❓ Ayuda</button>
   <button id="btnTema" title="Modo claro / oscuro">🌓</button>
   <button id="btnInfo" title="Créditos y licencias">ℹ</button>
@@ -291,7 +291,7 @@
 
 <!-- Créditos y licencias -->
 <div class="velo" id="velo"><div class="ventana" role="dialog" aria-modal="true">
-  <h3>🧮 Calculadora de taller <span class="ver">v4</span></h3>
+  <h3>🧮 Calculadora de taller <span class="ver">v5</span></h3>
   <p>Parte de las <b>Herramientas CNC</b> (Suite CNC 2026.10) · © 2026 Eloi A.A.</p>
   <p>Programa: <b>European Union Public Licence v. 1.2 (EUPL-1.2)</b>, archivo <code>LICENSE</code>. No usa bibliotecas de terceros: funciona en el navegador, sin instalar nada y sin conexión.</p>
   <p>Lo que escribes se guarda solo en este navegador, para encontrarlo la próxima vez. No se envía a ningún sitio.</p>
@@ -342,7 +342,7 @@ const AYUDA_CAMPOS = {
   // corte
   vD: 'Diámetro de la fresa, en mm.',
   vZ: 'Número de dientes (filos) de la fresa: las fresas de madera suelen tener 1, 2 o 3.',
-  vS: 'Revoluciones del cabezal, en vueltas por minuto (rpm): la S del programa (M3 S…).',
+  vS: 'Revoluciones del cabezal, en vueltas por minuto (rpm): la S del programa (S… M03).',
   vVc: 'Velocidad de corte: lo rápido que pasa el filo por la madera, en metros por minuto. Depende de S y del diámetro.',
   vFz: 'Avance por diente: el grueso de la viruta que corta cada filo en cada vuelta, en mm.',
   vF: 'Avance de corte F, en mm por minuto: el F de los bloques G1, G2 y G3.',
@@ -693,7 +693,7 @@ function calcCorte() {
   $('vRes').innerHTML = ok ? res('Revoluciones S', fEnt(S), 'rpm', mS === 'Vc') + res('Velocidad de corte', f2(Vc), 'm/min', mS === 'S') + res('… en m/s', f2(Vc / 60), 'm/s')
     + res('Avance F', fEnt(F), 'mm/min', mF === 'fz') + res('Avance por diente', f3(fz), 'mm/diente', mF === 'F') + res('Avance por vuelta', f3(fz * Z), 'mm/vuelta')
     + (isFinite(t) && L > 0 ? res('Tiempo estimado', mmss(t), '', true) : '') : '';
-  $('vIso').innerHTML = ok ? isoLinea('En el programa', `M3 S${Math.round(S)}`) + isoLinea('Avance de corte', `G1 … F${Math.round(F)}`) : '';
+  $('vIso').innerHTML = ok ? isoLinea('En el programa', `S${Math.round(S)} M03`) + isoLinea('Avance de corte', `G1 … F${Math.round(F)}`) : '';
   let av = '';
   if (!ok) av = aviso('mal', 'Revisa los datos marcados en rojo (todos tienen que ser mayores que 0).');
   else {

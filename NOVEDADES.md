@@ -4,7 +4,21 @@ La versión de la suite es **año.mes** (por ejemplo, 2026.10). Cada programa co
 
 ## Suite CNC 2026.10
 
-Versiones de los programas: **Calcador v90 · Corrector v38 · Simulador 3D V40 · Calculadora de taller v4 · Anidador de tableros v8**.
+Versiones de los programas: **Calcador v91 · Corrector v39 · Simulador 3D V40 · Calculadora de taller v5 · Anidador de tableros v8**.
+
+### Avance de penetración y S… M03 en toda la suite (Calcador v91, Corrector v39, Calculadora v5)
+- ⚙️ Mecanizar tiene un campo nuevo, **Avance de penetración F**: la velocidad al bajar en Z dentro del material (cada pasada de profundidad y el final de un puente), más lenta que la de corte, como en los apuntes: `G1 Z-3 F300` bajando y `F1000` cortando. Hasta Z0 la fresa sigue bajando por el aire a la F de corte, y la recta de entrada ya lleva la F de corte.
+- Lo rellena la fresa elegida en la base de herramientas (su «F bajada»), y los contornos con herramienta propia bajan con el de su fresa. Nunca es más rápido que el avance de corte. Por defecto, 300 mm/min.
+- **Un solo orden para arrancar el husillo**, el de la norma (la S antes que la M): `S12000 M03`. Lo escriben así ⚙️ Mecanizar, el cambio de herramienta (`G0 Z20 · M05 · T102 M06 · S16000 M03`), los avisos de la corrección, la Calculadora (`S18000 M03`) y los ejemplos y la plantilla del Simulador 3D, que ahora llevan además `T101 M06` y terminan con `M05` y `M30`.
+- Los apuntes de los códigos ISO (capítulo 10) y el manual del Calcador (⚙️ Mecanizar) lo explican.
+
+### Biblioteca de inicio
+- Carpeta nueva `biblioteca_inicio`: **40 ejercicios** del generador del Calcador, 10 por nivel y de menos a más dentro de cada nivel. Nivel 1, rectas (1–5 en G90, 6–10 en G91); nivel 2, rectas inclinadas (1–5 en G90, 6–10 en mixta); nivel 3, arcos sencillos (G90); nivel 4, arcos con I J (libre).
+- `Biblioteca_de_inicio.json` los mete todos de una vez en 📚 Biblioteca («Importar archivos…»), en la carpeta *Biblioteca de inicio*, con las etiquetas *Inicio* y *Nivel N*. También están sueltos, por carpetas, y con las **hojas de ejercicio y las soluciones en PDF**, una por nivel, listas para imprimir.
+
+### Guía del Simulador 3D, nueva
+- La guía se ha rehecho entera, con capturas nuevas del Simulador 3D V40 y para el alumnado y el profesorado. Ahora está también en HTML (`guia_simulador.html`), como los manuales.
+- Explica lo que faltaba: la base de herramientas y el cambio de herramienta (T… M06), el material en manual, qué se dibuja (Visualización), el tiempo de mecanizado y los mensajes nuevos de la revisión.
 
 ### Un solo Simulador 3D (Simulador 3D V40, Calcador v90, Corrector v38)
 - El **Simulador 3D** es ahora uno solo, para el alumnado y el profesorado: el que tenía el profesor, con el **editor de G-code** (✏️ Editar, ▶ Aplicar, 💾 Guardar, 📄 Nuevo), sin la etiqueta «Profesor». El alumnado puede corregir su programa en el propio simulador y guardarlo.

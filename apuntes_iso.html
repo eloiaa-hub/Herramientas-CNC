@@ -354,7 +354,7 @@ S18000 <span class="m">M03</span>            <span class="c">; 4. vuelve a arran
 <pre class="prog"><span class="g">G71</span>                     <span class="c">; milímetros</span>
 <span class="g">G90</span>                     <span class="c">; absolutas</span>
 <span class="m">T101 M06</span>                <span class="c">; herramienta 101 (Ø6)</span>
-<span class="m">M03</span> S12000              <span class="c">; husillo a derechas</span>
+S12000 <span class="m">M03</span>              <span class="c">; husillo a derechas (la S antes que la M)</span>
 <span class="g">G40</span>                     <span class="c">; sin compensación, para empezar</span>
 <span class="g">G0</span> Z20 F5000            <span class="c">; altura de seguridad</span>
 <span class="g">G0</span> X0 Y0 F5000          <span class="c">; encima del cero pieza</span>
@@ -362,8 +362,8 @@ S18000 <span class="m">M03</span>            <span class="c">; 4. vuelve a arran
 <span class="c">; ── El agujero (interior) primero: la pieza aún está sujeta ──</span>
 <span class="g">G0</span> X62 Y50 F5000        <span class="c">; encima del punto de bajada, dentro del agujero</span>
 <span class="g">G1</span> Z0 <span class="k">F1000</span>
-<span class="g">G1</span> Z-3 <span class="k">F1000</span>            <span class="c">; baja a la profundidad</span>
-<span class="g">G42 G1</span> X70 Y50 <span class="k">F1000</span>    <span class="c">; entrada: interior en sentido horario → G42</span>
+<span class="g">G1</span> Z-3 <span class="k">F300</span>             <span class="c">; baja despacio a la profundidad (penetración)</span>
+<span class="g">G42 G1</span> X70 Y50 <span class="k">F1000</span>    <span class="c">; entrada, ya a la F de cortar: interior horario → G42</span>
 <span class="g">G2</span> X30 Y50 I-20 J0      <span class="c">; media vuelta (centro en X50 Y50)</span>
 <span class="g">G2</span> X70 Y50 I20 J0       <span class="c">; la otra media vuelta: agujero de radio 20</span>
 <span class="g">G40 G1</span> X62 Y50          <span class="c">; salida: anula la compensación</span>
@@ -372,7 +372,7 @@ S18000 <span class="m">M03</span>            <span class="c">; 4. vuelve a arran
 <span class="c">; ── El contorno exterior, el último ──</span>
 <span class="g">G0</span> X80 Y98 F5000        <span class="c">; encima del punto de bajada, fuera de la pieza</span>
 <span class="g">G1</span> Z0 <span class="k">F1000</span>
-<span class="g">G1</span> Z-3 <span class="k">F1000</span>
+<span class="g">G1</span> Z-3 <span class="k">F300</span>
 <span class="g">G41 G1</span> X80 Y90 <span class="k">F1000</span>    <span class="c">; entrada: exterior en sentido horario → G41</span>
 <span class="g">G1</span> X130 Y90
 <span class="g">G2</span> X150 Y70 I0 J-20     <span class="c">; esquina redondeada de R20</span>
@@ -392,8 +392,9 @@ S18000 <span class="m">M03</span>            <span class="c">; 4. vuelve a arran
 <li>Primero se cortan los <strong>interiores</strong> y al final el exterior: si se cortara antes el exterior, la pieza quedaría suelta mientras se hacen los agujeros.</li>
 <li>Un arco puede cambiar de sentido a mitad de contorno (aquí, un G3 entre dos G2) sin que cambie la compensación: <strong>G41 o G42 depende del sentido en que se recorre el contorno entero</strong>, no del sentido de cada arco.</li>
 <li>Los <code>F5000</code> de los G0 no cambian nada: G0 va siempre a la velocidad máxima de la máquina.</li>
-<li>El Calcador baja y corta con la misma F (aquí, F1000). En la máquina conviene bajar más despacio, como se explica en el capítulo 4: por ejemplo, <code>G1 Z-3 F150</code> y <code>F1500</code> en la entrada.</li>
-<li>El Calcador escribe <code>M03 S12000</code>; en el orden de la norma sería <code>S12000 M03</code>. Las dos formas las entienden casi todos los controles y el Simulador.</li>
+<li>El Calcador usa dos avances, como en el capítulo 4: el de <strong>penetración</strong> para bajar dentro de la madera (aquí, <code>F300</code>) y el de <strong>corte</strong> desde la recta de entrada (aquí, <code>F1000</code>). Los dos se cambian en ⚙️ Mecanizar: «Avance de penetración» y «Avance de corte».</li>
+<li>Fíjate en que <code>G1 Z0</code> va todavía a F1000: hasta Z0 la fresa baja por el aire, y solo frena al entrar en la madera.</li>
+<li>El husillo se arranca con <code>S12000 M03</code>, en el orden de la norma: primero la S, después la M.</li>
 </ul>
 </section>
 
@@ -409,7 +410,7 @@ S18000 <span class="m">M03</span>            <span class="c">; 4. vuelve a arran
 <dt>G2 en lugar de G3 (o al revés)</dt><dd>El arco sale «hacia fuera» en lugar de «hacia dentro». Mira el plano desde arriba: ¿el arco va como las agujas del reloj (G2) o al revés (G3)?</dd>
 <dt>Un G91 que se queda puesto</dt><dd>Después de un tramo en incrementales, falta el G90: las alturas y los puntos siguientes se van a cualquier sitio.</dd>
 <dt>Cortar sin F</dt><dd>«Movimiento de corte sin avance F definido». El primer G1 del programa necesita su F.</dd>
-<dt>El husillo parado</dt><dd>«Se entra en el material sin haber arrancado el husillo» o «después del cambio de herramienta (M06) falta arrancarlo con M03 S…».</dd>
+<dt>El husillo parado</dt><dd>«Se entra en el material sin haber arrancado el husillo» o «después del cambio de herramienta (M06) falta arrancarlo con S… M03».</dd>
 <dt>Cambiar de herramienta abajo</dt><dd>«Cambio de herramienta (M06) con la fresa dentro de la pieza». Antes del M06: <code>G0 Z20</code> y <code>M05</code>.</dd>
 <dt>La compensación sin anular</dt><dd>«Se activa la compensación (G41/G42) y no se anula con G40 antes de terminar el programa».</dd>
 <dt>Coma decimal</dt><dd>«Coma decimal (p. ej. X10,5): el control CNC no la entiende, usa punto (X10.5)».</dd>
