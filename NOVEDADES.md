@@ -4,7 +4,35 @@ La versión de la suite es **año.mes** (por ejemplo, 2026.10). Cada programa co
 
 ## Suite CNC 2026.10
 
-Versiones de los programas: **Calcador v85 · Corrector v33 · Simulador 3D V39 · Simulador del profesor V39 · Calculadora de taller v4 · Anidador de tableros v8**.
+Versiones de los programas: **Calcador v90 · Corrector v38 · Simulador 3D V40 · Calculadora de taller v4 · Anidador de tableros v8**.
+
+### Un solo Simulador 3D (Simulador 3D V40, Calcador v90, Corrector v38)
+- El **Simulador 3D** es ahora uno solo, para el alumnado y el profesorado: el que tenía el profesor, con el **editor de G-code** (✏️ Editar, ▶ Aplicar, 💾 Guardar, 📄 Nuevo), sin la etiqueta «Profesor». El alumnado puede corregir su programa en el propio simulador y guardarlo.
+- `simulador3d_profesor.html` ya no es un simulador: lleva a `simulador3d.html`, para que los enlaces antiguos (por ejemplo, en Aules) sigan funcionando.
+- En el Calcador y el Corrector, «➜ Abrir en el Simulador» abre el Simulador 3D.
+- La guía del Simulador tiene un capítulo nuevo, «13 Corregir el programa en el simulador», sobre el editor.
+
+### Centros de los arcos más visibles (Calcador v89, Corrector v37)
+- El centro de los arcos, los taladros y las ranuras se marca con una **cruz de 5 mm** (2,5 mm a cada lado) en su propia capa: **rojo oscuro** y más gruesa que las líneas de cota (negra en el SVG y las hojas en negro).
+- En las hojas de ejercicio y de soluciones, y en el SVG, el **contorno de la pieza es bastante más grueso** que las cotas (unos 3 pt en una pieza de 200 mm).
+- 🧩 Ejercicio aleatorio: el panel de opciones es más ancho y la barra de desplazamiento ya no tapa ningún campo.
+
+### 🧩 Ejercicio aleatorio: niveles, piezas escalonadas y series para la clase (Calcador v88, Corrector v36)
+- **Nivel**, con la progresión de clase: 1, solo rectas horizontales y verticales; 2, rectas inclinadas (chaflanes por proyecciones); 3, arcos con el centro en la rejilla (I J enteros); 4, arcos que piden calcular I J y polígonos. Cada nivel pone las formas, esquinas y lados que le tocan; si se cambia algo a mano, pasa a «Libre».
+- Forma nueva para las piezas: **escalonada** (un rectángulo con muescas en las esquinas y quizá una ranura en un lado: piezas en L, en T o en U).
+- **Serie para la clase**: un ejercicio distinto para cada alumno (los números seguidos desde el primero de las propuestas), guardados en la biblioteca (carpeta Aleatorios/Serie…, numerados en el cajetín) y, si se quiere, con todas sus hojas o sus soluciones impresas de una vez.
+- La ventana es más grande y su panel de opciones, más ancho.
+- Corregido: dos agujeros rectangulares podían cruzarse en cruz (la distancia se medía solo desde los vértices). Algunos números dan ahora otra pieza.
+
+### 🧩 Ejercicio aleatorio: esquinas y lados en arco (Calcador v87, Corrector v35)
+- En **Esquinas y lados**: la probabilidad de que cada esquina de un rectángulo, polígono o estrella salga **redondeada**, **hacia dentro** (cuarto de círculo con centro en la esquina) o con **chaflán**, y de que un lado recto salga como **arco abombado** o **hundido**. Se puede aplicar también a los agujeros.
+- Los radios y los chaflanes salen en múltiplos del paso de las cotas; los arcos que la fresa recorre por su lado cóncavo miden al menos su diámetro, así que todo se sigue pudiendo mecanizar. Los rectángulos con solo esquinas siguen siendo editables como rectángulo.
+- Un ejercicio generado con la v86 (sin estos parámetros) sale igual con su número.
+
+### 🧩 Ejercicio aleatorio (Calcador v86, Corrector v34)
+- **Ejercicios generados al azar** con las formas del Calcador (panel Ejercicio, arriba a la izquierda): rectángulos, polígonos, estrellas, círculos y colisos, con agujeros dentro. Se eligen el tamaño máximo del conjunto (por ejemplo, 250 × 200), cuántas piezas y cuántos interiores, qué formas pueden salir para cada cosa, en qué múltiplos salen las cotas (1, 5 o 10 mm), si las formas van giradas, el diámetro de la fresa y la pared mínima.
+- Salen **seis propuestas**, cada una con su **número**; clic en una y pasa al dibujo con sus cotas, con las formas editables y cada pieza agrupada con sus agujeros. El mismo número con los mismos parámetros da el mismo ejercicio, y se guarda en el JSON.
+- Todos se pueden mecanizar: ningún agujero más pequeño que dos diámetros de fresa, la pared mínima entre agujeros y con el borde, y las piezas separadas el diámetro más 4 mm.
 
 ### Apuntes «Códigos ISO de la Suite CNC» (nuevos)
 - **Apuntes para el alumnado** (`apuntes_iso.html` y `apuntes_iso.pdf`, en la portada de la suite): cómo es un programa ISO (el orden de las letras N G X Y Z F S T M, la numeración N10, N20… y los comentarios con ;); los ejes, el cero pieza y las alturas; G71/G70 y G90/G91 (también mixtas); G0 y G1, con el avance de penetración (F150) y el de corte (F1500); los arcos G2 y G3 con I J y con R, y K en los planos G18 y G19 y en la hélice; las coordenadas polares; S, F, M03, M04, M05 y el cambio de herramienta T… M06; el final con M30 y M02; la compensación del radio G40, G41 y G42 paso a paso (la regla de la izquierda y la derecha, exteriores e interiores, la entrada y la salida, las esquinas, concordancia y oposición, y cómo se ve en el Simulador); un programa del Calcador comentado línea a línea; los errores frecuentes con el aviso del Simulador, una hoja resumen para imprimir y, de extra, un poco de historia del G-code.

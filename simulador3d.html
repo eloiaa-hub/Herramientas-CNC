@@ -134,6 +134,23 @@
     .gl.con-error .num { color:#fff; background:var(--danger); border-radius:3px; }
     .gl.con-aviso .num { color:#fff; background:var(--warn); border-radius:3px; }
     
+    .pill-profesor { background:var(--accent); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.06em;
+        padding:3px 8px; border-radius:10px; flex-shrink:0; }
+    .herr-prof { display:flex; gap:4px; margin-left:auto; margin-right:4px; flex-shrink:0; }
+    .herr-prof button { padding:3px 7px; font-size:12px; white-space:nowrap; }
+    aside#panelCodigo .panel-cab h3 { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+    #barraEdicion { display:flex; align-items:center; gap:6px; padding:6px 10px; border-bottom:1px solid var(--border-color); flex-shrink:0; }
+    #barraEdicion button { padding:4px 10px; font-size:12px; }
+    #estadoEdicion { font-size:11.5px; color:var(--text-muted); margin-left:auto; white-space:nowrap; }
+    #estadoEdicion.pendiente { color:var(--warn); font-weight:700; }
+    #zonaEditor { flex:1; display:flex; min-height:0; position:relative;
+        font-family: Consolas, "Cascadia Mono", Menlo, "Courier New", monospace; font-size:12.5px; line-height:1.55; }
+    #gutterEditor { flex:0 0 48px; overflow:hidden; text-align:right; padding:4px 8px 4px 0; color:var(--num-linea);
+        background:var(--bg-app); border-right:1px solid var(--border-color); user-select:none; white-space:pre; }
+    #textoEditor { flex:1; min-width:0; resize:none; border:none; outline:none; padding:4px 10px; margin:0;
+        font:inherit; line-height:inherit; background:var(--bg-panel); color:var(--text-main); white-space:pre; overflow:auto; tab-size:4; }
+    #textoEditor:focus { box-shadow: inset 0 0 0 2px var(--accent-light); }
+    
     #panelRevision { border-top:1px solid var(--border-color); flex-shrink:0; display:flex; flex-direction:column; max-height:40%; }
     #panelRevision .rev-cab { display:flex; justify-content:space-between; align-items:center; padding:8px 12px 8px 16px;
         font-size:12px; font-weight:700; cursor:pointer; user-select:none; }
@@ -235,8 +252,7 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V39</span></h1>
-        
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V40</span></h1>
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
         <button class="principal" onclick="document.getElementById('fileInput').click()" title="Un programa G-code (.nc, .txt…) o el plano del ejercicio (.json del Calcador) para comprobar el programa con él">📂 Cargar<span class="lbl2"> G-code / plano</span></button>
@@ -292,10 +308,22 @@
         <aside id="panelCodigo">
             <div class="panel-cab">
                 <h3>Programa G-code</h3>
-                
+                <div class="herr-prof">
+                    <button id="btnEditarCodigo" onclick="toggleEdicionCodigo()" title="Editar el G-code en modo texto (Ctrl+E)">✏️ Editar</button>
+                    <button onclick="guardarGcode()" title="Guardar el G-code como archivo .nc (Ctrl+S)">💾</button>
+                    <button onclick="nuevoPrograma()" title="Empezar un programa nuevo en blanco">📄</button>
+                </div>
                 <button class="panel-cerrar" onclick="togglePanel('codigo')" title="Ocultar panel">✕</button>
             </div>
-            
+            <div id="barraEdicion" class="oculto">
+                <button class="principal" onclick="aplicarEdicion()" title="Simular el código editado (Ctrl+Intro)">▶ Aplicar</button>
+                <button onclick="descartarEdicion()" title="Volver al código sin los cambios">↶ Descartar</button>
+                <span id="estadoEdicion"></span>
+            </div>
+            <div id="zonaEditor" class="oculto">
+                <div id="gutterEditor" aria-hidden="true"></div>
+                <textarea id="textoEditor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Editor de G-code"></textarea>
+            </div>
             <div id="listaCodigo" style="flex:1"><div class="vacio">Carga un archivo para ver aquí su código. Haz clic en cualquier línea para llevar la fresa hasta ella.</div></div>
             <div id="panelRevision">
                 <div class="rev-cab" onclick="document.getElementById('panelRevision').classList.toggle('plegado')" title="Mostrar / ocultar la revisión">
@@ -552,6 +580,15 @@
       <p>Si pulsas grabar con la simulación al final, aparece un aviso para elegir: volver al inicio y grabar el recorrido de corte, o grabar la pieza terminada girando la cámara.</p>
       <p>La grabación se detiene sola cuando la simulación llega al final, o al pulsar <b>Detener</b>. Formato MP4 o WebM, según el navegador. Consejo: baja la velocidad para que se vea mejor cada movimiento.</p>
 
+      
+      <h3>Editar y guardar el G-code</h3>
+      <ul>
+        <li><b>✏️ Editar</b> (o Ctrl+E), en el panel de código, cambia el listado por un editor de texto con números de línea.</li>
+        <li><b>▶ Aplicar</b> (o Ctrl+Intro) simula el código editado; la revisión se actualiza. <b>↶ Descartar</b> vuelve al código anterior.</li>
+        <li><b>💾</b> (o Ctrl+S) guarda el programa como .nc. En Chrome y Edge se abre el diálogo "Guardar como", que avisa si el archivo ya existe. Se guarda con saltos de línea de Windows, como esperan los controles antiguos.</li>
+        <li><b>📄</b> empieza un programa nuevo a partir de una plantilla (G71 G90, husillo, posición de seguridad y M30).</li>
+        <li>Si hay cambios sin aplicar, el simulador pide confirmación antes de cargar otro programa o cerrar la pestaña.</li>
+      </ul>
       
       <h3>Revisión del programa</h3>
       <p>Debajo del código aparece la <b>revisión</b>: una lista de errores (⛔) y avisos (⚠️) con su número de línea. Al hacer clic en uno, la fresa va a esa línea. En el listado, el número de la línea afectada se marca en rojo o naranja y, al pasar el ratón, se ve el mensaje. Se detecta:</p>
@@ -3625,7 +3662,7 @@ function abrirInforme() {
     const herrs = []; gcodeMoves.forEach(m => { const h = m.herr; const t = h ? `T${h.T} Ø${+(+h.d).toFixed(2)} ${h.tipo === 'bola' ? 'bola' : h.tipo === 'v' ? 'en V' : 'plana'}` : null; if (t && !herrs.includes(t)) herrs.push(t); });
     const ver = (document.querySelector('.ver-suite') || {}).textContent || '';
     informeDatos = {
-        v:1, simulador: /profesor/i.test(ver) ? 'profesor' : 'alumno', version: ver.trim(),
+        v:1, simulador: 'simulador3d', version: ver.trim(),
         alumno:'', grupo:'', ejercicio: plano ? plano.titulo : '', archivo: nombrePrograma || '', fecha: `${dd(ahora.getDate())}/${dd(ahora.getMonth() + 1)}/${ahora.getFullYear()} ${dd(ahora.getHours())}:${dd(ahora.getMinutes())}`,
         programa: normalizarPrograma(textoPrograma), lineas: normalizarPrograma(textoPrograma).split('\n').length,
         herramienta: herrs.length ? herrs.join(' · ') : `Ø${+diametroFresa.toFixed(2)} ${tipoFresa === 'bola' ? 'bola' : tipoFresa === 'v' ? 'en V' : 'plana'} (del panel)`,
@@ -4552,6 +4589,138 @@ function cargarEjemplo(id) {
     cargarGcodeTexto(ej.textContent.replace(/^\n/, ''), NOMBRES_EJEMPLO[id] + ' (ejemplo)');
 }
 
+
+// ── Edición del G-code ─────────────────────────
+let editando = false;
+let textoAntesDeEditar = '';
+function editorTexto() { return document.getElementById('textoEditor'); }
+function hayCambiosSinAplicar() { return editando && editorTexto().value !== textoAntesDeEditar; }
+function actualizarGutter() {
+    const n = editorTexto().value.split('\n').length;
+    const g = document.getElementById('gutterEditor');
+    if (g._n !== n) { let t = ''; for (let i = 1; i <= n; i++) t += i + '\n'; g.textContent = t; g._n = n; }
+    g.scrollTop = editorTexto().scrollTop;
+    const est = document.getElementById('estadoEdicion');
+    const pend = hayCambiosSinAplicar();
+    est.textContent = pend ? '● Cambios sin aplicar' : 'Sin cambios';
+    est.className = pend ? 'pendiente' : '';
+}
+function mostrarModoEdicion(v) {
+    editando = v;
+    ['barraEdicion', 'zonaEditor'].forEach(id => document.getElementById(id).classList.toggle('oculto', !v));
+    document.getElementById('listaCodigo').classList.toggle('oculto', v);
+    document.getElementById('btnEditarCodigo').classList.toggle('activo', v);
+    document.getElementById('btnEditarCodigo').textContent = v ? '👁️ Ver' : '✏️ Editar';
+}
+function toggleEdicionCodigo() {
+    if (!editando) {
+        if (document.getElementById('panelCodigo').classList.contains('oculto')) togglePanel('codigo');
+        reproduciendo = false; actualizarBotonPlay();
+        textoAntesDeEditar = textoPrograma;
+        editorTexto().value = textoPrograma;
+        mostrarModoEdicion(true);
+        actualizarGutter();
+        // Colocar el cursor en la línea que se está ejecutando
+        if (lineaResaltada) seleccionarLineaEditor(lineaResaltada);
+        editorTexto().focus();
+    } else {
+        if (hayCambiosSinAplicar()) {
+            if (confirm('Hay cambios sin aplicar. ¿Aplicarlos antes de salir del editor?')) { if (!aplicarEdicion()) return; }
+            else if (!confirm('¿Salir del editor y descartar los cambios?')) return;
+        }
+        mostrarModoEdicion(false);
+    }
+}
+function aplicarEdicion() {
+    const texto = editorTexto().value;
+    const nombre = nombrePrograma ? nombrePrograma.replace(/ \(ejemplo\)$/, '') : 'programa.nc';
+    const antes = textoPrograma;
+    cargarGcodeTexto(texto, nombre);
+    if (textoPrograma !== texto) { mostrarSnack('El código no tiene movimientos G0/G1/G2/G3: no se puede simular'); return false; }
+    textoAntesDeEditar = texto;
+    actualizarGutter();
+    if (antes !== texto) mostrarSnack('Código aplicado: ' + document.getElementById('revResumen').textContent);
+    return true;
+}
+function descartarEdicion() {
+    if (hayCambiosSinAplicar() && !confirm('¿Descartar los cambios del editor?')) return;
+    editorTexto().value = textoAntesDeEditar;
+    actualizarGutter();
+}
+function nuevoPrograma() {
+    if (!confirmarDescarteEdicion()) return;
+    const plantilla = '( Programa nuevo )\nG71 G90\nT101 M3 S12000\nG0 X0 Y0 Z10\n\nG0 Z10\nM5\nM30\n';
+    if (!editando) { textoAntesDeEditar = textoPrograma; mostrarModoEdicion(true); }
+    editorTexto().value = plantilla;
+    nombrePrograma = 'programa_nuevo.nc';
+    actualizarGutter();
+    seleccionarLineaEditor(5);
+    editorTexto().focus();
+}
+// Antes de cargar otro programa: avisar si hay cambios sin guardar/aplicar
+function confirmarDescarteEdicion() {
+    if (!hayCambiosSinAplicar()) { if (editando) mostrarModoEdicion(false); return true; }
+    if (!confirm('Hay cambios en el editor sin aplicar. ¿Descartarlos?')) return false;
+    mostrarModoEdicion(false);
+    return true;
+}
+window.confirmarDescarteEdicion = confirmarDescarteEdicion;
+function seleccionarLineaEditor(n) {
+    const ta = editorTexto(), lineas = ta.value.split('\n');
+    let ini = 0; for (let i = 0; i < n-1 && i < lineas.length; i++) ini += lineas[i].length + 1;
+    const fin = ini + (lineas[n-1] || '').length;
+    ta.focus(); ta.setSelectionRange(ini, fin);
+    const alto = parseFloat(getComputedStyle(ta).lineHeight) || 19;
+    ta.scrollTop = Math.max(0, (n - 1) * alto - ta.clientHeight / 3);
+    actualizarGutter();
+}
+
+// Guardar: diálogo "Guardar como" (avisa si el archivo ya existe) o descarga
+async function guardarGcode() {
+    const texto = editando ? editorTexto().value : textoPrograma;
+    if (!texto.trim()) { mostrarSnack('No hay G-code que guardar'); return; }
+    let nombre = (nombrePrograma || 'programa.nc').replace(/ \(ejemplo\)$/, '');
+    if (!/\.(nc|gcode|tap|ngc|txt)$/i.test(nombre)) nombre += '.nc';
+    // Los controles antiguos esperan saltos de línea de Windows
+    const salida = texto.replace(/\r?\n/g, '\r\n');
+    if (window.showSaveFilePicker) {
+        try {
+            const h = await window.showSaveFilePicker({ suggestedName: nombre,
+                types: [{ description: 'Programa G-code', accept: { 'text/plain': ['.nc', '.gcode', '.tap', '.ngc', '.txt'] } }] });
+            const w = await h.createWritable(); await w.write(salida); await w.close();
+            nombrePrograma = h.name; document.getElementById('filenameLabel').textContent = h.name;
+            mostrarSnack('G-code guardado: ' + h.name);
+            return;
+        } catch (err) { if (err && err.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([salida], { type: 'text/plain' }));
+    a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    mostrarSnack('G-code descargado: ' + nombre + ' (si ya existía, el navegador le añade un número)');
+}
+
+(function () {
+    const ta = editorTexto();
+    ta.addEventListener('input', actualizarGutter);
+    ta.addEventListener('scroll', () => { document.getElementById('gutterEditor').scrollTop = ta.scrollTop; });
+    ta.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {   // tabulador = 4 espacios, sin salir del editor
+            e.preventDefault();
+            const i = ta.selectionStart, f = ta.selectionEnd;
+            ta.setRangeText('    ', i, f, 'end'); actualizarGutter();
+        } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); aplicarEdicion(); }
+    });
+    document.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if ((e.ctrlKey || e.metaKey) && k === 's') { e.preventDefault(); guardarGcode(); }
+        else if ((e.ctrlKey || e.metaKey) && k === 'e') { e.preventDefault(); toggleEdicionCodigo(); }
+    });
+    window.addEventListener('beforeunload', (e) => { if (hayCambiosSinAplicar()) { e.preventDefault(); e.returnValue = ''; } });
+    // Clic en la revisión estando en el editor: seleccionar esa línea en el texto
+    const irOriginal = irALinea;
+    irALinea = function (n) { irOriginal(n); if (editando) seleccionarLineaEditor(n); };
+})();
 
 
 function abrirAyuda()  { document.getElementById('ayudaFondo').classList.add('visible'); }

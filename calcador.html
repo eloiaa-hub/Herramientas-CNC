@@ -89,6 +89,18 @@
     .var-opciones { width: 290px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
     .var-chk { justify-content: flex-start !important; gap: 6px; cursor: pointer; }
     .var-aviso { color: #a3560f; }
+    .help-modal.gen-modal { width: min(1500px, 97vw); max-height: 95vh; height: 95vh; }
+    .gen-modal .var-cuerpo { max-height: none; flex: 1; min-height: 0; }
+    .gen-modal .var-opciones { width: 470px; padding: 0 20px 0 4px; }
+    .gen-modal .var-lista { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .gen-modal .var-mini { height: 190px; } .gen-modal .var-mini svg { max-height: 190px; }
+    .gen-modal #genNivel { width: 100%; }
+    .gen-chips { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
+    .gen-chip { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .gen-rango { display: flex; align-items: center; gap: 4px; } .gen-rango input[type=number] { width: 48px; }
+    .gen-ficha { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .gen-ficha:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
+    .gen-av { color: #a3560f !important; }
     .var-lista { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; overflow-y: auto; align-content: start; }
     .var-ficha { border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; background: var(--bg-panel); }
     .var-ficha span { color: var(--text-muted, #666); }
@@ -422,7 +434,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v85</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">⬡ Calcador de contornos — Por Eloi A.A.<span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v90</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -497,6 +509,11 @@
             </div>
 
             <div class="action-panel">
+                <div class="section-label">Ejercicio</div>
+                <div class="params-box">
+                    <button class="btn-action" onclick="abrirGenerador()" title="Genera ejercicios al azar con las formas del Calcador (rectángulos, polígonos, estrellas, círculos y colisos) y sus interiores, dentro del tamaño que elijas, con cotas enteras y sitio para la fresa. Cada uno tiene su número: el mismo número da el mismo ejercicio">🧩 Ejercicio aleatorio…</button>
+                </div>
+
                 <div class="section-label">Fondo</div>
                 <div class="params-box">
                     <input type="file" id="fileFondo" accept=".png,.jpg,.jpeg,.gif,.webp,.bmp,.svg,.dxf" style="display:none" onchange="cargarFondo(this)">
@@ -681,7 +698,7 @@
                     <div class="param-line"><span title="Solo DXF y SVG. Desmarcado, el DXF usa el cero pieza del plano como origen. El JSON siempre guarda el cero pieza del plano.">DXF: esquina de la pieza en 0,0</span><input type="checkbox" id="chkOrigen"></div>
                     <button class="btn-action" onclick="exportarJSON()" title="Guarda el proyecto en un archivo JSON: lo abren el Calcador, el Corrector y los Simuladores (como plano del ejercicio)">💾 Guardar (.json)</button>
                     <button class="btn-action" onclick="abrirMec()" title="Prepara el programa de la máquina: herramienta, pasadas, acabado, puentes, grabados y cajeras, con vista previa y descarga del .nc">⚙️ Mecanizar (G-code)…</button>
-                    <button class="btn-action sec" onclick="abrirEnSimulador()" title="Abre el Simulador del profesor con el plano de este ejercicio y el programa de su solución (el de la tabla, con las alturas), para verla mecanizada en 3D o en 2D">➜ Abrir en el Simulador</button>
+                    <button class="btn-action sec" onclick="abrirEnSimulador()" title="Abre el Simulador 3D con el plano de este ejercicio y el programa de su solución (el de la tabla, con las alturas), para verla mecanizada en 3D o en 2D">➜ Abrir en el Simulador</button>
                     <button class="btn-action sec" onclick="abrirCuestionario()" title="Preguntas para un cuestionario de Aules (Moodle XML) sobre este ejercicio: coordenadas G90, G91 y polares, I J, R, G2/G3 y G41/G42, con el plano y varias variantes para que cada alumno reciba la suya">📝 Cuestionario para Aules…</button>
                     <button class="btn-action sec" onclick="abrirVariantes()" title="Varias versiones del ejercicio (simetrías, giro, otro cero pieza…) con la misma dificultad y distinta solución, para exámenes">🎲 Variantes para examen…</button>
                     <div class="param-line">DXF
@@ -772,6 +789,48 @@
                 <button class="btn-action sec" onclick="guardarVariantesBib()">📚 Guardar en la biblioteca</button>
             </div>
             <div class="var-lista" id="varLista"></div>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="modalGenerador" onclick="if(event.target===this)cerrarGenerador()">
+    <div class="help-modal var-modal gen-modal">
+        <div class="help-header"><h2>🧩 Ejercicio aleatorio</h2><button class="help-close" onclick="cerrarGenerador()">✕</button></div>
+        <div class="var-cuerpo">
+            <div class="var-opciones">
+                <p class="ctx-nota">Elige el nivel (o los parámetros) y haz clic en la propuesta que quieras: pasa al dibujo, con sus formas editables.</p>
+                <div class="cr-req-t">Nivel</div>
+                <select id="genNivel" onchange="elegirNivel(this.value)" title="Niveles de la progresión de clase: cada uno pone las formas, esquinas y lados que le tocan. Si cambias algo a mano, pasa a «Libre»"></select>
+                <div class="cr-req-t">Tamaño</div>
+                <div class="param-line" title="Lo que ocupa como máximo el conjunto de piezas">Ancho máximo (mm) <input type="number" id="genAncho" min="40" step="10" onchange="cambiarGenerador()"></div>
+                <div class="param-line">Alto máximo (mm) <input type="number" id="genAlto" min="40" step="10" onchange="cambiarGenerador()"></div>
+                <div class="param-line" title="Cada pieza ocupa entre este porcentaje y el 100 % de su sitio: más alto, piezas más grandes">Ocupar al menos (%) <input type="number" id="genOcupar" min="20" max="100" step="5" onchange="cambiarGenerador()"></div>
+                <div class="cr-req-t">Piezas</div>
+                <div class="param-line">Número de piezas <span class="gen-rango"><input type="number" id="genPMin" min="1" max="12" step="1" onchange="cambiarGenerador()"> a <input type="number" id="genPMax" min="1" max="12" step="1" onchange="cambiarGenerador()"></span></div>
+                <div class="gen-chips" id="genFormasExt" title="Formas que pueden salir como contorno exterior de cada pieza"></div>
+                <div class="cr-req-t">Interiores de cada pieza</div>
+                <div class="param-line">Número de interiores <span class="gen-rango"><input type="number" id="genIMin" min="0" max="12" step="1" onchange="cambiarGenerador()"> a <input type="number" id="genIMax" min="0" max="12" step="1" onchange="cambiarGenerador()"></span></div>
+                <div class="gen-chips" id="genFormasInt" title="Formas que pueden salir como agujeros"></div>
+                <div class="cr-req-t">Esquinas y lados</div>
+                <div class="param-line" title="Probabilidad de que cada esquina de un rectángulo, polígono o estrella se cambie">Esquinas cambiadas (%) <input type="number" id="genPEsq" min="0" max="100" step="5" onchange="cambiarGenerador()"></div>
+                <div class="gen-chips" id="genEsqTipos" title="Redondeada: arco hacia fuera, tangente a los dos lados. Hacia dentro: cuarto de círculo con centro en la esquina. Chaflán: un corte recto"></div>
+                <div class="param-line" title="Probabilidad de que un lado recto (entre dos esquinas vivas) se cambie por un arco">Lados en arco (%) <input type="number" id="genPLado" min="0" max="100" step="5" onchange="cambiarGenerador()"></div>
+                <div class="gen-chips" id="genLadoTipos" title="Abombado: el arco sale hacia fuera de la forma. Hundido: entra hacia dentro"></div>
+                <label class="param-line var-chk" title="Cambiar también las esquinas y los lados de los agujeros"><input type="checkbox" id="genModInt" onchange="cambiarGenerador()"> También en los interiores</label>
+                <div class="cr-req-t">Cotas y fresa</div>
+                <div class="param-line" title="Las cotas de los rectángulos y colisos, los centros y los radios salen en múltiplos de este valor. Los vértices de polígonos y estrellas, y las formas giradas, dan decimales (se calculan con polares)">Cotas múltiplos de <select id="genPaso" onchange="cambiarGenerador()"><option value="1">1 mm</option><option value="5">5 mm</option><option value="10">10 mm</option></select></div>
+                <label class="param-line var-chk" title="Rectángulos, colisos, polígonos y estrellas girados en múltiplos de 15°. Dan cotas con decimales"><input type="checkbox" id="genGirar" onchange="cambiarGenerador()"> Formas giradas</label>
+                <div class="param-line" title="Ningún agujero más pequeño que dos veces este diámetro, y las piezas separadas al menos el diámetro más 4 mm">Diámetro de la fresa (mm) <input type="number" id="genFresa" min="0.5" step="0.5" onchange="cambiarGenerador()"></div>
+                <div class="param-line" title="Lo que queda como mínimo entre un agujero y el borde de la pieza, y entre dos agujeros">Pared mínima (mm) <input type="number" id="genPared" min="0" step="1" onchange="cambiarGenerador()"></div>
+                <p class="ctx-nota var-aviso" id="genAviso"></p>
+                <button class="btn-action" onclick="otrasPropuestas()">🎲 Otras seis</button>
+                <div class="param-line" title="El número de un ejercicio (con los mismos parámetros, sale el mismo)">Número <span class="gen-rango"><input type="number" id="genSemilla" min="1" step="1" style="width:80px" onkeydown="if(event.key==='Enter')verSemilla()"> <button class="btn-action sec" style="padding:3px 8px" onclick="verSemilla()">Ver</button></span></div>
+                <div class="cr-req-t">Serie para la clase</div>
+                <div class="param-line" title="Un ejercicio distinto para cada alumno: los números seguidos desde el primero de las propuestas">Ejercicios <input type="number" id="genSerieN" min="1" max="60" step="1" onchange="cfgGen.serieN = Math.max(1, Math.min(60, Math.round(+this.value || 25))); genGuardarCfg(); pintarCfgGen()"></div>
+                <p class="ctx-nota" id="genSerieDe"></p>
+                <button class="btn-action sec" onclick="guardarSerieBib()" title="Los guarda en la biblioteca, en la carpeta Aleatorios/Serie (número del primero); cada uno con su número de orden en el cajetín">📚 Guardar en la biblioteca</button>
+                <div class="btn-row"><button class="btn-action sec" onclick="guardarSerieBib('hoja')" title="Los guarda en la biblioteca e imprime todas sus hojas de una vez">🖨 Sus hojas</button><button class="btn-action sec" onclick="guardarSerieBib('sol')" title="Los guarda en la biblioteca e imprime todas sus soluciones de una vez">📋 Sus soluciones</button></div>
+            </div>
+            <div class="var-lista" id="genLista"></div>
         </div>
     </div>
 </div>
@@ -1025,7 +1084,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
             <h3>Colocar u ocultar cotas</h3>
             <p><strong>Arrastra el número</strong> de una cota para moverla: las lineales se acercan o alejan de la pieza (y su texto se desliza a lo largo de la línea); en radios y diámetros se mueve la línea guía. Con <strong>clic derecho</strong> sobre el número: cambiar la medida, ocultar la cota o devolverla a su posición automática. Las ocultas no salen en el SVG ni en la hoja impresa; «Mostrar cotas ocultas» las enseña atenuadas para recuperarlas, y «↺ Restaurar cotas» lo deshace todo. Los cambios se guardan, se deshacen con Ctrl+Z y viajan en el JSON.</p>
             <h3>Ranuras y centros de arcos</h3>
-            <p>Las ranuras (dos rectas paralelas unidas por dos semicírculos) llevan los ejes de sus dos centros, la línea entre centros y la posición del primer centro desde los bordes de la pieza; con doble clic en esa posición se mueve la ranura entera. Los arcos que no son empalmes (no tangentes a sus dos vecinos) llevan marca de centro y la posición de su centro — cotas de referencia, útiles para calcular I y J; se desactivan con «Centros de arcos».</p>
+            <p>Las ranuras (dos rectas paralelas unidas por dos semicírculos) llevan los ejes de sus dos centros, la línea entre centros y la posición del primer centro desde los bordes de la pieza; con doble clic en esa posición se mueve la ranura entera. Los arcos que no son empalmes (no tangentes a sus dos vecinos) llevan marca de centro y la posición de su centro — cotas de referencia, útiles para calcular I y J; se desactivan con «Centros de arcos». Los ejes que marcan los centros (de arcos, taladros y ranuras) van en rojo oscuro y más gruesos que las cotas, para que no se confundan con ellas; en el SVG y en las hojas en negro, negra y gruesa.</p>
             <h3>Cambiar una medida desde su cota</h3>
             <p>Con «Acotar automáticamente» activo, haz <strong>doble clic sobre el número</strong> de una cota (con cualquier herramienta, si no estás a mitad de un trazo), escribe el valor y pulsa <span class="kbd">Intro</span>. Así conviertes medidas calcadas con decimales (14,885) en las del plano (15).</p>
             <table class="help-table">
@@ -1048,6 +1107,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
             <p>Exportar → ✅ Corregir programa. Pega el programa ISO del alumno (o ábrelo) y pulsa Corregir: se interpreta como lo haría el control y su recorrido de corte se compara con la pieza dibujada, desde su cero pieza. Da igual cómo esté escrito (absolutas e incrementales mezcladas, polares, arcos con I-J o R, cualquier orden, punto de inicio o sentido). Si el programa tiene Z, cortan los movimientos por debajo de Z0; si no, todos los G1/G2/G3. Se marcan en rojo los tramos del plano sin mecanizar y los cortes que se meten en la pieza, en naranja los que van por la zona que sobra (entradas y salidas: no son error) y como errores de seguridad los rápidos por debajo de la superficie. Clic en una observación para verla en el dibujo y en el programa.</p>
             <p><strong>🗂 Biblioteca</strong> (barra superior): importa la carpeta de tus ejercicios (todos sus .json, también los de subcarpetas) y tendrás una ficha de cada uno con miniatura, número, nivel y programación. Busca, filtra, ábrelos con un clic o imprime sus hojas de ejercicio o de soluciones, también de varios a la vez. Se guarda una copia en el navegador: si cambias los archivos, vuelve a importar la carpeta.</p>
             <p><strong>🔗 Agrupar</strong> (Editar): selecciona varios contornos (Mayús + clic o un recuadro) y pulsa <kbd>Ctrl</kbd>+<kbd>G</kbd> o <em>🔗 Agrupar</em> en el panel. Desde entonces, un clic en cualquiera de ellos selecciona el grupo entero, que se mueve, gira, escala, copia o borra junto; <kbd>Alt</kbd> + clic selecciona un solo contorno del grupo (por ejemplo, para cambiar su mecanizado). <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>G</kbd> o <em>⛓ Desagrupar</em> lo deshace. Los grupos se guardan en el JSON, y cada copia de un grupo es un grupo nuevo.</p>
+            <p><strong>🧩 Ejercicio aleatorio</strong> (panel Ejercicio, arriba a la izquierda): genera ejercicios al azar con las formas del Calcador. Eliges el tamaño máximo del conjunto (por ejemplo, 250 × 200), cuántas piezas y cuántos interiores, qué formas pueden salir para las piezas y para los agujeros, en qué múltiplos salen las cotas (1, 5 o 10 mm), si las formas pueden ir giradas, el diámetro de la fresa y la pared mínima. En <em>Esquinas y lados</em>, la probabilidad de que cada esquina de un rectángulo, polígono o estrella salga redondeada, hacia dentro o con chaflán, y de que un lado recto salga como arco abombado o hundido (también en los agujeros, si se marca); sus radios y chaflanes salen en múltiplos del paso de las cotas, y los arcos que la fresa recorre por dentro miden al menos su diámetro. Con <em>Nivel</em> se eligen de una vez las formas, esquinas y lados de cada paso de la progresión: 1, solo rectas horizontales y verticales (rectángulos y piezas escalonadas, en L, en T o en U); 2, con rectas inclinadas (chaflanes); 3, con arcos de centro en la rejilla (I J enteros: redondeos, esquinas hacia dentro, círculos y colisos); 4, con arcos que piden calcular I J (lados en arco) y polígonos. En <em>Serie para la clase</em>, un ejercicio distinto para cada alumno (los números seguidos desde el primero de las propuestas): se guardan en la biblioteca y se pueden imprimir todas sus hojas o sus soluciones de una vez. Salen seis propuestas, cada una con su número: clic en la que quieras y pasa al dibujo con sus cotas, con las formas editables y cada pieza agrupada con sus agujeros. <em>🎲 Otras seis</em> da otras; con el número (y los mismos parámetros) vuelve a salir el mismo ejercicio, que se guarda en el JSON. Ningún agujero es más pequeño que dos diámetros de fresa, entre un agujero y el borde (o entre dos agujeros) queda la pared mínima, y las piezas quedan separadas el diámetro de la fresa más 4 mm.</p>
             <p><strong>Alinear y repartir</strong> (panel de la selección, con dos o más piezas): izquierda, centro, derecha, abajo, centro y arriba, respecto al conjunto; <em>Repartir ↔ / ↕</em> deja la misma separación entre las piezas (con tres o más; la primera y la última no se mueven). Cada grupo o texto cuenta como una pieza.</p>
             <p><strong>🔒 Bloquear</strong> (panel del contorno o de la selección): el contorno no se coge en el dibujo (ni con clic, ni con recuadro, ni con Ctrl+A), para que no se mueva por error mientras calcas o acotas encima; los imanes sí lo ven. Se ve con 🔒 en el dibujo y en la lista de contornos; desde la lista se selecciona y se desbloquea.</p>
             <p><strong>Recortar</strong> (<kbd>Y</kbd>): clic en el trozo de un contorno que sobra; se quita lo que hay entre los dos cruces más cercanos con otros contornos o líneas auxiliares (o hasta el extremo del trazo). Antes de hacer clic se ve en rosa lo que se quitará. <strong>Alargar</strong> (<kbd>H</kbd>): clic junto al extremo de un trazo abierto; la recta o el arco se prolonga hasta el primer contorno o auxiliar que encuentra (se ve antes, en verde). Con las dos, <kbd>Esc</kbd> vuelve a Editar.</p>
@@ -1259,7 +1319,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                 <div class="mec-botones">
                     <button class="btn-action" id="mecDescargar" onclick="descargarMec()">⬇ Descargar .nc</button>
                     <button class="btn-action sec" id="mecCopiar" onclick="copiarMec()">Copiar</button>
-                    <button class="btn-action sec" id="mecSimular" onclick="simularMec()" title="Abre el Simulador del profesor con el plano y este programa, para verlo mecanizado en 3D o en 2D">➜ Abrir en el Simulador</button>
+                    <button class="btn-action sec" id="mecSimular" onclick="simularMec()" title="Abre el Simulador 3D con el plano y este programa, para verlo mecanizado en 3D o en 2D">➜ Abrir en el Simulador</button>
                 </div>
             </div>
         </div>
@@ -3727,6 +3787,401 @@ function dibujarPreviaRA(q) {
     ctx.restore();
 }
 
+// ════════════════════════════════════════════════
+//  🧩 EJERCICIO ALEATORIO
+//  Piezas hechas con las formas del Calcador (rectángulo, polígono, estrella, círculo, coliso) y sus
+//  interiores, dentro de un tamaño máximo, con cotas en múltiplos de un paso y sitio para la fresa.
+//  Cada ejercicio sale de una semilla: la misma semilla con los mismos parámetros da la misma pieza.
+// ════════════════════════════════════════════════
+const GEN_FORMAS = { rectangulo:'Rectángulo', escalonada:'Escalonada', poligono:'Polígono', estrella:'Estrella', circulo:'Círculo', ranura:'Coliso' };
+const GEN_FORMAS_INT = Object.fromEntries(Object.entries(GEN_FORMAS).filter(([k]) => k !== 'escalonada'));
+const GEN_CFG0 = { nivel:'libre', serieN:25, ancho:250, alto:200, ocupar:60, pMin:1, pMax:1, ext:['rectangulo', 'escalonada', 'poligono', 'circulo', 'ranura'], iMin:1, iMax:3,
+                   int:['circulo', 'rectangulo', 'ranura'], paso:5, girar:false, fresa:6, pared:6,
+                   pEsq:30, esq:['r', 'c', 'ch'], pLado:15, lado:['fuera', 'dentro'], modInt:true };
+const GEN_ESQ = { r:'Redondeada', c:'Hacia dentro', ch:'Chaflán' }, GEN_LADO = { fuera:'Arco abombado', dentro:'Arco hundido' };
+let cfgGen = JSON.parse(JSON.stringify(GEN_CFG0));
+try { const g = JSON.parse(localStorage.getItem('calcador_generador') || 'null'); if (g && typeof g === 'object') cfgGen = Object.assign(cfgGen, g); } catch (e) {}
+let genUltimo = null;          // { semilla, cfg } del ejercicio generado que está abierto (viaja en el JSON)
+let genBase = 0;               // primera semilla de las propuestas que se ven
+function genAleatorio(semilla) {   // mulberry32
+    let a = semilla >>> 0;
+    const r = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    r.entre = (lo, hi) => lo + (hi - lo) * r();
+    r.entero = (lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+    r.uno = l => l[Math.floor(r() * l.length)];
+    return r;
+}
+// ── Geometría para las comprobaciones (sobre los contornos muestreados) ──
+function genDistSegPunto(p, a, b) {
+    const v = sub(b, a), L2 = dot(v, v); let t = L2 > 1e-18 ? dot(sub(p, a), v) / L2 : 0; t = Math.max(0, Math.min(1, t));
+    return dist(p, add(a, mulv(v, t)));
+}
+// Distancia entre dos contornos cerrados (muestreados): 0 si sus bordes se cruzan
+function genDistPoligonos(A, B) {
+    let m = Infinity;
+    const o = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+    for (let i = 0; i < A.length; i++) {
+        const a1 = A[i], a2 = A[(i + 1) % A.length];
+        const ax0 = Math.min(a1.x, a2.x), ax1 = Math.max(a1.x, a2.x), ay0 = Math.min(a1.y, a2.y), ay1 = Math.max(a1.y, a2.y);
+        for (let j = 0; j < B.length; j++) {
+            const b1 = B[j], b2 = B[(j + 1) % B.length];
+            if (Math.max(b1.x, b2.x) >= ax0 && Math.min(b1.x, b2.x) <= ax1 && Math.max(b1.y, b2.y) >= ay0 && Math.min(b1.y, b2.y) <= ay1) {
+                const d1 = o(b1, b2, a1), d2 = o(b1, b2, a2), d3 = o(a1, a2, b1), d4 = o(a1, a2, b2);
+                if (((d1 > 0) !== (d2 > 0) || !d1 || !d2) && ((d3 > 0) !== (d4 > 0) || !d3 || !d4)) return 0;
+            }
+            const d = Math.min(genDistSegPunto(a1, b1, b2), genDistSegPunto(a2, b1, b2), genDistSegPunto(b1, a1, a2), genDistSegPunto(b2, a1, a2));
+            if (d < m) m = d;
+        }
+    }
+    return m;
+}
+function genMuestras(c) { const m = muestrearContorno(c); return m.length > 2 && dist(m[0], m[m.length - 1]) < 1e-9 ? m.slice(0, -1) : m; }
+// Contorno de una receta, desplazado
+// La forma escalonada: un rectángulo con muescas rectangulares en algunas esquinas y quizá una ranura en un lado
+// (piezas en L, en T, en U…). No es una forma del Calcador: queda como contorno normal (formaGen solo la usa el generador).
+function genEscalonada(f) {
+    const { W, H } = f, m = f.muescas, P = [], add2 = (x, y) => P.push({ x:f.c.x + x, y:f.c.y + y });
+    const [bl, br, tr, tl] = m, rb = f.ranuras.abajo, rt = f.ranuras.arriba;
+    add2(bl ? bl.a : 0, 0);
+    if (rb) { add2(rb.x, 0); add2(rb.x, rb.t); add2(rb.x + rb.s, rb.t); add2(rb.x + rb.s, 0); }
+    if (br) { add2(W - br.a, 0); add2(W - br.a, br.b); add2(W, br.b); } else add2(W, 0);
+    if (tr) { add2(W, H - tr.b); add2(W - tr.a, H - tr.b); add2(W - tr.a, H); } else add2(W, H);
+    if (rt) { add2(rt.x + rt.s, H); add2(rt.x + rt.s, H - rt.t); add2(rt.x, H - rt.t); add2(rt.x, H); }
+    if (tl) { add2(tl.a, H); add2(tl.a, H - tl.b); add2(0, H - tl.b); } else add2(0, H);
+    if (bl) { add2(0, bl.b); add2(bl.a, bl.b); } else if (P.length && (P[0].x !== f.c.x || P[0].y !== f.c.y)) add2(0, 0);
+    // sin puntos repetidos
+    const Q = P.filter((p, i) => dist(p, P[(i + 1) % P.length]) > 1e-9);
+    return { pts:Q, b:new Array(Q.length).fill(0), cerrado:true, tipo:'auto' };
+}
+const genGenerar = f => f.tipo === 'escalonada' ? genEscalonada(f) : generarForma(f);
+function genContorno(f) { const c = genGenerar(f); if (f.tipo === 'escalonada') c.formaGen = f; else c.forma = f; c.tipo = 'auto'; return c; }
+function genMover(f, d) { const n = JSON.parse(JSON.stringify(f)); n.c = add(n.c, d); return n; }
+// ── Una forma del tipo t que quepa en una caja de w × h (con su esquina inferior izquierda en 0,0), en múltiplos de q ──
+function genForma(t, w, h, q, rnd, girar, minimo, fr) {
+    fr = Math.max(0, Math.min(1, fr || 0));
+    const Q = v => Math.floor(v / q + 1e-9) * q, rot = girar ? Math.round(rnd.entre(0, 12)) * Math.PI / 12 : 0;
+    const enCaja = f => { const c = genGenerar(f); if (!c) return null; const bb = bboxPts(muestrearContorno(c));
+        // se lleva la caja de la forma a la esquina 0,0, en múltiplos de q (el centro sigue en la rejilla si estaba en ella)
+        const d = { x: Math.ceil((-bb.x0) / q - 1e-9) * q, y: Math.ceil((-bb.y0) / q - 1e-9) * q };
+        const g = genMover(f, d); const bb2 = { x1: bb.x1 + d.x, y1: bb.y1 + d.y };
+        return bb2.x1 <= w + 1e-9 && bb2.y1 <= h + 1e-9 ? g : null; };
+    const prueba = hacer => { for (let k = 0; k < 12; k++) { const f = hacer(k); if (f === null) return null; const g = f && enCaja(f); if (g) return g; } return null; };
+    const mn = Math.max(minimo, q), E = (lo, hi) => rnd.entre(Math.max(lo, fr * hi), hi);   // de fr·hi a hi (y nunca menos que lo)
+    if (t === 'rectangulo') {
+        if (!girar) { const W = Q(E(mn, w)), H = Q(E(mn, h)); if (W < mn || H < mn) return null;
+            return { tipo:'rectangulo', c:{ x:W / 2, y:H / 2 }, w:W, h:H, rot:0, esq:[0, 1, 2, 3].map(() => ({ t:'v', r:0 })) }; }
+        return prueba(k => { const s = 1 - k * 0.07, W = Q(E(mn, w) * s), H = Q(E(mn, h) * s); if (W < mn || H < mn) return null;
+            return { tipo:'rectangulo', c:{ x:0, y:0 }, w:W, h:H, rot, esq:[0, 1, 2, 3].map(() => ({ t:'v', r:0 })) }; });
+    }
+    if (t === 'escalonada') {
+        const W = Q(E(mn, w)), H = Q(E(mn, h)); if (W < mn || H < mn) return null;
+        const muesca = () => ({ a:Q(rnd.entre(Math.max(q, W * 0.15), W * 0.4)), b:Q(rnd.entre(Math.max(q, H * 0.15), H * 0.4)) });
+        const m = [0, 1, 2, 3].map(() => rnd() < 0.5 ? muesca() : null);
+        if (!m.some(Boolean)) m[rnd.entero(0, 3)] = muesca();
+        m.forEach((x, i) => { if (x && (x.a < q || x.b < q)) m[i] = null; });
+        // cada lado conserva al menos dos pasos de recta
+        const cabe = (u, v, L) => (u ? u : 0) + (v ? v : 0) <= L - 2 * q;
+        if (!cabe(m[0] && m[0].a, m[1] && m[1].a, W)) m[1] = null; if (!cabe(m[3] && m[3].a, m[2] && m[2].a, W)) m[2] = null;
+        if (!cabe(m[0] && m[0].b, m[3] && m[3].b, H)) m[3] = null; if (!cabe(m[1] && m[1].b, m[2] && m[2].b, H)) m[2] = null;
+        const ranuras = {};
+        [['abajo', 0, 1], ['arriba', 3, 2]].forEach(([lado, i0, i1]) => {
+            if (rnd() >= 0.35) return;
+            const x0 = (m[i0] ? m[i0].a : 0) + 2 * q, x1 = W - (m[i1] ? m[i1].a : 0) - 2 * q;
+            const s = Q(rnd.entre(Math.max(q, W * 0.15), W * 0.35)), t = Q(rnd.entre(Math.max(q, H * 0.12), H * 0.3));
+            if (s < q || t < q || x1 - x0 < s) return;
+            const otra = lado === 'arriba' ? ranuras.abajo : null;
+            if (otra && otra.t + t > H - 2 * q) return;
+            ranuras[lado] = { x:Q(rnd.entre(x0, x1 - s)), s, t };
+            if (ranuras[lado].x < x0 - 1e-9) ranuras[lado].x += q;
+            if (ranuras[lado].x + s > x1 + 1e-9) delete ranuras[lado];
+        });
+        // las ranuras no pueden llegar a las muescas de su lado opuesto
+        const ok = !(ranuras.abajo && ((m[3] && ranuras.abajo.t >= H - m[3].b - q && ranuras.abajo.x < m[3].a + q) || (m[2] && ranuras.abajo.t >= H - m[2].b - q && ranuras.abajo.x + ranuras.abajo.s > W - m[2].a - q)))
+                && !(ranuras.arriba && ((m[0] && ranuras.arriba.t >= H - m[0].b - q && ranuras.arriba.x < m[0].a + q) || (m[1] && ranuras.arriba.t >= H - m[1].b - q && ranuras.arriba.x + ranuras.arriba.s > W - m[1].a - q)));
+        if (!ok) { delete ranuras.abajo; delete ranuras.arriba; }
+        return { tipo:'escalonada', c:{ x:0, y:0 }, W, H, muescas:m, ranuras };
+    }
+    if (t === 'circulo') { const r = Q(E(mn, Math.min(w, h)) / 2); if (2 * r < mn) return null; return { tipo:'circulo', c:{ x:r, y:r }, r, rot:0 }; }
+    if (t === 'ranura') {
+        // coliso: dos semicírculos de radio r unidos por rectas; horizontal o vertical (o girado)
+        const vert = !girar && rnd() < 0.35, lw = vert ? h : w, lh = vert ? w : h;
+        const r = Q(rnd.entre(mn / 2, Math.min(lh / 2, lw / 4)));
+        if (2 * r < mn) return null;
+        const L = Math.floor((E(2 * r + Math.max(2 * r, q), lw) - 2 * r) / (2 * q)) * 2 * q;
+        if (L < q) return null;
+        if (!girar) return vert ? { tipo:'ranura', c:{ x:r, y:r + L / 2 }, L, w:2 * r, rot:Math.PI / 2 } : { tipo:'ranura', c:{ x:r + L / 2, y:r }, L, w:2 * r, rot:0 };
+        return prueba(k => ({ tipo:'ranura', c:{ x:0, y:0 }, L:Math.max(q, L - k * 2 * q), w:2 * r, rot }));
+    }
+    if (t === 'poligono') {
+        // la apotema (la mitad de la medida entre caras) en múltiplos de q: así el lado de abajo cae en la rejilla
+        const N = rnd.entero(3, 8), A0 = Math.min(w, h) / 2 * rnd.entre(Math.max(0.5, fr), 1.05);
+        return prueba(k => { const A = Q(A0 * (1 - k * 0.07)); if (2 * A < mn) return null;
+            return { tipo:'poligono', c:{ x:0, y:0 }, N, R:A / Math.cos(Math.PI / N), rot:(girar ? rot : 0) - Math.PI / 2 + Math.PI / N }; });
+    }
+    if (t === 'estrella') {
+        const N = rnd.entero(4, 7), Re0 = Math.min(w, h) / 2 * rnd.entre(Math.max(0.6, fr), 1.1), fi = rnd.entre(0.42, 0.6);
+        return prueba(k => { const Re = Q(Re0 * (1 - k * 0.07)), Ri = Math.max(q, Q(Re * fi)); if (2 * Ri < mn || Re <= Ri) return null;
+            return { tipo:'estrella', c:{ x:0, y:0 }, N, Re, Ri, rot:(girar ? rot : 0) + Math.PI / 2 }; });
+    }
+    return null;
+}
+// ── Fase 2: esquinas (redondeada, hacia dentro, chaflán) y lados en arco (abombado, hundido) ──
+// Usan su propio generador aleatorio (rndM): con los modificadores a 0 %, cada número da la misma pieza que antes.
+function genTrasladar(c, d) {
+    const n = { pts:c.pts.map(p => add(p, d)), b:c.b.slice(), cerrado:true, tipo:'auto' };
+    if (c.forma) n.forma = genMover(c.forma, d);
+    if (c.grupo) n.grupo = c.grupo;
+    return n;
+}
+// Arcos que la fresa recorre por su lado cóncavo (centro en el lado de la fresa): radio de al menos un diámetro
+function genArcosOK(c, esExt, D) {
+    const M = genMuestras(c);
+    return tramos(c).every(t => { if (!t.b) return true; const a = arcoDeBulge(t.p1, t.p2, t.b); if (!a) return true;
+        const centroDentro = puntoEnPoligono(a.c, M), ladoFresa = esExt ? !centroDentro : centroDentro;
+        return !ladoFresa || a.r >= D - 1e-6; });
+}
+// Un lado recto de A a B, como arco de radio múltiplo de q (entre unos 40° y 120° de arco); signo +1 abombado (hacia la derecha del avance)
+function genBulgeLado(A, B, haciaDerecha, rndM, q, D) {
+    const L = dist(A, B); if (L < 2 * q) return 0;
+    const Rmin = Math.max(L / (2 * Math.sin(Math.PI / 3)), D), Rmax = L / (2 * Math.sin(Math.PI / 9));
+    const R = Math.ceil(rndM.entre(Rmin, Math.max(Rmin, Rmax)) / q - 1e-9) * q;
+    if (R < L / 2 + 1e-9) return 0;
+    const th = 2 * Math.asin(L / (2 * R));
+    return (haciaDerecha ? 1 : -1) * Math.tan(th / 4);
+}
+function genModificar(c, esExt, cfg, rndM, q, D) {
+    const pEsq = (cfg.pEsq || 0) / 100, pLado = (cfg.pLado || 0) / 100, tiposE = cfg.esq || [], tiposL = cfg.lado || [];
+    if ((!pEsq || !tiposE.length) && (!pLado || !tiposL.length)) return c;
+    const f = c.forma || c.formaGen, rmin = Math.max(q, Math.ceil(D / q - 1e-9) * q);      // radios de al menos un diámetro de fresa
+    if (!f || !['rectangulo', 'poligono', 'estrella', 'escalonada'].includes(f.tipo) || c.b.some(b => b)) return c;
+    const o = Math.sign(areaFirmada(c.pts)) || 1;
+    // las esquinas: en el rectángulo, con su receta (sigue siendo editable); en polígonos y estrellas, a mano
+    let base = c, vivas;
+    if (f.tipo === 'rectangulo') {
+        const lim = Math.min(f.w, f.h) / 2, esq = [0, 1, 2, 3].map(() => {
+            if (rndM() >= pEsq || !tiposE.length) return { t:'v', r:0 };
+            const t = rndM.uno(tiposE), mx = Math.floor(Math.min(lim * 0.8, Math.min(f.w, f.h) * 0.3) / q) * q, mn = t === 'ch' ? q : rmin;
+            if (mx < mn) return { t:'v', r:0 };
+            return { t, r:Math.round(rndM.entre(mn, mx) / q) * q };
+        });
+        const nf = JSON.parse(JSON.stringify(f)); nf.esq = esq;
+        base = genContorno(nf); vivas = esq.map(e => e.t === 'v');
+    } else {
+        const n = c.pts.length, P = c.pts, pts = [], b = [], recorte = new Array(n).fill(0), modo = new Array(n).fill(null);
+        const lados = P.map((p, i) => dist(p, P[(i + 1) % n]));
+        for (let i = 0; i < n; i++) {
+            if (rndM() >= pEsq || !tiposE.length) continue;
+            const V = P[i], A = P[(i + n - 1) % n], B = P[(i + 1) % n], e1 = norm(sub(V, A)), e2 = norm(sub(B, V));
+            const giro = cross(e1, e2), phi = Math.acos(Math.max(-1, Math.min(1, dot(e1, e2)))), convexa = giro * o > 0;
+            const t = rndM.uno(tiposE.filter(x => x !== 'c' || convexa)); if (!t) continue;
+            const r = Math.round(rndM.entre(t === 'ch' ? q : rmin, Math.max(t === 'ch' ? q : rmin, Math.min(lados[(i + n - 1) % n], lados[i]) * 0.3)) / q) * q;
+            const d = t === 'r' ? r * Math.tan(phi / 2) : r;
+            if (!(d > 0)) continue;
+            modo[i] = { t, r, d, e1, e2, phi, giro }; recorte[i] = d;
+        }
+        // cada lado conserva al menos q de recta
+        for (let i = 0; i < n; i++) { const j = (i + 1) % n; if (lados[i] - recorte[i] - recorte[j] < q - 1e-9) { if (modo[j]) { modo[j] = null; recorte[j] = 0; } if (lados[i] - recorte[i] - recorte[j] < q - 1e-9 && modo[i]) { modo[i] = null; recorte[i] = 0; } } }
+        for (let i = 0; i < n; i++) {
+            const m = modo[i], V = P[i];
+            if (!m) { pts.push(V); b.push(0); continue; }
+            const A = sub(V, mulv(m.e1, m.d)), B = add(V, mulv(m.e2, m.d));
+            const alfa = Math.PI - m.phi;                                    // ángulo interior (esquina convexa)
+            pts.push(A); b.push(m.t === 'ch' ? 0 : m.t === 'r' ? Math.sign(m.giro) * Math.tan(m.phi / 4) : -Math.sign(m.giro) * Math.tan(alfa / 4));
+            pts.push(B); b.push(0);
+        }
+        base = { pts, b, cerrado:true, tipo:'auto' }; vivas = null;
+        base._vivo = P.map((p, i) => !modo[i]);
+    }
+    // los lados en arco: solo los que van de esquina viva a esquina viva
+    const vert = f.tipo === 'rectangulo' ? generarForma({ ...f, esq:[0, 1, 2, 3].map(() => ({ t:'v', r:0 })) }).pts : c.pts;
+    const vivo = f.tipo === 'rectangulo' ? vivas : base._vivo; delete base._vivo;
+    const indice = p => vert.findIndex(v => dist(v, p) < 1e-6);
+    const R = { pts:base.pts.slice(), b:base.b.slice(), cerrado:true, tipo:'auto' }, n = R.pts.length;
+    let lados = 0;
+    if (pLado && tiposL.length) for (let i = 0; i < n; i++) {
+        const A = R.pts[i], B = R.pts[(i + 1) % n], ia = indice(A), ib = indice(B);
+        if (ia < 0 || ib < 0 || R.b[i] || !vivo[ia] || !vivo[ib] || rndM() >= pLado) continue;
+        const t = rndM.uno(tiposL), bl = genBulgeLado(A, B, (t === 'fuera') === (o > 0), rndM, q, D);
+        if (bl) { R.b[i] = bl; lados++; }
+    }
+    const cambiado = lados || vivo.some(v => !v);
+    if (!cambiado) return c;
+    const out = lados ? R : base;          // el rectángulo con solo esquinas conserva su receta (base.forma); lo demás va sin receta
+    if (out.pts.length < 3 || seCruza(out) || !contornoValido(out) || !genArcosOK(out, esExt, D)) return c;
+    return out;
+}
+// ── Un ejercicio completo ──
+function generarEjercicio(semilla, cfg) {
+    const rnd = genAleatorio(semilla), rndM = genAleatorio((semilla * 2654435761) ^ 0x5bd1e995), q = Math.max(0.5, +cfg.paso || 1), D = Math.max(0.1, +cfg.fresa || 6);
+    const pared = Math.max(+cfg.pared || 0, 1), sep = D + 4;                     // entre piezas: la fresa y un margen
+    const W = cfg.ancho, H = cfg.alto, ocupar = Math.max(0.2, Math.min(1, (cfg.ocupar || 60) / 100));
+    const nP = rnd.entero(Math.max(1, cfg.pMin), Math.max(cfg.pMin, cfg.pMax));
+    const extT = cfg.ext.length ? cfg.ext : ['rectangulo'], intT = cfg.int.length ? cfg.int : [];
+    // reparto en celdas: columnas y filas según la proporción del espacio
+    const cols = Math.max(1, Math.min(nP, Math.round(Math.sqrt(nP * W / H)) || 1)), filas = Math.ceil(nP / cols);
+    const cw = Math.floor((W - (cols - 1) * sep) / cols / q) * q, ch = Math.floor((H - (filas - 1) * sep) / filas / q) * q;
+    const out = [], avisos = []; let nInt = 0, faltan = 0;
+    const minHueco = Math.max(2 * D, 2 * q, 8);                                  // un hueco, al menos dos diámetros de fresa
+    for (let p = 0; p < nP; p++) {
+        const col = p % cols, fila = Math.floor(p / cols);
+        const x0 = Math.floor(col * (cw + sep) / q) * q, y0 = Math.floor(fila * (ch + sep) / q) * q;
+        let mejor = null;
+        for (let intento = 0; intento < 8 && !(mejor && mejor.ints.length >= mejor.pedidos); intento++) {
+            const t = rnd.uno(extT);
+            const f0 = genForma(t, cw, ch, q, rnd, cfg.girar, Math.max(30, 3 * minHueco), ocupar);
+            if (!f0) continue;
+            let ext = genContorno(genMover(f0, { x:x0, y:y0 }));
+            for (let k = 0; k < 6; k++) { const m = genModificar(ext, true, cfg, rndM, q, D); const bm = bboxPts(genMuestras(m));
+                if (bm.x0 >= x0 - 1e-6 && bm.y0 >= y0 - 1e-6 && bm.x1 <= x0 + cw + 1e-6 && bm.y1 <= y0 + ch + 1e-6) { ext = m; break; } }   // lo abombado, sin salirse de su sitio
+            const E = genMuestras(ext), bb = bboxPts(E);
+            const pedidos = intT.length ? rnd.entero(Math.max(0, cfg.iMin), Math.max(cfg.iMin, cfg.iMax)) : 0, ints = [];
+            for (let k = 0; k < 120 && ints.length < pedidos; k++) {
+                const ti = rnd.uno(intT), lim = Math.min(bb.x1 - bb.x0, bb.y1 - bb.y0) * rnd.entre(0.22, 0.5);
+                const fi = genForma(ti, lim, lim * rnd.entre(0.6, 1.3), q, rnd, cfg.girar, minHueco, 0.5); if (!fi) continue;
+                const bi = bboxPts(muestrearContorno(genGenerar(fi)));
+                const dx = Math.floor(rnd.entre(bb.x0 + pared, bb.x1 - pared - (bi.x1 - bi.x0)) / q) * q - Math.floor(bi.x0 / q) * q;
+                const dy = Math.floor(rnd.entre(bb.y0 + pared, bb.y1 - pared - (bi.y1 - bi.y0)) / q) * q - Math.floor(bi.y0 / q) * q;
+                if (!isFinite(dx) || !isFinite(dy)) continue;
+                let hc = genContorno(genMover(fi, { x:dx, y:dy }));
+                if (cfg.modInt !== false) hc = genModificar(hc, false, cfg, rndM, q, D);
+                const Hm = genMuestras(hc);
+                if (!Hm.every(pt => puntoEnPoligono(pt, E))) continue;                       // dentro de la pieza
+                if (genDistPoligonos(Hm, E) < pared - 1e-6) continue;                       // pared con el borde
+                if (ints.some(o => genDistPoligonos(Hm, o.m) < pared - 1e-6 || puntoEnPoligono(Hm[0], o.m) || puntoEnPoligono(o.m[0], Hm))) continue;
+                ints.push({ c:hc, m:Hm });
+            }
+            if (!mejor || ints.length > mejor.ints.length) mejor = { ext, ints, pedidos };
+        }
+        if (!mejor) { avisos.push(`La pieza ${p + 1} no cabe con estos parámetros`); continue; }
+        if (mejor.ints.length < mejor.pedidos) faltan += mejor.pedidos - mejor.ints.length;
+        const g = mejor.ints.length ? nuevoGrupo() : null;
+        [mejor.ext].concat(mejor.ints.map(o => o.c)).forEach(c => { if (g) c.grupo = g; out.push(c); });
+        nInt += mejor.ints.length;
+    }
+    if (faltan) avisos.push(`${faltan} interior${faltan === 1 ? '' : 'es'} no cabe${faltan === 1 ? '' : 'n'} con la pared mínima`);
+    // todo el conjunto, con su esquina inferior izquierda en el cero pieza
+    const todas = [].concat(...out.map(genMuestras)), bb = todas.length ? bboxPts(todas) : { x0:0, y0:0, x1:0, y1:0 };
+    const d = { x: -Math.floor(bb.x0 / q + 1e-9) * q, y: -Math.floor(bb.y0 / q + 1e-9) * q };
+    const cs = out.map(c => genTrasladar(c, d));
+    return { contornos:cs, piezas:cs.length - nInt, interiores:nInt, w:bb.x1 - bb.x0, h:bb.y1 - bb.y0, avisos };
+}
+// ── Fase 3: niveles de dificultad (la progresión de clase) ──
+const GEN_NIVELES = {
+    libre:{ t:'Libre: lo que marques' },
+    rectas:{ t:'1 · Solo rectas horizontales y verticales', p:{ ext:['rectangulo', 'escalonada'], int:['rectangulo'], pEsq:0, pLado:0, girar:false } },
+    inclinadas:{ t:'2 · Rectas inclinadas (chaflanes, por proyecciones)', p:{ ext:['rectangulo', 'escalonada'], int:['rectangulo'], pEsq:45, esq:['ch'], pLado:0, girar:false, modInt:true } },
+    tangentes:{ t:'3 · Arcos con el centro en la rejilla (I J enteros)', p:{ ext:['rectangulo', 'escalonada', 'circulo', 'ranura'], int:['rectangulo', 'circulo', 'ranura'], pEsq:45, esq:['r', 'c', 'ch'], pLado:0, girar:false, modInt:true } },
+    ij:{ t:'4 · Arcos que piden calcular I J (y polígonos, con polares)', p:{ ext:['rectangulo', 'escalonada', 'poligono', 'circulo', 'ranura'], int:['rectangulo', 'circulo', 'ranura', 'poligono'], pEsq:40, esq:['r', 'c', 'ch'], pLado:35, lado:['fuera', 'dentro'], girar:false, modInt:true } },
+};
+function genCoincideNivel(n) {
+    const N = GEN_NIVELES[n]; if (!N || !N.p) return false;
+    return Object.entries(N.p).every(([k, v]) => Array.isArray(v) ? JSON.stringify([...(cfgGen[k] || [])].sort()) === JSON.stringify([...v].sort()) : cfgGen[k] === v);
+}
+function elegirNivel(n) {
+    const N = GEN_NIVELES[n]; cfgGen.nivel = N ? n : 'libre';
+    if (N && N.p) Object.assign(cfgGen, JSON.parse(JSON.stringify(N.p)));
+    genGuardarCfg(); pintarCfgGen(); pintarPropuestas();
+}
+// ── Fase 3: una serie de ejercicios para la clase (los números siguientes al primero que se ve) ──
+async function guardarSerieBib(imprimir) {
+    const N = Math.max(1, Math.min(60, Math.round(+document.getElementById('genSerieN').value || cfgGen.serieN || 25)));
+    cfgGen.serieN = N; genGuardarCfg();
+    await bibCargar();
+    const nivel = cfgGen.nivel !== 'libre' && GEN_NIVELES[cfgGen.nivel] ? ' - nivel ' + GEN_NIVELES[cfgGen.nivel].t.split(' · ')[0] : '';
+    const carpeta = `Aleatorios/Serie ${genBase}${nivel}`, ids = [];
+    const antes = { gen:genUltimo, ver:cfgCotas.ver };
+    try {
+        cfgCotas.ver = true;
+        for (let k = 0; k < N; k++) {
+            const s = genBase + k, r = generarEjercicio(s, cfgGen); if (!r.contornos.length) continue;
+            genUltimo = { semilla:s, cfg:JSON.parse(JSON.stringify(cfgGen)) };
+            r.contornos.forEach(c => { c.uid = nuevoUid(); });
+            const datos = datosDeEstado({ contornos:r.contornos, aux:[] }, { titulo:`Ejercicio aleatorio Nº ${s}`, num:String(k + 1) }, `Ejercicio aleatorio ${s}`);
+            if (!datos) continue;
+            const e = entradaDe(datos, `${carpeta}/${String(k + 1).padStart(2, '0')} - Nº ${s}.json`, `${String(k + 1).padStart(2, '0')} - Nº ${s}.json`);
+            await bibGuardarEntrada(e); ids.push(e.id);
+        }
+    } finally { genUltimo = antes.gen; cfgCotas.ver = antes.ver; }
+    await bibCargar();
+    if (!ids.length) { snack('Con estos parámetros no sale ningún ejercicio'); return; }
+    if (imprimir) { cerrarGenerador(); await imprimirLoteBib(ids, imprimir); }
+    else snack(`${ids.length} ejercicios guardados en la biblioteca, en la carpeta ${carpeta} (del Nº ${genBase} al ${genBase + N - 1})`);
+    return ids;
+}
+// ── Ventana ──
+function genGuardarCfg() { try { localStorage.setItem('calcador_generador', JSON.stringify(cfgGen)); } catch (e) {} }
+function abrirGenerador() {
+    const g = id => document.getElementById(id);
+    if (!g('genFormasExt').children.length) {
+        const chips = (caja, clave, dic) => { caja.innerHTML = Object.entries(dic).map(([k, t]) => `<label class="gen-chip"><input type="checkbox" data-k="${k}"> ${t}</label>`).join('');
+            caja.querySelectorAll('input').forEach(i => i.onchange = () => { cfgGen[clave] = [...caja.querySelectorAll('input:checked')].map(x => x.dataset.k); cambiarGenerador(); }); };
+        chips(g('genFormasExt'), 'ext', GEN_FORMAS); chips(g('genFormasInt'), 'int', GEN_FORMAS_INT);
+        g('genNivel').innerHTML = Object.entries(GEN_NIVELES).map(([k, n]) => `<option value="${k}">${n.t}</option>`).join('');
+        const chips2 = (caja, clave, dic) => { caja.innerHTML = Object.entries(dic).map(([k, t]) => `<label class="gen-chip"><input type="checkbox" data-k="${k}"> ${t}</label>`).join('');
+            caja.querySelectorAll('input').forEach(i => i.onchange = () => { cfgGen[clave] = [...caja.querySelectorAll('input:checked')].map(x => x.dataset.k); cambiarGenerador(); }); };
+        chips2(g('genEsqTipos'), 'esq', GEN_ESQ); chips2(g('genLadoTipos'), 'lado', GEN_LADO);
+    }
+    if (!genUltimo && typeof cfgFresa !== 'undefined' && cfgFresa.d > 0) cfgGen.fresa = cfgFresa.d;
+    pintarCfgGen();
+    g('modalGenerador').classList.add('visible');
+    if (!genBase) genBase = 10000 + Math.floor(Math.random() * 89990);
+    pintarPropuestas();
+}
+function cerrarGenerador() { document.getElementById('modalGenerador').classList.remove('visible'); }
+function pintarCfgGen() {
+    const g = id => document.getElementById(id);
+    [['genAncho', 'ancho'], ['genAlto', 'alto'], ['genOcupar', 'ocupar'], ['genPMin', 'pMin'], ['genPMax', 'pMax'], ['genIMin', 'iMin'], ['genIMax', 'iMax'], ['genPaso', 'paso'], ['genFresa', 'fresa'], ['genPared', 'pared'], ['genPEsq', 'pEsq'], ['genPLado', 'pLado']]
+        .forEach(([id, k]) => { g(id).value = cfgGen[k]; });
+    g('genGirar').checked = !!cfgGen.girar; g('genModInt').checked = cfgGen.modInt !== false;
+    if (cfgGen.nivel !== 'libre' && !genCoincideNivel(cfgGen.nivel)) cfgGen.nivel = 'libre';
+    g('genNivel').value = cfgGen.nivel || 'libre'; g('genSerieN').value = cfgGen.serieN || 25;
+    const des = g('genSerieDe'); if (des) des.textContent = `Los números del ${genBase} al ${genBase + (cfgGen.serieN || 25) - 1}, con estos parámetros`;
+    g('genEsqTipos').querySelectorAll('input').forEach(i => { i.checked = (cfgGen.esq || []).includes(i.dataset.k); });
+    g('genLadoTipos').querySelectorAll('input').forEach(i => { i.checked = (cfgGen.lado || []).includes(i.dataset.k); });
+    g('genFormasExt').querySelectorAll('input').forEach(i => { i.checked = cfgGen.ext.includes(i.dataset.k); });
+    g('genFormasInt').querySelectorAll('input').forEach(i => { i.checked = cfgGen.int.includes(i.dataset.k); });
+}
+function cambiarGenerador() {
+    const g = id => document.getElementById(id), n = (id, lo, hi, def) => { const v = parseFloat(String(g(id).value).replace(',', '.')); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : def; };
+    Object.assign(cfgGen, { ancho:n('genAncho', 40, 2000, 250), alto:n('genAlto', 40, 2000, 200), ocupar:n('genOcupar', 20, 100, 60),
+        pMin:Math.round(n('genPMin', 1, 12, 1)), pMax:Math.round(n('genPMax', 1, 12, 1)), iMin:Math.round(n('genIMin', 0, 12, 0)), iMax:Math.round(n('genIMax', 0, 12, 2)),
+        paso:+g('genPaso').value || 1, girar:g('genGirar').checked, fresa:n('genFresa', 0.5, 50, 6), pared:n('genPared', 0, 100, 6),
+        pEsq:n('genPEsq', 0, 100, 30), pLado:n('genPLado', 0, 100, 15), modInt:g('genModInt').checked });
+    if (cfgGen.pMax < cfgGen.pMin) cfgGen.pMax = cfgGen.pMin;
+    if (cfgGen.iMax < cfgGen.iMin) cfgGen.iMax = cfgGen.iMin;
+    if (cfgGen.nivel !== 'libre' && !genCoincideNivel(cfgGen.nivel)) cfgGen.nivel = 'libre';
+    document.getElementById('genNivel').value = cfgGen.nivel;
+    genGuardarCfg(); pintarPropuestas();
+}
+function otrasPropuestas() { genBase = 10000 + Math.floor(Math.random() * 89990); document.getElementById('genSemilla').value = ''; pintarCfgGen(); pintarPropuestas(); }
+function verSemilla() { const v = parseInt(document.getElementById('genSemilla').value, 10); if (v > 0) { genBase = v; pintarCfgGen(); pintarPropuestas(); } }
+function pintarPropuestas() {
+    const caja = document.getElementById('genLista'), aviso = document.getElementById('genAviso');
+    aviso.textContent = !cfgGen.ext.length ? 'Marca al menos una forma para las piezas.' : '';
+    if (!cfgGen.ext.length) { caja.innerHTML = ''; return; }
+    const fichas = [];
+    for (let k = 0; k < 6; k++) {
+        const s = genBase + k, r = generarEjercicio(s, cfgGen);
+        fichas.push(`<div class="var-ficha gen-ficha" data-s="${s}" title="Usar este ejercicio"><div class="var-mini">${svgMini({ calcador:{ contornos:r.contornos } })}</div>
+            <div><strong>Nº ${s}</strong><br><span>${r.piezas} pieza${r.piezas === 1 ? '' : 's'} · ${r.interiores} interior${r.interiores === 1 ? '' : 'es'}<br>${fmt(r.w, 1)} × ${fmt(r.h, 1)} mm</span>${r.avisos.length ? `<br><span class="gen-av">⚠ ${r.avisos.join('; ')}</span>` : ''}</div></div>`);
+    }
+    caja.innerHTML = fichas.join('');
+    caja.querySelectorAll('.gen-ficha').forEach(el => el.onclick = () => usarEjercicio(+el.dataset.s));
+}
+function usarEjercicio(s) {
+    const r = generarEjercicio(s, cfgGen);
+    if (!r.contornos.length) { snack('Con estos parámetros no sale ninguna pieza'); return; }
+    if (contornos.length && !confirm('Se sustituye el dibujo actual por el ejercicio Nº ' + s + ' (puedes deshacer).')) return;
+    guardarUndo();
+    contornos = r.contornos; aux = []; auxPend = null; fondo = null; sel = -1; selSet = new Set(); cotasAjuste = {}; cotasManuales = []; dib = null; circ = null; ran = null;
+    if (typeof requisitosPorDefecto === 'function') requisitosPorDefecto();
+    genUltimo = { semilla:s, cfg:JSON.parse(JSON.stringify(cfgGen)) };
+    document.getElementById('projectName').value = 'Ejercicio aleatorio ' + s;
+    cfgCotas.ver = true; sincronizarControlesCotas();      // es un plano para el alumno: con sus cotas
+    asegurarUids(); actualizarPanelFondo(); cerrarGenerador(); refrescar(); encuadrar();
+    snack(`Ejercicio Nº ${s}: ${r.piezas} pieza${r.piezas === 1 ? '' : 's'} y ${r.interiores} interior${r.interiores === 1 ? '' : 'es'}, ${fmt(r.w, 1)} × ${fmt(r.h, 1)} mm. Las formas se pueden seguir editando`);
+}
+
 // ── Cortar un contorno en un punto ──
 // Contorno y tramo más cercanos a q (no cuenta el extremo de un trazo abierto: ahí no hay nada que cortar)
 function puntoDeCorte(q, tolPx) {
@@ -3999,12 +4454,13 @@ function esRanuraContorno(c) {
 }
 function construirCotas(lista, tipos, u, nivel, origen, opts) {
     opts = opts || {};
-    const V = { L:[], F:[], T:[] }, Hc = { L:[], F:[], T:[] };
+    const V = { L:[], F:[], T:[], E:[] }, Hc = { L:[], F:[], T:[], E:[] };
     let cur = V;
     const O = origen || { x:0, y:0 };
     const h = 11*u, sep = 18*u, gap = 3*u, al = 7*u, aw = 2.4*u;
     const anchoTxt = s => 0.6 * h * s.length;
     const linea = (a, b) => cur.L.push([a, b]);
+    const eje = (a, b) => cur.E.push([a, b]);            // líneas de centro: su propia capa
     const flecha = (tip, dir) => { const d = norm(dir), q = { x:-d.y, y:d.x }, base = sub(tip, mulv(d, al)); cur.F.push([tip, add(base, mulv(q, aw)), sub(base, mulv(q, aw))]); };
     const texto = (p, str, ang, ref, meta) => {
         let a = ang; while (a > Math.PI/2 + 1e-9) a -= Math.PI; while (a <= -Math.PI/2 + 1e-9) a += Math.PI;
@@ -4167,12 +4623,12 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
             cotaEntre({ x:xL, y:R.y0 }, C, { x:xL, y:R.y0 }, { x:xL, y:C.y }, fmt(Math.abs(C.y - R.y0)), Object.assign({ eje:'y', valor:Math.abs(C.y - R.y0), borde:'inferior' }, refY), true);
         }
     };
-    const ejes = (C, e) => { linea(add(C, { x:-e, y:0 }), add(C, { x:e, y:0 })); linea(add(C, { x:0, y:-e }), add(C, { x:0, y:e })); };
+    const ejes = (C, e) => { eje(add(C, { x:-e, y:0 }), add(C, { x:e, y:0 })); eje(add(C, { x:0, y:-e }), add(C, { x:0, y:e })); };
     if (!opts.sinAuto) lista.forEach((c, i) => {
         if (c.pts.length < 2 || c.texto || c.deTexto) return;
         const circ = esCirculoContorno(c);
         if (circ) {
-            ejes(circ.c, circ.r + 3*u);
+            ejes(circ.c, 2.5);
             posicionCentro(circ.c, circ.r + 1.4*h, circ.r + 1.4*h, { tipo:'agu', ci:i, nombre:'del taladro' }, { tipo:'agu', ci:i, nombre:'del taladro' });
             const ref = { tipo:'diam', ci:i, valor:2*circ.r };
             grupo(ref, () => {
@@ -4184,7 +4640,7 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         }
         const ranura = esRanuraContorno(c);
         if (ranura) {
-            ejes(ranura.c1, ranura.r + 3*u); ejes(ranura.c2, ranura.r + 3*u);
+            ejes(ranura.c1, 2.5); ejes(ranura.c2, 2.5);
             linea(ranura.c1, ranura.c2);
             posicionCentro(ranura.c1, ranura.r + 1.4*h, ranura.r + 1.4*h, { tipo:'agu', ci:i, nombre:'de la ranura' }, { tipo:'agu', ci:i, nombre:'de la ranura' });
         }
@@ -4221,7 +4677,7 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
             const vecinoRecto = o => { const v = ts[(k + o + nt) % nt]; return v && !v.b; };
             if (nt > 1 && vecinoRecto(-1) && vecinoRecto(1) && tangenteCon('prev') && tangenteCon('next')) return; // empalme: basta su radio
             if (vertices.some(q => dist(q, a.c) < 1e-6) || dist(a.c, O) < 1e-6) return;
-            ejes(a.c, 5*u);
+            ejes(a.c, 2.5);
             posicionCentro(a.c, 1.6*h, 1.6*h, { tipo:'cen', ci:i, si:t.i }, { tipo:'cen', ci:i, si:t.i });
         });
         radios.forEach(({ a, n, sis }) => conHombro(a.apice, norm(sub(a.apice, a.c)), (n > 1 ? n + '×' : '') + 'R' + fmt(a.r), { tipo:'rad', ci:i, sis, valor:a.r }));
@@ -4325,7 +4781,7 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
         }
     });
     if (cfgCotas.cadena !== false) evitarSolapesTextos(V.T.filter(t => !t.oculta), h, u);
-    return { L:V.L, T:V.T, F:V.F, ocultas:Hc };
+    return { L:V.L, T:V.T, F:V.F, E:V.E, ocultas:Hc };
 }
 // Si dos números de cota se pisan, el segundo se desplaza a lo largo de su línea de cota (o hacia arriba
 // si es un rótulo con hombro) hasta un hueco libre
@@ -4363,10 +4819,12 @@ function dibujarCotas() {
     if (!memoCotas || memoCotas.k !== claveCotas) memoCotas = { k:claveCotas, v: cfgCotas.ver
         ? construirCotas(contornos, tiposResueltos(), 1 / view.z, cfgCotas.nivel, { x:0, y:0 }, { verOcultas: !!cfgCotas.verOcultas, previaManual:previa })
         : construirSoloManuales(1 / view.z, { verOcultas: !!cfgCotas.verOcultas, previaManual:previa }) };
-    const { L, T, F, ocultas } = memoCotas.v;
+    const { L, T, F, ocultas } = memoCotas.v, E = memoCotas.v.E || [];
     cotasPantalla = [];
-    const capa = (L, F, T, alfa) => {
+    const capa = (L, F, T, alfa, E) => {
         ctx.save(); ctx.globalAlpha = alfa;
+        if (E && E.length) { ctx.strokeStyle = colores.centro; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.beginPath();
+            E.forEach(([a, b]) => { const sa = aPantalla(a), sb = aPantalla(b); ctx.moveTo(sa.x, sa.y); ctx.lineTo(sb.x, sb.y); }); ctx.stroke(); ctx.lineCap = 'butt'; }
         ctx.strokeStyle = colores.cota; ctx.fillStyle = colores.cota; ctx.lineWidth = 0.9;
         ctx.beginPath();
         L.forEach(([a, b]) => { const sa = aPantalla(a), sb = aPantalla(b); ctx.moveTo(sa.x, sa.y); ctx.lineTo(sb.x, sb.y); });
@@ -4386,8 +4844,8 @@ function dibujarCotas() {
         });
         ctx.restore();
     };
-    if (cfgCotas.verOcultas) capa(ocultas.L, ocultas.F, ocultas.T, 0.3);
-    capa(L, F, T, 1);
+    if (cfgCotas.verOcultas) capa(ocultas.L, ocultas.F, ocultas.T, 0.3, ocultas.E);
+    capa(L, F, T, 1, E);
     dibujarCotaEditada();
 }
 
@@ -4402,7 +4860,7 @@ function leerColores() {
         rejillaMayor: modoOscuro ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)',
         dxf: modoOscuro ? '#9aa3b2' : '#5b6474', dxfAnot: modoOscuro ? '#6d7686' : '#a3aab6',
         interior: '#d84343', abierto: modoOscuro ? '#c0ca33' : '#827717', panel: css('--bg-panel'),
-        cota: modoOscuro ? '#f0a35e' : '#b35a10',
+        cota: modoOscuro ? '#f0a35e' : '#b35a10', centro: modoOscuro ? '#ff7b7b' : '#9b1c1c',
         aux: modoOscuro ? 'rgba(196,150,255,0.8)' : 'rgba(142,68,173,0.75)',
         grabado: modoOscuro ? '#4dd0c4' : '#00897b' };
 }
@@ -5591,6 +6049,7 @@ function nuevo() {
     if (contornos.length && !confirm('¿Empezar de cero? Se borran los contornos y el fondo (puedes deshacer).')) return;
     guardarUndo();
     contornos = []; aux = []; auxPend = null; fondo = null; sel = -1; selSet = new Set(); cotasAjuste = {}; cotasManuales = []; dib = null; circ = null; ran = null;
+    genUltimo = null;
     requisitosPorDefecto();
     actualizarPanelFondo(); refrescar(); encuadrar();
 }
@@ -5701,7 +6160,7 @@ function exportarJSON(soloDatos) {
         trazados: resto.map(o => aTrazadoGenerador(o.c, o.tipo, off, esc)),
         calcador: { version:4, escala:esc, origen:off, contornos: JSON.parse(JSON.stringify(contornos)), cotasAjuste: JSON.parse(JSON.stringify(cotasAjuste)), cotasManuales: JSON.parse(JSON.stringify(cotasManuales)),
                     // Para que el ejercicio se vea igual en cualquier ordenador
-                    cfgCotas: JSON.parse(JSON.stringify(cfgCotas)), aux: JSON.parse(JSON.stringify(aux)), cfgHoja: JSON.parse(JSON.stringify(cfgHoja)), cfgMec: JSON.parse(JSON.stringify(cfgMec)) }
+                    cfgCotas: JSON.parse(JSON.stringify(cfgCotas)), aux: JSON.parse(JSON.stringify(aux)), cfgHoja: JSON.parse(JSON.stringify(cfgHoja)), cfgMec: JSON.parse(JSON.stringify(cfgMec)), generado: genUltimo ? JSON.parse(JSON.stringify(genUltimo)) : undefined }
     };
     if (soloDatos) return datos;
     descargar(JSON.stringify(datos, null, 2), nombreProyecto() + '.json', 'application/json');
@@ -5778,11 +6237,12 @@ function exportarSVG(soloTexto, color) {
     const tam = Math.max(bb.x1 - bb.x0, bb.y1 - bb.y0, 1);
     const hTxt = Math.min(7, Math.max(2.5, tam / 45)), u = hTxt / 11;
     const conCotas = document.getElementById('chkCotasSVG').checked;
-    const cot = !conCotas ? { L:[], T:[], F:[] }
+    const cot = !conCotas ? { L:[], T:[], F:[], E:[] }
         : cfgCotas.ver ? construirCotas(cs, tiposT, u, cfgCotas.nivel, { x:-off.x, y:-off.y })
         : construirSoloManuales(u, {}, { x:-off.x, y:-off.y }, cs, tiposT);
     const extra = [];
     cot.L.forEach(([a, b]) => extra.push(a, b));
+    (cot.E || []).forEach(([a, b]) => extra.push(a, b));
     cot.F.forEach(tr => extra.push(...tr));
     cot.T.forEach(t => { const w = 0.6 * t.h * t.s.length; extra.push({ x:t.p.x - w, y:t.p.y - t.h }, { x:t.p.x + w, y:t.p.y + t.h }); });
     bb = bboxPts(muestras.concat(extra));
@@ -5808,13 +6268,19 @@ function exportarSVG(soloTexto, color) {
     // Colores: en negro para imprimir, o los de la pantalla (siempre sobre papel claro)
     const acento = /^#[0-9a-f]{6}$/i.test(colorAcento || '') ? colorAcento : '#005A9C';
     const col = enColor ? { ext:acento, int:'#d84343', ab:'#827717', tx:'#00897b', cota:'#b35a10', rell:true } : { ext:'#000000', int:'#000000', ab:'#000000', tx:'#000000', cota:'#333333', rell:false };
-    const g = (id, c, arr) => { const rell = col.rell && id !== 'ABIERTO' && id !== 'TEXTO'; if (arr.length) svg += `  <g id="${id}" fill="${rell ? c : 'none'}"${rell ? ' fill-opacity="0.08"' : ''} stroke="${c}" stroke-width="${enColor ? '0.45' : '0.35'}" stroke-linejoin="round">\n${arr.join('\n')}\n  </g>\n`; };
+    const g = (id, c, arr) => { const rell = col.rell && id !== 'ABIERTO' && id !== 'TEXTO'; if (arr.length) svg += `  <g id="${id}" fill="${rell ? c : 'none'}"${rell ? ' fill-opacity="0.08"' : ''} stroke="${c}" stroke-width="${f(Math.max(enColor ? 0.6 : 0.7, u * (enColor ? 2.2 : 2.6)))}" stroke-linejoin="round">\n${arr.join('\n')}\n  </g>\n`; };
     g('PERFIL', col.ext, grupos.exterior); g('INTERIOR', col.int, grupos.interior); g('ABIERTO', col.ab, grupos.abierto); g('TEXTO', col.tx, grupos.texto);
     const barras = [];
     cs.forEach(c => { const pzs = puentesDe(c); if (!pzs.length) return; const an = c.mec.puentes.ancho; pzs.forEach(t => barras.push(`    <line x1="${f(t.p.x - t.tg.x * an / 2)}" y1="${f(-(t.p.y - t.tg.y * an / 2))}" x2="${f(t.p.x + t.tg.x * an / 2)}" y2="${f(-(t.p.y + t.tg.y * an / 2))}"/>`)); });
     if (barras.length) svg += `  <g id="PUENTES" stroke="${enColor ? '#c2185b' : '#000000'}" stroke-width="2" stroke-linecap="butt">\n${barras.join('\n')}\n  </g>\n`;
     if (grupos.cajera.length) svg += `  <defs><pattern id="rayadoCajera" patternUnits="userSpaceOnUse" width="2.5" height="2.5" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="2.5" stroke="${col.int}" stroke-width="0.25"/></pattern></defs>\n  <g id="CAJERA" fill="url(#rayadoCajera)" stroke="${col.int}" stroke-width="${enColor ? '0.45' : '0.35'}" stroke-linejoin="round">\n${grupos.cajera.join('\n')}\n  </g>\n`;
     if (grupos.isla.length) svg += `  <g id="ISLA" fill="#ffffff" stroke="${col.ext}" stroke-width="${enColor ? '0.45' : '0.35'}" stroke-dasharray="1.6 1">\n${grupos.isla.join('\n')}\n  </g>\n`;
+    if (conCotas && cot.E && cot.E.length) {
+        // cruces de los centros: en color, rojo oscuro; en negro, negras; las dos, más gruesas que las cotas
+        svg += `  <g id="CENTROS" stroke="${enColor ? '#9b1c1c' : '#000000'}" stroke-width="${f(u * 1.6)}" stroke-linecap="round">\n`;
+        cot.E.forEach(([a, b]) => svg += `    <line x1="${f(a.x)}" y1="${f(-a.y)}" x2="${f(b.x)}" y2="${f(-b.y)}"/>\n`);
+        svg += `  </g>\n`;
+    }
     if (conCotas && (cot.L.length || cot.T.length)) {
         svg += `  <g id="COTAS" stroke="${col.cota}" fill="${col.cota}" stroke-width="${f(u * 0.9)}">\n`;
         cot.L.forEach(([a, b]) => svg += `    <line x1="${f(a.x)}" y1="${f(-a.y)}" x2="${f(b.x)}" y2="${f(-b.y)}"/>\n`);
@@ -5900,6 +6366,7 @@ function abrirJSONDatos(d) {
             requisitosPorDefecto();
             if (esObj(d.calcador.cfgHoja)) asignarCfg(cfgHoja, d.calcador.cfgHoja);
             if (esObj(d.calcador.cfgMec)) asignarCfg(cfgMec, d.calcador.cfgMec);
+            genUltimo = esObj(d.calcador.generado) && d.calcador.generado.semilla > 0 ? d.calcador.generado : null;
             if (!['libre', 'g90', 'g91', 'mix', 'polar'].includes(cfgHoja.prog)) cfgHoja.prog = 'libre';
             if (!['cualquiera', 'g4142', 'contorno40', 'centro40'].includes(cfgHoja.comp)) cfgHoja.comp = 'cualquiera';
             sincronizarDesdeGenerador(d);
@@ -11004,7 +11471,7 @@ function abrirEnGeneradorDesde(hash) {
     if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo, o usa «💾 Guardar (.json)»'); return; }
     snack('Abriendo el proyecto en otra pestaña…');
 }
-// ── Abrir el plano y su solución en el Simulador del profesor ──
+// ── Abrir el plano y su solución en el Simulador 3D ──
 let paraSimulador = null;
 function abrirEnSimulador(programaMaquina, archivo) {
     const datos = exportarJSON(true); if (!datos) return;
@@ -11014,7 +11481,7 @@ function abrirEnSimulador(programaMaquina, archivo) {
     else try { selC.innerHTML = '<option value="todos">Todos</option>'; selC.value = 'todos'; programa = textoTabla('iso'); } finally { selC.innerHTML = prevH; selC.value = prevV; }
     paraSimulador = { tipo:'plano-calcador', json: JSON.stringify(datos), programa, archivo: archivo || null, nombre: nombreProyecto(), diametro: +cfgFresa.d || 0, herramienta: cfgFresa.herr || null };
     try { localStorage.setItem('suiteCNC:paraSimulador', JSON.stringify({ ...paraSimulador, t: Date.now() })); } catch (e) {}
-    const w = window.open('simulador3d_profesor.html#desdeCalcador', '_blank');
+    const w = window.open('simulador3d.html#desdeCalcador', '_blank');
     if (!w) { snack('El navegador ha bloqueado la pestaña nueva: permite las ventanas emergentes para este archivo'); return; }
     snack('Abriendo el plano y su solución en el Simulador…');
 }
