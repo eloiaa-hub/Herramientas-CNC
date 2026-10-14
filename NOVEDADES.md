@@ -4,7 +4,44 @@ La versión de la suite es **año.mes** (por ejemplo, 2026.10). Cada programa co
 
 ## Suite CNC 2026.10
 
-Versiones de los programas: **Calcador v80 · Corrector v28 · Simulador 3D V38 · Simulador del profesor V38 · Calculadora de taller v4 · Anidador de tableros v6**.
+Versiones de los programas: **Calcador v85 · Corrector v33 · Simulador 3D V39 · Simulador del profesor V39 · Calculadora de taller v4 · Anidador de tableros v8**.
+
+### Apuntes «Códigos ISO de la Suite CNC» (nuevos)
+- **Apuntes para el alumnado** (`apuntes_iso.html` y `apuntes_iso.pdf`, en la portada de la suite): cómo es un programa ISO (el orden de las letras N G X Y Z F S T M, la numeración N10, N20… y los comentarios con ;); los ejes, el cero pieza y las alturas; G71/G70 y G90/G91 (también mixtas); G0 y G1, con el avance de penetración (F150) y el de corte (F1500); los arcos G2 y G3 con I J y con R, y K en los planos G18 y G19 y en la hélice; las coordenadas polares; S, F, M03, M04, M05 y el cambio de herramienta T… M06; el final con M30 y M02; la compensación del radio G40, G41 y G42 paso a paso (la regla de la izquierda y la derecha, exteriores e interiores, la entrada y la salida, las esquinas, concordancia y oposición, y cómo se ve en el Simulador); un programa del Calcador comentado línea a línea; los errores frecuentes con el aviso del Simulador, una hoja resumen para imprimir y, de extra, un poco de historia del G-code.
+- El manual del Calcador enlaza los apuntes desde ⚙️ Mecanizar.
+
+### Concordancia y oposición corregidas (Calcador v85, Corrector v33)
+- En ⚙️ Mecanizar, las estrategias **Concordancia** y **Oposición** estaban al revés. Con el husillo a derechas (M03), concordancia es la fresa a la izquierda del contorno (G41): exteriores en sentido horario e interiores en antihorario, y así lo hace ahora, también en las cajeras. «Según el plano» no cambia.
+
+### Alinear, repartir, bloquear, recortar y alargar (Calcador v84, Corrector v32)
+- **Alinear y repartir** (panel de la selección): seis botones alinean dos o más piezas a la izquierda, al centro, a la derecha, abajo, al centro o arriba, respecto al conjunto; «Repartir ↔ / ↕» deja la misma separación entre tres o más (la primera y la última no se mueven). Cada grupo o texto cuenta como una pieza.
+- **🔒 Bloquear** (panel del contorno o de la selección): el contorno ya no se coge en el dibujo (ni clic, ni recuadro, ni Ctrl+A, ni flechas), para calcar o acotar encima sin moverlo por error; los imanes sí lo ven. Lleva 🔒 en el dibujo y en la lista, desde donde se selecciona y se desbloquea. Se guarda en el JSON.
+- **Recortar** (tecla Y): clic en el trozo que sobra y se quita hasta los cruces más cercanos con otros contornos o con las auxiliares (o hasta el extremo). **Alargar** (tecla H): clic junto al extremo de un trazo abierto y la recta o el arco se prolonga hasta el primer contorno o auxiliar. Las dos enseñan antes lo que harán.
+
+### Agrupar y mover con las flechas (Calcador v83, Corrector v31)
+- **Agrupar** (Editar): selecciona varios contornos y pulsa Ctrl+G o «🔗 Agrupar» en el panel. Un clic en cualquiera selecciona el grupo entero (marco «🔗 grupo»), que se arrastra, gira, escala, copia, pega o borra junto; el recuadro de selección también lo coge entero. Alt + clic selecciona un solo contorno del grupo (para su mecanizado o su herramienta). Ctrl+Mayús+G o «⛓ Desagrupar» lo deshace. Se guarda en el JSON, y cada copia de un grupo (pegar, matrices, «Hacer copia») es un grupo nuevo.
+- Los tableros del **Anidador** llegan al Calcador con cada pieza agrupada.
+- **Flechas**: con algo seleccionado, lo mueven 1 mm (Mayús: 10 mm; Ctrl: 0,1 mm), y las pulsaciones seguidas se deshacen de una vez. Sin nada seleccionado, siguen recorriendo la pieza. Esc quita la selección.
+
+### Anidador v8: por la forma real
+- **Colocar las piezas: por su rectángulo o por su forma real** (caja del tablero). Por la forma real, las piezas se encajan por su contorno y las pequeñas aprovechan los **huecos** de las grandes (un posavasos dentro de un aro). Entre dos piezas queda siempre la separación de la fresa: cada sitio se comprueba con la geometría exacta, con sus arcos. Si no sale mejor que por rectángulos (por ejemplo, con todo rectángulos), se usa el de rectángulos y se avisa.
+- Colocar a mano, girar y pasar de tablero también miran la forma: se puede soltar una pieza dentro del hueco de otra. Las piezas se dibujan rellenas por su forma y se cogen por ella. El aprovechamiento cuenta la superficie real. El modo se guarda con el tablero.
+- En el Calcador, ⚙️ Mecanizar corta **de dentro afuera**: una pieza dentro del hueco de otra se corta antes que ese hueco, y este antes que el exterior (en una pieza sola, es lo mismo que «interiores primero»).
+
+### Orden de corte y DXF (Calcador v82, Corrector v30)
+- **⚙️ Mecanizar corta por defecto los interiores antes que los exteriores**, como se hace en madera: la pieza sigue sujeta al tablero mientras se cortan sus agujeros y el contorno exterior la suelta al final. El campo **Orden de corte** permite volver a «exteriores primero». Se guarda en el JSON; las entradas E1, E2… del plano y la tabla de soluciones siguen el orden elegido. Los grabados y las cajeras van siempre antes.
+- **El DXF del Calcador se abre en AutoCAD**: antes era un DXF mínimo con LWPOLYLINE y sin versión, y AutoCAD lo abría vacío (el del Anidador sí se abría). Ahora es un DXF R12 completo, como el del Anidador: cabecera con versión y extensión, tablas de capas y polilíneas con sus arcos (POLYLINE) o líneas y arcos sueltos. Capas: PERFIL, INTERIOR, ABIERTO, CAJERA, ISLA y TEXTO.
+- La tabla de soluciones sin abrir (por ejemplo, al imprimir soluciones en lote) vale para todos los contornos, no solo para el primero.
+
+### Entregas y evaluación con Aules (Calcador v81, Corrector v29, Simuladores V39)
+- **Corrección masiva desde el zip de Aules**: «📂 Añadir programas o zip de Aules…» (o arrastrar) acepta el .zip de «Descargar todas las entregas». Cada alumno sale del nombre de su carpeta (también en la descarga sin carpetas y con calificación anónima); se leen los programas, el texto en línea pegado en Aules y los .zip que suba el alumno; lo que no es un programa se ignora. Un alumno con dos programas sale dos veces. Funciona sin conexión y sin bibliotecas (con descompresión propia si el navegador no la trae).
+- **🧾 Informe de entrega en los Simuladores**: el alumno escribe su nombre y descarga un PDF con su programa completo, la imagen de la simulación terminada (2D o 3D), la revisión, la comparación con el plano y un **código de comprobación** (SHA-256 del programa y del informe). El Corrector lo lee en la corrección masiva: 🧾 si coincide con el programa entregado, 🧾⚠️ si el informe se ha cambiado o el programa no es el mismo; si solo sube el informe, se corrige el programa que lleva dentro. También en el CSV y en el informe impreso.
+- **📝 Cuestionario para Aules (Moodle XML)**: preguntas sobre el ejercicio abierto que Aules corrige solo (coordenadas G90, G91 y polares de un punto, I J y R de un arco, G2/G3 y G41/G42), con el plano marcado (P1…, A1…, cero pieza y sentido) y en varias variantes (las de 🎲 Variantes): cada pregunta en su categoría, para añadir una pregunta aleatoria por categoría y que cada alumno reciba una variante distinta.
+
+### Anidador v7: cantos y coste
+- Columna **Cantos** en la lista: clic en cada lado de la pieza (en las del Calcador, todo el contorno exterior). En el tablero, el PNG y el SVG, los lados con canto se ven en amarillo, también con la pieza girada.
+- CSV con `canto largo`, `canto ancho` (0, 1 o 2, o `L1 L2 A1`, `2L 1A`, `todos`) y `tipo de canto`; las columnas se reconocen por su título. La plantilla y la lista exportada las llevan, y el tablero guardado conserva los cantos.
+- Panel **Cantos y coste**: tableros, superficie real de las piezas, desperdicio, metros de cada tipo de canto (con exceso por tramo), tiempo de máquina aproximado (pasadas al avance de la fresa, entradas y carga de cada tablero) y coste con los precios que escribas. «⬇ Despiece y coste (CSV)».
 
 ### Calcador de contornos
 - Dibujo y calco de piezas con cotas automáticas en cadena (sin números que se pisen), cotas manuales, tangencias (recta tangente y arco de radio R), corte y unión de contornos, cajeras con islas y puentes de sujeción.
@@ -60,14 +97,15 @@ Pruebas de estrés con miles de programas, proyectos y archivos aleatorios, roto
 - **⚙️ Mecanizar**: con desbaste y acabado, un trazado demasiado estrecho para el sobreespesor (por ejemplo, una media luna fina) se corta sin acabado y el G-code lo avisa.
 
 ### Manuales y ayudas
-- **Manual del Calcador** (82 páginas): capítulo nuevo **«⚙️ Mecanizar: el programa de la máquina»** (herramienta, profundidad, recorrido, cómo es el programa, vista previa y Simulador); capturas al día (la pantalla con sus zonas, el panel Exportar, el mecanizado de un contorno, el Corrector y el reproductor); la barra superior descrita con la biblioteca, el reproductor y el aviso de cambios sin guardar; dudas nuevas en «Problemas frecuentes».
+- Las entregas por Aules, en los manuales: el **zip de Aules** y el **informe de entrega** en la corrección masiva (Calcador y Corrector), el capítulo **Cuestionario para Aules** (Corrector, 11) y su apartado en el del Calcador, **Cantos y coste** en el del Anidador (capítulo 12) y **El informe de entrega** en la guía del Simulador (capítulo 12).
+- **Manual del Calcador** (84 páginas): capítulo nuevo **«⚙️ Mecanizar: el programa de la máquina»** (herramienta, profundidad, recorrido, cómo es el programa, vista previa y Simulador); capturas al día (la pantalla con sus zonas, el panel Exportar, el mecanizado de un contorno, el Corrector y el reproductor); la barra superior descrita con la biblioteca, el reproductor y el aviso de cambios sin guardar; dudas nuevas en «Problemas frecuentes».
 - **Manual de la Calculadora de taller** (`manual_calculadora.html` y `.pdf`, 12 páginas, para el alumnado): cada pestaña con un ejemplo de taller resuelto paso a paso, sus fórmulas, las líneas ISO y los errores típicos (ángulos, R negativo, el polo de G16).
-- **Manual del Anidador de tableros** (`manual_anidador.html` y `.pdf`, 14 páginas, para el profesorado): el tablero, la fresa, las piezas y la lista de despiece, colocar a mano con el ratón, del tablero al Calcador y a la máquina, guardar y reabrir, y exportar. Los dos, enlazados desde la portada y desde la ayuda de cada programa.
+- **Manual del Anidador de tableros** (`manual_anidador.html` y `.pdf`, 18 páginas, para el profesorado): el tablero, la fresa, las piezas y la lista de despiece, colocar a mano con el ratón, del tablero al Calcador y a la máquina, guardar y reabrir, y exportar. Los dos, enlazados desde la portada y desde la ayuda de cada programa.
 - **Manual del Calcador**: el cambio de herramienta en la tabla de soluciones, la fresa de cada contorno en el recorrido de la pieza y los acentos de los textos DXF.
 - **Ayuda de los Simuladores**: el botón «📂 Cargar G-code / plano».
-- **Guía del Simulador para el alumnado** (`guia_simulador.pdf`, 17 páginas): para qué sirve, la pantalla, cargar el programa, la simulación, 2D o 3D, la revisión y sus mensajes, la herramienta, el tablero, la compensación G41/G42, el plano del ejercicio (autocorrección), el vídeo para Aules, problemas frecuentes y una lista de comprobación antes de entregar. Enlazada desde la portada y desde la ayuda de los simuladores.
+- **Guía del Simulador para el alumnado** (`guia_simulador.pdf`, 18 páginas): para qué sirve, la pantalla, cargar el programa, la simulación, 2D o 3D, la revisión y sus mensajes, la herramienta, el tablero, la compensación G41/G42, el plano del ejercicio (autocorrección), el vídeo para Aules, el informe de entrega, problemas frecuentes y una lista de comprobación antes de entregar. Enlazada desde la portada y desde la ayuda de los simuladores.
 - **Simuladores**: la cabecera cabía mal en pantallas de menos de 1600 píxeles (desaparecían los ajustes ⚙️ y parte de la ayuda); ahora los botones se compactan y caben de 1024 a 1920 píxeles.
-- **Manual del Corrector** (`manual_corrector.html` y `.pdf`, 16 páginas, para el profesorado): abrir un ejercicio, corregir un programa, qué se comprueba, la simulación, la corrección de toda la clase con la nota orientativa, demostrar los errores en clase, hojas, variantes, ⚙️ Mecanizar y el Simulador, y problemas frecuentes. El botón «📖 Manual» del Corrector abre ahora su propio manual.
+- **Manual del Corrector** (`manual_corrector.html` y `.pdf`, 20 páginas, para el profesorado): abrir un ejercicio, corregir un programa, qué se comprueba, la simulación, la corrección de toda la clase con la nota orientativa, demostrar los errores en clase, hojas, variantes, ⚙️ Mecanizar y el Simulador, y problemas frecuentes. El botón «📖 Manual» del Corrector abre ahora su propio manual.
 - **Corrección masiva**: con la compensación del lado equivocado, el programa salía «no sale bien» pero con un 10; ahora los errores de compensación cuentan como cortes que dañan la pieza (el del lado, uno por cada corte afectado).
 
 ### Interfaz

@@ -212,6 +212,23 @@
     #avisoVentana .acciones { display:flex; flex-direction:column; gap:8px; padding:8px 18px 18px; }
     #avisoVentana .acciones button { text-align:left; padding:10px 14px; font-size:13px; }
     #avisoVentana .acciones .secundario { align-self:flex-end; border:none; color:var(--text-muted); background:transparent; padding:6px 8px; }
+    /* 🧾 Informe de entrega */
+    #informeFondo { position:fixed; inset:0; background:rgba(20,30,40,.45); display:none; align-items:center; justify-content:center; z-index:215; }
+    #informeFondo.visible { display:flex; }
+    #informeVentana { background:var(--bg-panel); width:min(560px, 94vw); max-height:92vh; display:flex; flex-direction:column; border-radius:10px; box-shadow:var(--shadow); overflow:hidden; }
+    #informeVentana .cab { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid var(--border-color); }
+    #informeVentana .cab h2 { margin:0; font-size:15px; }
+    #informeVentana .cuerpo { padding:12px 18px 4px; font-size:13px; line-height:1.5; overflow:auto; }
+    #informeVentana .cuerpo input[type=text] { width:100%; box-sizing:border-box; padding:6px 9px; font:inherit; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-app); color:inherit; }
+    #informeVentana .cuerpo input[type=text]:focus { outline:2px solid rgba(0,90,156,.35); border-color:#005A9C; }
+    #informeVentana .cuerpo .fila2 { margin-top:10px; }
+    #informeVentana .cuerpo > label { display:block; margin-top:8px; }
+    #infImagen { display:block; width:100%; max-height:230px; object-fit:contain; margin:10px 0 6px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-app); }
+    #infResumen > div { margin:3px 0; }
+    #infResumen .ok { color:#1e8a4c; font-weight:600; } #infResumen .mal { color:#c0392b; font-weight:600; } #infResumen .av { color:#b8730a; font-weight:600; }
+    #infResumen .cod b { font-family:ui-monospace, Consolas, monospace; font-size:15px; letter-spacing:.5px; }
+    #informeVentana .acciones { display:flex; gap:8px; justify-content:flex-end; padding:10px 18px 16px; border-top:1px solid var(--border-color); }
+    #informeVentana .acciones button:disabled { opacity:.5; cursor:not-allowed; }
     #ayudaFondo { position:fixed; inset:0; background:rgba(20,30,40,.45); display:none; align-items:center; justify-content:center; z-index:200; }
     #ayudaFondo.visible { display:flex; }
     #ayudaVentana { background:var(--bg-panel); width:min(760px, 92vw); max-height:86vh; border-radius:10px; box-shadow:var(--shadow);
@@ -235,7 +252,7 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">Profesor · V38</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">Profesor · V39</span></h1>
         <span class="pill-profesor" title="Versión para profesores: permite editar y guardar el G-code">PROFESOR</span>
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
@@ -259,6 +276,7 @@
         <button id="btnTransparencia" onclick="toggleTransparencia()" title="Material semitransparente (50 %) para ver la fresa dentro. Solo en modo sólido">👁️<span class="lbl"> Transparencia</span></button>
         <div class="sep"></div>
         <button onclick="resetCamara()" title="Volver a encuadrar la pieza desde el punto de vista actual">🎯<span class="lbl"> Encuadrar</span></button>
+        <button onclick="abrirInforme()" title="Informe de entrega para Aules: un PDF con tu programa, la simulación terminada, la revisión y un código de comprobación">🧾<span class="lbl"> Entrega</span></button>
         <div class="spacer"></div>
         <button id="btnPanelCodigo" class="activo" onclick="togglePanel('codigo')" title="Mostrar / ocultar el listado de G-code">📜<span class="lbl"> Código</span></button>
         <button id="btnPanelParam" class="activo" onclick="togglePanel('param')" title="Mostrar / ocultar el panel de parámetros">📊<span class="lbl"> Parámetros</span></button>
@@ -469,6 +487,25 @@
     </div>
   </div>
 </div>
+<div id="informeFondo" onclick="if(event.target===this) cerrarInforme()">
+  <div id="informeVentana" role="dialog" aria-labelledby="informeTitulo">
+    <div class="cab"><h2 id="informeTitulo">🧾 Informe de entrega</h2><button class="panel-cerrar" onclick="cerrarInforme()" title="Cerrar">✕</button></div>
+    <div class="cuerpo">
+      <p class="nota-herr" style="margin-top:0">Un PDF para subir a Aules <b>junto con tu programa</b>: lleva el programa, la imagen de la simulación terminada (con la vista que tengas ahora, 2D o 3D), el resultado de la revisión y un <b>código de comprobación</b>. Si se cambia el programa o el informe, el código deja de coincidir y el profesor lo ve al corregir.</p>
+      <div class="fila2">
+        <div><span class="etq">Nombre y apellidos</span><input type="text" id="infAlumno" oninput="actualizarInforme()" placeholder="Como aparece en Aules" title="Tu nombre: sale en el informe y en el nombre del archivo. Se recuerda para la próxima vez"></div>
+        <div style="flex:.5"><span class="etq">Grupo</span><input type="text" id="infGrupo" oninput="actualizarInforme()" placeholder="1.º DA" title="Tu grupo o curso (opcional)"></div>
+      </div>
+      <label><span class="etq">Ejercicio</span><input type="text" id="infEjercicio" oninput="actualizarInforme()" title="Nombre o número del ejercicio. Si has cargado el plano (.json), se toma de él"></label>
+      <img id="infImagen" alt="Simulación terminada">
+      <div id="infResumen"></div>
+    </div>
+    <div class="acciones">
+      <button onclick="cerrarInforme()">Cancelar</button>
+      <button class="principal" id="infDescargar" onclick="descargarInforme()">⬇ Descargar el PDF</button>
+    </div>
+  </div>
+</div>
 <div id="ayudaFondo" onclick="if(event.target===this) cerrarAyuda()">
   <div id="ayudaVentana" role="dialog" aria-labelledby="ayudaTitulo">
     <div class="cab">
@@ -533,6 +570,10 @@
 
       <h3>Apariencia (⚙️)</h3>
       <p>El botón <b>⚙️</b> de la cabecera abre los ajustes: <b>Modo oscuro</b> y <b>Color entorno</b> (color de los botones, del recorrido y de los resaltados). La elección se recuerda para la próxima vez.</p>
+
+      <h3>Informe de entrega (🧾 Entrega)</h3>
+      <p>Para entregar un ejercicio en Aules: carga tu programa (y, si lo tienes, el plano .json del ejercicio), comprueba la simulación y pulsa <b>🧾 Entrega</b>. Escribe tu nombre y pulsa <b>⬇ Descargar el PDF</b>. El PDF lleva tu programa completo, la imagen de la simulación terminada (con la vista que tengas en ese momento, 2D o 3D), la revisión del programa, la comparación con el plano y un <b>código de comprobación</b>.</p>
+      <p>Sube a Aules <b>el PDF y tu programa</b> (.nc). El profesor los abre con el Corrector: si el programa no es el del informe, o si el informe se ha cambiado, el código deja de coincidir y lo verá marcado.</p>
 
       <h3>Grabar un vídeo</h3>
       <p>Pulsa <b>⏺ Grabar vídeo</b> (barra inferior) y después ▶. Se graba la vista 3D con un rótulo que muestra la línea de G-code que se está ejecutando y la posición X Y Z. Mientras grabas puedes girar la cámara, cambiar de modo o activar la transparencia: todo sale en el vídeo.</p>
@@ -3414,6 +3455,255 @@ function irALinea(n) {
         if (el.offsetTop < cont.scrollTop || el.offsetTop > cont.scrollTop + cont.clientHeight - 20) cont.scrollTop = el.offsetTop - cont.clientHeight/3;
     }
 }
+
+// <informe-entrega>
+// ── Informe de entrega: código de comprobación (común al Simulador y al Calcador / Corrector) ──
+// SHA-256 sin bibliotecas (el navegador solo da crypto.subtle en contextos seguros, y con file:// no siempre)
+function sha256Hex(texto) {
+    const rr = (v, n) => (v >>> n) | (v << (32 - n));
+    const H = [], K = []; let primos = 0;
+    for (let c = 2; primos < 64; c++) {
+        let es = true; for (let d = 2; d * d <= c; d++) if (c % d === 0) { es = false; break; }
+        if (!es) continue;
+        if (primos < 8) H[primos] = (Math.pow(c, 1 / 2) * 4294967296) | 0;
+        K[primos++] = (Math.pow(c, 1 / 3) * 4294967296) | 0;
+    }
+    const m = new TextEncoder().encode(String(texto)), L = m.length, n = ((L + 9 + 63) >> 6) << 6;
+    const b = new Uint8Array(n); b.set(m); b[L] = 0x80;
+    const bits = L * 8; b[n - 4] = bits >>> 24; b[n - 3] = bits >>> 16; b[n - 2] = bits >>> 8; b[n - 1] = bits; b[n - 5] = Math.floor(bits / 4294967296);
+    const w = new Int32Array(64);
+    for (let o = 0; o < n; o += 64) {
+        for (let i = 0; i < 16; i++) w[i] = (b[o + 4 * i] << 24) | (b[o + 4 * i + 1] << 16) | (b[o + 4 * i + 2] << 8) | b[o + 4 * i + 3];
+        for (let i = 16; i < 64; i++) {
+            const s0 = rr(w[i - 15], 7) ^ rr(w[i - 15], 18) ^ (w[i - 15] >>> 3), s1 = rr(w[i - 2], 17) ^ rr(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+        }
+        let [a, bb, c, d, e, f, g, h] = H;
+        for (let i = 0; i < 64; i++) {
+            const t1 = (h + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + w[i]) | 0;
+            const t2 = ((rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & bb) ^ (a & c) ^ (bb & c))) | 0;
+            h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
+        }
+        H[0] = (H[0] + a) | 0; H[1] = (H[1] + bb) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;
+        H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+    }
+    return H.map(v => (v >>> 0).toString(16).padStart(8, '0')).join('');
+}
+// El programa se compara sin tener en cuenta los finales de línea ni los espacios del final
+const normalizarPrograma = t => String(t || '').replace(/\r\n?/g, '\n').split('\n').map(l => l.replace(/\s+$/, '')).join('\n').replace(/\n+$/, '');
+// Código de comprobación: resume el programa y lo que dice el informe. Si se cambia algo (el programa, el nombre,
+// la fecha o el resultado), el código ya no coincide. Lo calculan igual el Simulador (al crear el informe) y el
+// Corrector (al leerlo).
+function codigoInforme(d) {
+    const base = JSON.stringify([d.v || 1, d.alumno || '', d.grupo || '', d.ejercicio || '', d.archivo || '', d.fecha || '',
+        sha256Hex(normalizarPrograma(d.programa)), d.errores | 0, d.avisos | 0, d.plano ? [d.plano.pc, d.plano.mal] : null, 'SuiteCNC']);
+    return sha256Hex(base).slice(0, 12).toUpperCase().replace(/(.{4})(?=.)/g, '$1-');
+}
+const huellaPrograma = t => sha256Hex(normalizarPrograma(t)).slice(0, 8).toUpperCase();
+// Datos que el Simulador guarda dentro del PDF (/SuiteCNC en la información del documento, en base64)
+function leerInformePDF(bytes) {
+    let s = ''; const u = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768));
+    const m = /\/SuiteCNC\s*\(([A-Za-z0-9+/=\s]+)\)/.exec(s); if (!m) return null;
+    try {
+        const bin = atob(m[1].replace(/\s+/g, '')), b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+        const d = JSON.parse(new TextDecoder('utf-8').decode(b));
+        if (!d || typeof d.programa !== 'string') return null;
+        d.valido = codigoInforme(d) === d.codigo;
+        return d;
+    } catch (e) { return null; }
+}
+// ── 🧾 Informe de entrega (PDF para Aules): programa, simulación terminada, revisión y código de comprobación ──
+let informeDatos = null, informeImagen = null;
+const INF_CP1252 = { '€':128, '‚':130, 'ƒ':131, '„':132, '…':133, 'ˆ':136, 'Š':138, '‹':139, 'Œ':140, 'Ž':142, '‘':145, '’':146, '“':147, '”':148, '•':149, '–':150, '—':151, '˜':152, '™':153, 'š':154, '›':155, 'œ':156, 'ž':158, 'Ÿ':159 };
+const INF_SUST = { '≤':'<=', '≥':'>=', '→':'->', '←':'<-', '⇒':'=>', 'Δ':'D', '×':'x', '✓':'', '✔':'', '✅':'', '⛔':'', '⚠':'', '❌':'', '️':'', '🧾':'', '⏱':'', '⌀':'Ø', '−':'-', '═':'=', '─':'-', '━':'-', '│':'|', '┃':'|', '\t':'    ' };
+// Texto para un PDF con fuentes estándar (Windows-1252), con los paréntesis y barras escapados
+function pdfCadena(s) {
+    let o = '';
+    for (let ch of String(s)) {
+        if (ch in INF_SUST) { o += pdfCadena(INF_SUST[ch]); continue; }
+        let c = ch.codePointAt(0);
+        if (c > 255) { if (!INF_CP1252[ch]) continue; c = INF_CP1252[ch]; }
+        if (c < 32) { o += ' '; continue; }
+        if (c === 40 || c === 41 || c === 92) o += '\\';
+        o += String.fromCharCode(c);
+    }
+    return o;
+}
+let infMedidor = null;
+function infAncho(s, fuente, tam) {
+    if (fuente === 'F3' || fuente === 'F4') return pdfCadena(s).replace(/\\(.)/g, '$1').length * 0.6 * tam;
+    if (!infMedidor) infMedidor = document.createElement('canvas').getContext('2d');
+    infMedidor.font = `${fuente === 'F2' ? 'bold ' : ''}100px Helvetica, Arial, "Liberation Sans", Arimo, sans-serif`;
+    return infMedidor.measureText(String(s).replace(/[^\u0000-ɏ€‚„…‘’“”•–—]/g, '')).width / 100 * tam * 1.02;
+}
+function infPartir(s, ancho, fuente, tam) {
+    const out = [];
+    String(s).split('\n').forEach(par => {
+        let l = '';
+        par.split(/(\s+)/).forEach(p => {
+            if (!p) return;
+            if (infAncho(l + p, fuente, tam) <= ancho || !l.trim()) { l += p; while (infAncho(l, fuente, tam) > ancho && l.length > 1) { let k = l.length - 1; while (k > 1 && infAncho(l.slice(0, k), fuente, tam) > ancho) k--; out.push(l.slice(0, k)); l = l.slice(k); } }
+            else { out.push(l.trimEnd()); l = p.trimStart(); }
+        });
+        out.push(l.trimEnd());
+    });
+    return out;
+}
+// PDF A4 con las fuentes estándar del lector (sin incrustar) y una imagen JPEG
+function crearPDFInforme(d, jpeg) {
+    const W = 595.28, H = 841.89, M = 42, AZUL = '0 0.353 0.612', GRIS = '0.38 0.42 0.48';
+    const paginas = []; let c, y;
+    const nueva = () => { c = []; paginas.push(c); y = H - M; };
+    const txt = (x, yy, s, f = 'F1', t = 10, col = '0.1 0.12 0.15') => c.push(`BT /${f} ${t} Tf ${col} rg ${x.toFixed(2)} ${yy.toFixed(2)} Td (${pdfCadena(s)}) Tj ET`);
+    const rect = (x, yy, w, h, rel, borde) => c.push(`${rel ? rel + ' rg ' : ''}${borde ? borde + ' RG 0.8 w ' : ''}${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re ${rel && borde ? 'B' : rel ? 'f' : 'S'}`);
+    const sitio = h => { if (y - h < M + 24) { nueva(); return true; } return false; };
+    const parrafo = (s, f = 'F1', t = 9.5, col, sangria = 0, inter = 1.32) => infPartir(s, W - 2 * M - sangria, f, t).forEach(l => { sitio(t * inter); y -= t * inter; txt(M + sangria, y, l, f, t, col); });
+    nueva();
+    // cabecera
+    rect(0, H - 64, W, 64, AZUL);
+    txt(M, H - 34, 'Informe de entrega', 'F2', 18, '1 1 1');
+    txt(M, H - 51, `Simulador G-code ${d.version || ''} · Suite CNC`.replace(/\s+·/, ' ·'), 'F1', 9.5, '0.85 0.92 1');
+    const fx = W - M - infAncho(d.fecha, 'F2', 11); txt(fx, H - 34, d.fecha, 'F2', 11, '1 1 1');
+    y = H - 64 - 22;
+    // datos
+    const filas = [['Alumno/a', d.alumno || '—'], ['Grupo', d.grupo || '—'], ['Ejercicio', d.ejercicio || '—'], ['Programa', `${d.archivo || '—'}  (${d.lineas} líneas)`],
+                   ['Herramienta', d.herramienta || '—'], ['Recorrido de corte', d.longitud || '—'], ['Tiempo estimado', d.tiempo || '—']];
+    filas.forEach(([k, v]) => { txt(M, y, k, 'F1', 9.5, GRIS); infPartir(v, W - 2 * M - 110, k === 'Alumno/a' ? 'F2' : 'F1', 10.5).forEach((l, i) => { if (i) y -= 13; txt(M + 110, y, l, k === 'Alumno/a' ? 'F2' : 'F1', 10.5); }); y -= 15.5; });
+    y -= 4;
+    // imagen de la simulación terminada
+    if (jpeg) {
+        const maxW = W - 2 * M, maxH = 300, k = Math.min(maxW / jpeg.w, maxH / jpeg.h), iw = jpeg.w * k, ih = jpeg.h * k, ix = M + (maxW - iw) / 2;
+        y -= ih; c.push(`q ${iw.toFixed(2)} 0 0 ${ih.toFixed(2)} ${ix.toFixed(2)} ${y.toFixed(2)} cm /Im1 Do Q`); rect(ix, y, iw, ih, null, '0.75 0.78 0.82');
+        y -= 12; txt(M, y, `Simulación terminada · ${d.vista}`, 'F1', 8, GRIS); y -= 8;
+    }
+    // revisión
+    y -= 16; txt(M, y, 'Revisión del programa', 'F2', 12, AZUL); y -= 4;
+    const verde = '0.1 0.5 0.27', rojo = '0.72 0.16 0.12', naranja = '0.72 0.42 0.02';
+    parrafo(!d.errores && !d.avisos ? 'Sin errores ni avisos.' : `${d.errores} error${d.errores === 1 ? '' : 'es'} y ${d.avisos} aviso${d.avisos === 1 ? '' : 's'}.`, 'F2', 10.5, d.errores ? rojo : d.avisos ? naranja : verde);
+    const R = d.revision || [];
+    R.slice(0, 30).forEach(r => { y -= 2; infPartir(`${r.linea !== null && r.linea !== undefined ? 'Línea ' + r.linea + ' · ' : ''}${r.nivel === 'error' ? 'Error' : 'Aviso'}: ${r.msg}`, W - 2 * M - 12, 'F1', 9).forEach((l, i) => { sitio(12); y -= 12; if (!i) txt(M, y, '•', 'F2', 9, r.nivel === 'error' ? rojo : naranja); txt(M + 12, y, l, 'F1', 9); }); });
+    if (R.length > 30) parrafo(`… y ${R.length - 30} más.`, 'F1', 9, GRIS, 12);
+    if (d.plano) {
+        sitio(40); y -= 22; txt(M, y, `Comparación con el plano «${d.plano.titulo}»`, 'F2', 12, AZUL); y -= 4;
+        const bien = d.plano.pc >= 99 && !d.plano.mal.length;
+        parrafo(bien ? 'El recorrido sigue todo el contorno del plano.' : 'El recorrido no coincide del todo con el plano.', 'F2', 10.5, bien ? verde : rojo);
+        parrafo(`Contorno mecanizado: ${d.plano.pc} %` + (d.plano.mal.length ? ` · se mete en la pieza en las líneas ${d.plano.mal.slice(0, 20).join(', ')}${d.plano.mal.length > 20 ? '…' : ''}` : '') + (d.plano.lado ? ` · ${d.plano.lado}` : ''), 'F1', 9.5);
+    }
+    // código de comprobación
+    sitio(78); y -= 18;
+    rect(M, y - 52, W - 2 * M, 52, '0.95 0.97 1', '0.55 0.68 0.82');
+    txt(M + 12, y - 17, 'Código de comprobación', 'F1', 9, GRIS);
+    txt(M + 12, y - 40, d.codigo, 'F4', 20, AZUL);
+    infPartir(`Huella del programa: ${d.huella}. El profesor lo comprueba con el Corrector (corrección masiva). Si se cambia el programa o este informe, el código deja de coincidir.`, W - 2 * M - 250, 'F1', 8).forEach((l, i) => txt(M + 236, y - 15 - i * 10, l, 'F1', 8, GRIS));
+    y -= 52;
+    // programa completo
+    nueva(); txt(M, y - 4, 'Programa', 'F2', 12, AZUL); txt(M + 64, y - 4, d.archivo || '', 'F1', 9.5, GRIS); y -= 20;
+    const T = 8.4, maxCar = Math.floor((W - 2 * M - 34) / (0.6 * T)), lineas = normalizarPrograma(d.programa).split('\n'), anchoN = String(lineas.length).length;
+    const lineasMal = new Set(R.filter(r => r.nivel === 'error').map(r => r.linea)), lineasAv = new Set(R.filter(r => r.nivel !== 'error').map(r => r.linea));
+    lineas.forEach((l, i) => {
+        const n = i + 1, trozos = []; for (let k = 0; k < Math.max(1, l.length); k += maxCar) trozos.push(l.slice(k, k + maxCar));
+        trozos.forEach((t, j) => {
+            if (sitio(T * 1.25)) { y -= 6; }
+            y -= T * 1.25;
+            if (lineasMal.has(n) || lineasAv.has(n)) rect(M - 2, y - 2.2, W - 2 * M + 4, T * 1.25, lineasMal.has(n) ? '1 0.9 0.88' : '1 0.96 0.85');
+            if (!j) txt(M, y, String(n).padStart(anchoN, ' '), 'F3', T, '0.55 0.58 0.62');
+            txt(M + 34, y, t, 'F3', T);
+        });
+    });
+    // pie de página
+    paginas.forEach((p, i) => { c = p; c.push(`${GRIS} RG 0.5 w ${M} ${M - 4} m ${W - M} ${M - 4} l S`); txt(M, M - 16, `${d.alumno || ''} · ${d.ejercicio || ''}`.replace(/^ · | · $/g, ''), 'F1', 7.5, GRIS);
+        const pie = `Código ${d.codigo} · página ${i + 1} de ${paginas.length}`; txt(W - M - infAncho(pie, 'F1', 7.5), M - 16, pie, 'F1', 7.5, GRIS); });
+    // ensamblado
+    const bytes = s => { const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; };
+    const objs = [], partes = []; let pos = 0;
+    const meter = u => { partes.push(u); pos += u.length; };
+    const obj = (n, cuerpo, flujo) => { objs[n] = pos; meter(bytes(`${n} 0 obj\n${cuerpo}\n`)); if (flujo) { meter(bytes('stream\n')); meter(flujo); meter(bytes('\nendstream\n')); } meter(bytes('endobj\n')); };
+    const nPag = paginas.length, primera = 9;
+    const b64 = (() => { const u = new TextEncoder().encode(JSON.stringify(d)); let s = ''; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); })();
+    const ahora = new Date(), dd = v => String(v).padStart(2, '0');
+    const fechaPDF = `D:${ahora.getFullYear()}${dd(ahora.getMonth() + 1)}${dd(ahora.getDate())}${dd(ahora.getHours())}${dd(ahora.getMinutes())}${dd(ahora.getSeconds())}`;
+    meter(bytes('%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'));
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, `<< /Type /Pages /Count ${nPag} /Kids [${paginas.map((p, i) => `${primera + 2 * i} 0 R`).join(' ')}] >>`);
+    ['Helvetica', 'Helvetica-Bold', 'Courier', 'Courier-Bold'].forEach((f, i) => obj(3 + i, `<< /Type /Font /Subtype /Type1 /BaseFont /${f} /Encoding /WinAnsiEncoding >>`));
+    if (jpeg) obj(7, `<< /Type /XObject /Subtype /Image /Width ${jpeg.w} /Height ${jpeg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.datos.length} >>`, jpeg.datos);
+    else obj(7, '<< >>');
+    obj(8, `<< /Title (${pdfCadena('Informe de entrega · ' + (d.ejercicio || d.archivo || ''))}) /Author (${pdfCadena(d.alumno || '')}) /Subject (${pdfCadena('Código de comprobación ' + d.codigo)}) /Creator (${pdfCadena('Simulador G-code · Suite CNC')}) /Producer (Suite CNC) /CreationDate (${fechaPDF}) /SuiteCNC (${b64}) >>`);
+    paginas.forEach((p, i) => {
+        const cont = bytes(p.join('\n'));
+        obj(primera + 2 * i, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >>${jpeg ? ' /XObject << /Im1 7 0 R >>' : ''} >> /Contents ${primera + 2 * i + 1} 0 R >>`);
+        obj(primera + 2 * i + 1, `<< /Length ${cont.length} >>`, cont);
+    });
+    const n = primera + 2 * nPag, xref = pos;
+    let x = `xref\n0 ${n}\n0000000000 65535 f \n`; for (let i = 1; i < n; i++) x += String(objs[i]).padStart(10, '0') + ' 00000 n \n';
+    meter(bytes(x + `trailer\n<< /Size ${n} /Root 1 0 R /Info 8 0 R >>\nstartxref\n${xref}\n%%EOF\n`));
+    return new Blob(partes, { type:'application/pdf' });
+}
+// Imagen de la simulación terminada (la vista actual, 2D o 3D), en JPEG
+function capturaInforme() {
+    const antes = indicePlano;
+    reproduciendo = false; if (typeof actualizarBotonPlay === 'function') actualizarBotonPlay();
+    indicePlano = puntosPlanos.length - 1; moverHerramientaA(indicePlano);
+    let origen;
+    if (modo2D) { dibujar2D(); origen = lienzo2D; } else { renderer.render(scene, camera); origen = renderer.domElement; }
+    const k = Math.min(1, 1600 / Math.max(1, origen.width)), cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(origen.width * k)); cv.height = Math.max(1, Math.round(origen.height * k));
+    const g = cv.getContext('2d'); g.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-app').trim() || '#ffffff';
+    g.fillRect(0, 0, cv.width, cv.height); g.drawImage(origen, 0, 0, cv.width, cv.height);
+    indicePlano = antes; moverHerramientaA(antes);
+    const url = cv.toDataURL('image/jpeg', 0.88), bin = atob(url.split(',')[1]), datos = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) datos[i] = bin.charCodeAt(i);
+    return { url, datos, w:cv.width, h:cv.height };
+}
+function abrirInforme() {
+    if (!gcodeMoves.length || !textoPrograma) { mostrarSnack('Carga antes tu programa G-code (📂 Cargar)'); return; }
+    const res = revisarPrograma();
+    const ahora = new Date(), dd = v => String(v).padStart(2, '0');
+    const herrs = []; gcodeMoves.forEach(m => { const h = m.herr; const t = h ? `T${h.T} Ø${+(+h.d).toFixed(2)} ${h.tipo === 'bola' ? 'bola' : h.tipo === 'v' ? 'en V' : 'plana'}` : null; if (t && !herrs.includes(t)) herrs.push(t); });
+    const ver = (document.querySelector('.ver-suite') || {}).textContent || '';
+    informeDatos = {
+        v:1, simulador: /profesor/i.test(ver) ? 'profesor' : 'alumno', version: ver.trim(),
+        alumno:'', grupo:'', ejercicio: plano ? plano.titulo : '', archivo: nombrePrograma || '', fecha: `${dd(ahora.getDate())}/${dd(ahora.getMonth() + 1)}/${ahora.getFullYear()} ${dd(ahora.getHours())}:${dd(ahora.getMinutes())}`,
+        programa: normalizarPrograma(textoPrograma), lineas: normalizarPrograma(textoPrograma).split('\n').length,
+        herramienta: herrs.length ? herrs.join(' · ') : `Ø${+diametroFresa.toFixed(2)} ${tipoFresa === 'bola' ? 'bola' : tipoFresa === 'v' ? 'en V' : 'plana'} (del panel)`,
+        longitud: longitudTotalCorte(gcodeMoves).toFixed(1) + ' mm', tiempo: tiempos.length ? formatoTiempo(tiempos[tiempos.length - 1]) : '',
+        vista: modo2D ? 'vista 2D en planta' : 'vista 3D',
+        errores: res.filter(r => r.nivel === 'error').length, avisos: res.filter(r => r.nivel !== 'error').length,
+        revision: res.map(r => ({ linea:r.linea, nivel:r.nivel, msg:r.msg })),
+        plano: plano && evalPlano && !evalPlano.sinCortes ? { titulo:plano.titulo, pc:Math.round(evalPlano.cubierto * 100), mal:evalPlano.lineasMal.slice(), lado: evalPlano.ladoMal && evalPlano.ladoMal.length ? (([l, debe, tipo]) => `compensación del lado equivocado desde la línea ${l} (trazado ${tipo}: corresponde G${debe})`)(evalPlano.ladoMal[0].split(':')) : '' } : null
+    };
+    let guard = {}; try { guard = JSON.parse(localStorage.getItem('suiteCNC:alumno') || '{}') || {}; } catch (e) {}
+    const g = id => document.getElementById(id);
+    g('infAlumno').value = guard.alumno || ''; g('infGrupo').value = guard.grupo || ''; g('infEjercicio').value = informeDatos.ejercicio || (nombrePrograma || '').replace(/\.[^.]+$/, '');
+    informeImagen = capturaInforme(); g('infImagen').src = informeImagen.url;
+    actualizarInforme();
+    g('informeFondo').classList.add('visible'); setTimeout(() => g('infAlumno').focus(), 50);
+}
+function actualizarInforme() {
+    if (!informeDatos) return;
+    const g = id => document.getElementById(id), d = informeDatos;
+    d.alumno = g('infAlumno').value.trim().replace(/\s+/g, ' '); d.grupo = g('infGrupo').value.trim(); d.ejercicio = g('infEjercicio').value.trim();
+    d.huella = huellaPrograma(d.programa); d.codigo = codigoInforme(d);
+    const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    g('infResumen').innerHTML = `<div class="${d.errores ? 'mal' : d.avisos ? 'av' : 'ok'}">${!d.errores && !d.avisos ? '✔ Revisión: sin errores ni avisos' : `Revisión: ${d.errores} error${d.errores === 1 ? '' : 'es'}, ${d.avisos} aviso${d.avisos === 1 ? '' : 's'}`}</div>`
+        + (d.plano ? `<div>Plano «${esc(d.plano.titulo)}»: contorno mecanizado <b>${d.plano.pc} %</b>${d.plano.mal.length ? ` · se mete en la pieza en ${d.plano.mal.length} línea(s)` : ''}</div>` : '<div class="nota-herr">Sin plano del ejercicio: si tu profesor te ha dado el .json, cárgalo (📂) y el informe incluirá la comparación con el plano.</div>')
+        + `<div>Programa <b>${esc(d.archivo)}</b> · ${d.lineas} líneas · ${esc(d.fecha)}</div><div class="cod">Código de comprobación <b>${d.codigo}</b></div>`;
+    g('infDescargar').disabled = !d.alumno;
+    g('infDescargar').title = d.alumno ? 'Descarga el PDF para subirlo a Aules junto con tu programa' : 'Escribe antes tu nombre';
+}
+function cerrarInforme() { document.getElementById('informeFondo').classList.remove('visible'); }
+function descargarInforme() {
+    actualizarInforme(); const d = informeDatos; if (!d || !d.alumno) { mostrarSnack('Escribe tu nombre'); return; }
+    try { localStorage.setItem('suiteCNC:alumno', JSON.stringify({ alumno:d.alumno, grupo:d.grupo })); } catch (e) {}
+    let blob; try { blob = crearPDFInforme(d, informeImagen); } catch (e) { console.error(e); mostrarSnack('No se ha podido crear el PDF: ' + e.message); return; }
+    const limpio = t => String(t).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `Informe de entrega - ${limpio(d.alumno)} - ${limpio((d.archivo || 'programa').replace(/\.[^.]+$/, ''))}.pdf`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    cerrarInforme(); mostrarSnack(`Informe descargado (código ${d.codigo}). Súbelo a Aules junto con tu programa ${d.archivo || ''}`);
+}
+// </informe-entrega>
 
 // ── Revisión del programa: errores y avisos típicos ──────────────────
 function revisarPrograma() {
