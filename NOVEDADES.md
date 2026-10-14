@@ -14,6 +14,7 @@ Versiones de los programas: **Calcador v91 · Corrector v39 · Simulador 3D V40 
 
 ### Biblioteca de inicio
 - Carpeta nueva `biblioteca_inicio`: **40 ejercicios** del generador del Calcador, 10 por nivel y de menos a más dentro de cada nivel. Nivel 1, rectas (1–5 en G90, 6–10 en G91); nivel 2, rectas inclinadas (1–5 en G90, 6–10 en mixta); nivel 3, arcos sencillos (G90); nivel 4, arcos con I J (libre).
+- Su página, `biblioteca_inicio/index.html` (botón «📚 Biblioteca de inicio» de la portada), los enseña con su miniatura y la programación que piden, y enlaza las descargas y los PDF. Funciona igual en el disco, en GitHub Pages y en Aules.
 - `Biblioteca_de_inicio.json` los mete todos de una vez en 📚 Biblioteca («Importar archivos…»), en la carpeta *Biblioteca de inicio*, con las etiquetas *Inicio* y *Nivel N*. También están sueltos, por carpetas, y con las **hojas de ejercicio y las soluciones en PDF**, una por nivel, listas para imprimir.
 
 ### Guía del Simulador 3D, nueva

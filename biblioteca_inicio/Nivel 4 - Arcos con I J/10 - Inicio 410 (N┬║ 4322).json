@@ -44,7 +44,7 @@
  "trazadoTipoActual": "exterior",
  "entryIdx": 0,
  "mec": null,
- "uid": "kmv7z31gv22z1i",
+ "uid": "kmv7zycy522l08",
  "estrategia": "plano",
  "wcs": {
   "x": 0,
@@ -89,7 +89,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7z31gv23nqh"
+   "uid": "kmv7zycy523ifw"
   },
   {
    "vertices": [
@@ -110,7 +110,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7z31gv244zg"
+   "uid": "kmv7zycy524c4j"
   },
   {
    "vertices": [
@@ -131,7 +131,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7z31gv256hz"
+   "uid": "kmv7zycy525q70"
   }
  ],
  "calcador": {
@@ -179,8 +179,8 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "grupo": "gmv7z31guosc2",
-    "uid": "kmv7z31gv22z1i"
+    "grupo": "gmv7zycy5olxb",
+    "uid": "kmv7zycy522l08"
    },
    {
     "pts": [
@@ -214,8 +214,8 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "grupo": "gmv7z31guosc2",
-    "uid": "kmv7z31gv23nqh"
+    "grupo": "gmv7zycy5olxb",
+    "uid": "kmv7zycy523ifw"
    },
    {
     "pts": [
@@ -243,8 +243,8 @@
      "r": 15,
      "rot": 0
     },
-    "grupo": "gmv7z31guosc2",
-    "uid": "kmv7z31gv244zg"
+    "grupo": "gmv7zycy5olxb",
+    "uid": "kmv7zycy524c4j"
    },
    {
     "pts": [
@@ -272,8 +272,8 @@
      "r": 20,
      "rot": 0
     },
-    "grupo": "gmv7z31guosc2",
-    "uid": "kmv7z31gv256hz"
+    "grupo": "gmv7zycy5olxb",
+    "uid": "kmv7zycy525q70"
    }
   ],
   "cotasAjuste": {},

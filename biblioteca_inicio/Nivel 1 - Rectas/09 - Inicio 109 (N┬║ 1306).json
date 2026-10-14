@@ -68,7 +68,7 @@
  "trazadoTipoActual": "exterior",
  "entryIdx": 0,
  "mec": null,
- "uid": "kmv7z31a99y3g",
+ "uid": "kmv7zycqz9x5x",
  "estrategia": "plano",
  "wcs": {
   "x": 0,
@@ -107,7 +107,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7z31a9aelx"
+   "uid": "kmv7zycqzant5"
   }
  ],
  "calcador": {
@@ -175,8 +175,8 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "grupo": "gmv7z31a91rco",
-    "uid": "kmv7z31a99y3g"
+    "grupo": "gmv7zycqz1ybo",
+    "uid": "kmv7zycqz9x5x"
    },
    {
     "pts": [
@@ -233,8 +233,8 @@
       }
      ]
     },
-    "grupo": "gmv7z31a91rco",
-    "uid": "kmv7z31a9aelx"
+    "grupo": "gmv7zycqz1ybo",
+    "uid": "kmv7zycqzant5"
    }
   ],
   "cotasAjuste": {},
