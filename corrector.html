@@ -434,7 +434,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v91)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v39</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v92)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v40</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -1040,7 +1040,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
                 <tr><td><span class="kbd">V</span> Editar</td><td>Clic en un contorno lo selecciona. Arrastrar un vértice lo mueve; arrastrar el punto medio de un tramo lo curva; arrastrar el trazo de un contorno seleccionado lo desplaza entero. Clic derecho en vértice: coordenadas, borrar, redondear esquina, empezar aquí. Clic derecho en tramo: recta/arco, radio exacto, invertir, insertar vértice. <span class="kbd">Supr</span> borra el contorno seleccionado.</td></tr>
                 <tr><td><span class="kbd">L</span> Línea</td><td>Cada clic añade un vértice.</td></tr>
                 <tr><td>Cortar en un punto</td><td>Herramienta ✂ Cortar (J), o clic derecho en un tramo → «✂ Cortar aquí»: un contorno cerrado se abre en ese punto; un trazo abierto se parte en dos. Corta por dos puntos para separar un trozo y borrarlo.</td></tr>
-                <tr><td>Unir contornos</td><td>Empieza a dibujar en el extremo de un contorno abierto para continuarlo, y termina el tramo en el extremo de otro contorno abierto para fundirlos en uno (se cierra solo si el resultado da la vuelta completa). También: herramienta Editar, clic derecho en un extremo → «Unir con el contorno abierto más cercano».</td></tr>
+                <tr><td>Unir contornos</td><td>Empieza a dibujar en el extremo de un contorno abierto para continuarlo, y termina el tramo en el extremo de otro contorno abierto para fundirlos en uno (se cierra solo si el resultado da la vuelta completa). Un arco solo se cierra con una recta (su cuerda) al hacer clic en su primer punto. También: herramienta Editar, clic derecho en un extremo → «Unir o cerrar con el extremo más cercano» (si el más cercano es el otro extremo del mismo trazo, lo cierra con una recta).</td></tr>
                 <tr><td><span class="kbd">A</span> Arco 3 puntos</td><td>Clic en un punto cualquiera del arco y luego en su final. El inicio es el último vértice.</td></tr>
                 <tr><td><span class="kbd">T</span> Arco tangente</td><td>Continúa tangente al tramo anterior; solo hay que marcar el final.</td></tr>
                 <tr><td><span class="kbd">C</span> Círculo</td><td>Centro y borde. Escribe <span class="kbd">6</span> para radio 6 o <span class="kbd">Ø12</span> / <span class="kbd">d12</span> para diámetro 12.</td></tr>
@@ -3271,7 +3271,7 @@ function clicDibujo(p, bForzado) {
         refrescar(); return;
     }
     guardarUndo();
-    if (cierra && (n >= 3 || b)) {
+    if (cierra && (n >= 3 || b || c.b.slice(0, n - 1).some(x => x))) {      // dos puntos: cierra si hay un arco (arco + cuerda)
         c.b[n-1] = b; c.cerrado = true;
         if (!contornoValido(c)) { c.cerrado = false; c.b[n-1] = 0; undoStack.pop(); snack('Ese cierre no encierra ninguna superficie'); return; }
         dib = null; snack('Contorno cerrado');
@@ -3296,7 +3296,7 @@ function cerrarDibujoConRecta() {
     let ci = dib ? dib.ci : sel;
     if (ci < 0 || !contornos[ci] || contornos[ci].cerrado) { snack('No hay un contorno abierto que cerrar'); return; }
     const c = contornos[ci];
-    if (c.pts.length < 3) { snack('Hacen falta al menos 3 puntos para cerrar con una recta'); return; }
+    if (c.pts.length < 3 && !(c.pts.length === 2 && c.b[0])) { snack('Hacen falta al menos 3 puntos (o un arco) para cerrar con una recta'); return; }
     guardarUndo();
     c.b[c.pts.length-1] = 0; c.cerrado = true; dib = null;
     if (!contornoValido(c)) { deshacer(); snack('Ese cierre no encierra ninguna superficie'); return; }
@@ -4278,6 +4278,8 @@ function unirCadena(ci) {
 function unirConMasCercano(ci, vi) {
     const c = contornos[ci], n = c.pts.length, p = c.pts[vi];
     let mejor = null;
+    // el otro extremo del mismo trazo: se cierra con una recta (si hay superficie: 3 puntos o algún arco)
+    if (n >= 3 || (n === 2 && c.b[0])) mejor = { propio:true, d:dist(p, c.pts[vi === 0 ? n - 1 : 0]) };
     contornos.forEach((o, j) => {
         if (j === ci || o.cerrado || o.pts.length < 2) return;
         [[o.pts[0], false], [o.pts[o.pts.length-1], true]].forEach(([q, fin]) => {
@@ -4286,6 +4288,15 @@ function unirConMasCercano(ci, vi) {
     });
     if (!mejor) { snack('No hay otro contorno abierto con el que unir'); return; }
     guardarUndo();
+    if (mejor.propio) {
+        if (mejor.d < 1e-7 && n >= 3) { c.pts.pop(); c.b.pop(); }          // los extremos ya coinciden: el último tramo es el cierre
+        else c.b[c.pts.length - 1] = 0;
+        c.cerrado = true;
+        if (!contornoValido(c) || seCruza(c)) { deshacer(); snack('Ese cierre no encierra una superficie (o se cruza consigo mismo)'); return; }
+        if (dib && dib.ci === ci) dib = null;
+        sel = ci; ajusteAuto(ci);
+        snack(mejor.d < 1e-7 ? 'Contorno cerrado' : `Contorno cerrado con una recta de ${fmt(mejor.d, 3)} mm`); refrescar(); return;
+    }
     if (vi === 0 && n > 1) invertirContorno(c);
     const r = unirContornos(ci, mejor.ci, mejor.fin, 0);
     if (!r) { deshacer(); snack('Esa unión no encierra ninguna superficie'); return; }
@@ -5697,7 +5708,7 @@ function abrirCtx(sx, sy) {
             <div class="param-line">Radio de redondeo <input type="number" id="cR" step="0.1" min="0.01" value="2"></div>
             <button id="cRed" title="Funciona entre rectas y arcos en cualquier combinación">◜ Redondear esquina (empalme)</button>
             ${c.cerrado ? '<button id="cIni">⚑ Empezar el contorno aquí</button>' : ''}
-            ${!c.cerrado && (h.vi === 0 || h.vi === c.pts.length - 1) ? '<button id="cUnir">🔗 Unir con el contorno abierto más cercano</button><button id="cCadena">🔗 Unir con los trazos que se tocan</button>' : '<button id="cCorV">✂ Cortar en este vértice</button>'}
+            ${!c.cerrado && (h.vi === 0 || h.vi === c.pts.length - 1) ? '<button id="cUnir" title="Con el extremo abierto más cercano: el de otro trazo (los une) o el otro extremo de este (lo cierra con una recta)">🔗 Unir o cerrar con el extremo más cercano</button><button id="cCadena">🔗 Unir con los trazos que se tocan</button>' : '<button id="cCorV">✂ Cortar en este vértice</button>'}
             <button id="cDel">✕ Borrar vértice</button>`;
         colocarCtx(sx, sy);
         const aplicar = () => {

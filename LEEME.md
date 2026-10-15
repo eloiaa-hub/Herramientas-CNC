@@ -9,8 +9,8 @@ sin instalar nada y también sin conexión a internet.
 | Archivo | Herramienta | Versión |
 |---|---|---|
 | `index.html` | Portada con enlaces a todo | — |
-| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca. Genera el G-code de la máquina (⚙️ Mecanizar) | v91 |
-| `corrector.html` | Corrector: el Calcador sin dibujo, para corregir, simular, imprimir, exportar y generar el G-code con ⚙️ Mecanizar (se genera a partir del Calcador) | v39 |
+| `calcador.html` | Calcador de contornos: diseñar ejercicios, hojas, soluciones, corrección y biblioteca. Genera el G-code de la máquina (⚙️ Mecanizar) | v92 |
+| `corrector.html` | Corrector: el Calcador sin dibujo, para corregir, simular, imprimir, exportar y generar el G-code con ⚙️ Mecanizar (se genera a partir del Calcador) | v40 |
 | `manual_calcador.html` / `.pdf` | Manual del Calcador | — |
 | `manual_corrector.html` / `.pdf` | Manual del Corrector (profesorado) | — |
 | `manual_anidador.html` / `.pdf` | Manual del Anidador de tableros (profesorado) | — |

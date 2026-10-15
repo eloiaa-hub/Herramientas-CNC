@@ -4,7 +4,18 @@ La versión de la suite es **año.mes** (por ejemplo, 2026.10). Cada programa co
 
 ## Suite CNC 2026.10
 
-Versiones de los programas: **Calcador v91 · Corrector v39 · Simulador 3D V40 · Calculadora de taller v5 · Anidador de tableros v8**.
+Versiones de los programas: **Calcador v92 · Corrector v40 · Simulador 3D V40 · Calculadora de taller v5 · Anidador de tableros v8**.
+
+### Apuntes y manuales
+- Apuntes ISO: capítulo nuevo, **6 Arcos con el centro fuera de la línea: Pitágoras para I y J** (los siguientes pasan a ser del 7 al 13). Es el contenido de los apuntes de los arcos, sin su repaso de G2 y G3, que ya está en el capítulo 5.
+- Apuntes aparte: **Arcos con el centro fuera de la línea** (`arcos_pitagoras.html` / `.pdf`): la misma pieza con el centro de la muesca en la línea y 5 mm más abajo, superpuestas; el triángulo rectángulo y Pitágoras para sacar I, J y los puntos del arco, según venga acotado el plano; y un repaso de G2 y G3.
+- Apuntes ISO y de los arcos: **por qué R positivo y R negativo**. Con el inicio, el final y el radio hay dos centros posibles (dibujo) y los dos dan un G2; el signo elige el arco corto o el largo (convención de Fanuc). Los errores que provoca (olvidar el menos, arcos de casi 180°, el círculo completo) y una regla práctica: R para arcos claramente menores de media vuelta, I J para el resto.
+- Apuntes ISO, arcos: un círculo completo se puede hacer en una línea con I J, pero en clase se hace en dos semicírculos (funciona en todas las máquinas y no depende de que el final coincida exactamente con el inicio).
+- Manuales, guía y apuntes en HTML: en pantalla, la hoja centrada y con márgenes (el texto ya no queda pegado a los bordes del navegador). En los PDF, ningún título queda solo al final de una página.
+
+### Cerrar un arco con una recta (Calcador v92, Corrector v40)
+- Corregido: un **arco de 3 puntos** seguido de una **recta hasta su primer punto** no cerraba el contorno (pedía al menos 3 puntos); ahora se cierra (arco + cuerda), lo mismo si el arco ya estaba terminado y la recta va de un extremo al otro. Al revés (primero la recta y después el arco) ya funcionaba.
+- Editar → clic derecho en un extremo → **🔗 Unir o cerrar con el extremo más cercano**: si el extremo más cercano es el otro del mismo trazo, lo **cierra con una recta**; antes buscaba siempre otro contorno abierto, aunque estuviera más lejos.
 
 ### Avance de penetración y S… M03 en toda la suite (Calcador v91, Corrector v39, Calculadora v5)
 - ⚙️ Mecanizar tiene un campo nuevo, **Avance de penetración F**: la velocidad al bajar en Z dentro del material (cada pasada de profundidad y el final de un puente), más lenta que la de corte, como en los apuntes: `G1 Z-3 F300` bajando y `F1000` cortando. Hasta Z0 la fresa sigue bajando por el aire a la F de corte, y la recta de entrada ya lleva la F de corte.
