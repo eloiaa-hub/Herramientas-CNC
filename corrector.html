@@ -434,7 +434,7 @@
 <body>
 <div class="app-window">
     <header class="top-bar">
-        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v92)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v40</span></span>
+        <a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a><span class="top-bar-title">✅ Corrector — Por Eloi A.A.<span class="ver-suite" title="Versión del programa (generado a partir del Calcador v93)" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">v41</span></span>
         <div class="top-bar-right">
             <input class="project-name" id="projectName" type="text" value="calco_sin_nombre" placeholder="Nombre del proyecto">
             <div class="sim-plano" title="Simula sobre el plano el programa de la pieza (el de su tabla de soluciones)">
@@ -4656,6 +4656,11 @@ function construirCotas(lista, tipos, u, nivel, origen, opts) {
             linea(ranura.c1, ranura.c2);
             posicionCentro(ranura.c1, ranura.r + 1.4*h, ranura.r + 1.4*h, { tipo:'agu', ci:i, nombre:'de la ranura' }, { tipo:'agu', ci:i, nombre:'de la ranura' });
         }
+        // Agujero de otra forma (rectangular, con chaflanes…): dónde está, con su esquina inferior izquierda (su borde izquierdo y su borde de abajo)
+        if (!ranura && c.cerrado && tipos[i] === 'interior') {
+            const bI = bboxPts(muestrearContorno(c));
+            posicionCentro({ x:bI.x0, y:bI.y0 }, 1.4*h, 1.4*h, { tipo:'agu', ci:i, nombre:'del agujero' }, { tipo:'agu', ci:i, nombre:'del agujero' });
+        }
         let lado = 1;
         if (c.cerrado) lado = areaFirmada(muestrearContorno(c)) >= 0 ? 1 : -1;
         const rectas = [], radios = new Map(), ts = tramos(c), nt = ts.length;
@@ -7470,7 +7475,7 @@ function abrirEditorCota(ref, sx, sy) {
     } else if (ref.tipo === 'agu') {
         const nom = ref.nombre || 'del taladro';
         titulo = `Posición ${nom} C${ref.ci + 1} en ${ref.eje.toUpperCase()}`;
-        extra = `<div class="ctx-nota">Distancia del ${nom === 'de la ranura' ? 'primer centro' : 'centro'} al borde ${ref.borde} de la pieza. Mueve ${nom === 'de la ranura' ? 'la ranura' : 'el taladro'} sin cambiar su forma.</div>`;
+        extra = `<div class="ctx-nota">Distancia ${nom === 'del agujero' ? 'del borde ' + (ref.eje === 'x' ? 'izquierdo' : 'de abajo') + ' del agujero' : 'del ' + (nom === 'de la ranura' ? 'primer centro' : 'centro')} al borde ${ref.borde} de la pieza. Mueve ${nom === 'de la ranura' ? 'la ranura' : nom === 'del agujero' ? 'el agujero' : 'el taladro'} sin cambiar su forma.</div>`;
     } else if (ref.tipo === 'sit') {
         titulo = `Distancia del cero pieza a la pieza en ${ref.eje.toUpperCase()}`;
         extra = `<div class="ctx-nota">Desplaza toda la pieza (con el fondo y las auxiliares) respecto al cero, que no se mueve.</div>`;

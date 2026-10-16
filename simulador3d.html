@@ -166,6 +166,25 @@
     .rev-item.error .lin { color:var(--danger); } .rev-item.aviso .lin { color:var(--warn); }
     .gl.activa { background:var(--linea-activa); border-left-color:var(--warn); }
     .gl.activa .num { color:var(--warn); font-weight:700; }
+    /* 💬 Explicar la línea · 📍 absolutas en G91 */
+    .gl .abs-g91 { color:var(--accent); font-weight:600; font-style:italic; opacity:.8; padding-left:4px; }
+    .gl.activa .abs-g91 { color:var(--warn); opacity:1; }
+    #panelExplicar { border-top:1px solid var(--border-color); flex-shrink:0; display:flex; flex-direction:column; max-height:42%; background:var(--bg-panel); }
+    #panelExplicar.oculto { display:none; }
+    #cabExplicar { padding:7px 12px 5px 16px; font-size:12px; font-weight:700; color:var(--accent); }
+    #cuerpoExplicar { overflow-y:auto; padding:0 12px 10px 16px; font-size:12px; line-height:1.45; }
+    #cuerpoExplicar .ex-codigo { font-family: Consolas, "Cascadia Mono", Menlo, "Courier New", monospace; background:var(--linea-activa); border-radius:4px; padding:3px 7px; white-space:pre-wrap; word-break:break-all; }
+    #cuerpoExplicar .ex-codigo .t-g0 { color:var(--codigo-g0); font-weight:700; } #cuerpoExplicar .ex-codigo .t-g { color:var(--accent); font-weight:700; }
+    #cuerpoExplicar .ex-codigo .t-com { color:var(--codigo-com); font-style:italic; }
+    #cuerpoExplicar ul { margin:6px 0 4px; padding-left:16px; }
+    #cuerpoExplicar li { margin:2px 0; }
+    #cuerpoExplicar li b { font-family: Consolas, "Cascadia Mono", Menlo, "Courier New", monospace; color:var(--accent); }
+    #cuerpoExplicar .ex-sumas, #cuerpoExplicar .ex-res, #cuerpoExplicar .ex-nota, #cuerpoExplicar .ex-rev { margin-top:5px; padding:4px 8px; border-radius:5px; }
+    #cuerpoExplicar .ex-sumas { background:var(--accent-light); font-variant-numeric:tabular-nums; }
+    #cuerpoExplicar .ex-res { border-left:3px solid var(--accent); padding-left:7px; border-radius:0; }
+    #cuerpoExplicar .ex-nota { color:var(--text-muted); padding-left:0; }
+    #cuerpoExplicar .ex-rev.error { color:var(--danger); } #cuerpoExplicar .ex-rev.aviso { color:var(--warn); }
+    #cuerpoExplicar .ex-vacio { color:var(--text-muted); margin:2px 0 4px; }
 
     aside#panel { width:280px; background:var(--bg-panel); border-left:1px solid var(--border-color);
         display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0; }
@@ -252,7 +271,7 @@
 <body>
 <div id="app">
     <header>
-        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V40</span></h1>
+        <h1><a href="index.html" class="ir-portada" title="Portada de las herramientas" style="text-decoration:none;font-size:15px;margin-right:6px;color:inherit;opacity:.75">⌂</a>🎥<span class="tit-largo"> Simulador G-Code 3D — Por Eloi A.A.</span><span class="ver-suite" title="Versión del programa" style="font-size:11px;font-weight:600;padding:1px 7px;margin-left:8px;border-radius:9px;background:rgba(0,90,156,.12);color:#005A9C;vertical-align:middle">V42</span></h1>
         <span class="filename" id="filenameLabel">Sin archivo cargado</span>
         <div class="sep"></div>
         <button class="principal" onclick="document.getElementById('fileInput').click()" title="Un programa G-code (.nc, .txt…) o el plano del ejercicio (.json del Calcador) para comprobar el programa con él">📂 Cargar<span class="lbl2"> G-code / plano</span></button>
@@ -312,6 +331,8 @@
                     <button id="btnEditarCodigo" onclick="toggleEdicionCodigo()" title="Editar el G-code en modo texto (Ctrl+E)">✏️ Editar</button>
                     <button onclick="guardarGcode()" title="Guardar el G-code como archivo .nc (Ctrl+S)">💾</button>
                     <button onclick="nuevoPrograma()" title="Empezar un programa nuevo en blanco">📄</button>
+                    <button id="btnExplicar" onclick="toggleExplicar()" title="💬 Explicar en castellano la línea marcada: qué hace cada código, de dónde a dónde va la fresa y el centro de los arcos">💬</button>
+                    <button id="btnAbsolutas" onclick="toggleAbsolutas()" title="📍 En las líneas en G91 (incrementales), escribir al lado el punto absoluto en el que queda la fresa">📍</button>
                 </div>
                 <button class="panel-cerrar" onclick="togglePanel('codigo')" title="Ocultar panel">✕</button>
             </div>
@@ -325,6 +346,7 @@
                 <textarea id="textoEditor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Editor de G-code"></textarea>
             </div>
             <div id="listaCodigo" style="flex:1"><div class="vacio">Carga un archivo para ver aquí su código. Haz clic en cualquier línea para llevar la fresa hasta ella.</div></div>
+            <div id="panelExplicar" class="oculto"><div id="cabExplicar">💬 Qué hace cada línea</div><div id="cuerpoExplicar"></div></div>
             <div id="panelRevision">
                 <div class="rev-cab" onclick="document.getElementById('panelRevision').classList.toggle('plegado')" title="Mostrar / ocultar la revisión">
                     <span id="revResumen">Revisión del programa</span><span class="rev-flecha">▾</span>
@@ -523,6 +545,7 @@
         <li><code>G90</code>/<code>G91</code> coordenadas absolutas/incrementales, <code>G70</code>/<code>G71</code> o <code>G20</code>/<code>G21</code> pulgadas/milímetros (se aceptan las dos formas).</li>
         <li><code>G41</code>/<code>G42</code>/<code>G40</code> compensación del radio de la herramienta (ver más abajo).</li>
         <li>Ciclos de taladrado <code>G81</code>, <code>G82</code>, <code>G83</code> y <code>G73</code> (con picoteo <code>Q</code>), <code>G85</code>/<code>G86</code>/<code>G89</code>, con retorno <code>G98</code>/<code>G99</code> y anulación <code>G80</code>.</li>
+        <li><code>G71 X… Y… Z…</code> antes del primer movimiento (como en TpaCAD): las medidas de la pieza (largo, ancho y grosor); el material pasa a manual con esas medidas.</li>
         <li><code>M03</code>/<code>M04</code>/<code>M05</code> (husillo, con sus revoluciones delante: <code>S12000 M03</code>), <code>T… M06</code> (cambio de herramienta) y <code>M30</code>/<code>M02</code> (fin), para la revisión.</li>
         <li>Comentarios entre paréntesis <code>( )</code> o después de <code>;</code>. Varias palabras G en la misma línea, con o sin espacios (<code>G1X10Y5</code>, <code>X 10</code>), minúsculas y números de línea <code>N</code>.</li>
         <li>Otros códigos (<code>G18</code>, <code>G19</code>, <code>G28</code>…) no se simulan y aparecen como aviso en la revisión. Archivos en UTF-8 o en la codificación antigua de Windows.</li>
@@ -1893,6 +1916,14 @@ function parsearGcode3D(texto) {
                 noSoportado('G' + g, idx+1, 'Código G' + g + ' no reconocido por el simulador: se ignora.');
         });
 
+        // G70/G71 con X Y Z antes del primer movimiento (como en TpaCAD): las medidas de la pieza (largo, ancho, grosor), no un movimiento
+        const gsLinea = palabras.filter(pw => /^g/i.test(pw)).map(pw => Math.round(parseFloat(pw.slice(1))));
+        if ((gsLinea.includes(70) || gsLinea.includes(71)) && !gsLinea.some(g => g >= 0 && g <= 3) && !ciclo && !moves.length && ultimoGMocion === null &&
+            (('X' in letras) || ('Y' in letras) || ('Z' in letras))) {
+            meta.piezaMedidas = { lx: 'X' in letras ? Math.abs(letras.X) * unidadFactor : null, ly: 'Y' in letras ? Math.abs(letras.Y) * unidadFactor : null,
+                                  grosor: 'Z' in letras ? Math.abs(letras.Z) * unidadFactor : null, linea: idx + 1 };
+            return;
+        }
         if ('T' in letras) { tSel = normT(letras.T); if (!usaM06) tAct = tSel; }
         palabras.forEach(pw => {
             if (pw[0].toUpperCase() !== 'M') return;
@@ -2509,6 +2540,7 @@ function leerCfgMaterial() {
     const v = id => parseFloat(document.getElementById(id).value);
     const antes = matCfg.modo;
     matCfg.modo = document.getElementById('matModo').value;
+    matCfg.porPrograma = false;
     if (matCfg.modo === 'manual' && antes !== 'manual' && material) {
         // Al pasar a manual se proponen las medidas actuales del bloque
         document.getElementById('matLX').value = Math.ceil(material.w);
@@ -2819,6 +2851,7 @@ function construirContornoProgramado() {
 }
 
 let textoPrograma = '', nombrePrograma = '';   // texto y nombre del programa cargado
+const fmtMedida = v => v === null || v === undefined ? '—' : String(+v.toFixed(3));
 function cargarGcodeTexto(texto, nombre) {
     const nuevos = parsearGcode3D(texto);
     if (nuevos.length === 0) { mostrarSnack('«' + nombre + '» no contiene movimientos G0/G1/G2/G3: se mantiene el programa anterior'); return; }
@@ -2833,6 +2866,20 @@ function cargarGcodeTexto(texto, nombre) {
         anchoCorte = 'real'; document.getElementById('anchoCorte').value = 'real'; anchoAuto = true;
     }
     puntosPlanos = construirPuntosPlanos(gcodeMoves);
+    const pm = gcodeMoves.meta && gcodeMoves.meta.piezaMedidas;
+    if (pm) {
+        const g = id => document.getElementById(id);
+        if (pm.lx) g('matLX').value = +pm.lx.toFixed(3); if (pm.ly) g('matLY').value = +pm.ly.toFixed(3); if (pm.grosor) g('matGrosor').value = +pm.grosor.toFixed(3);
+        g('matOrigen').value = 'ii'; g('matModo').value = 'manual';
+        matCfg.modo = 'manual'; matCfg.porPrograma = true; matCfg.lx = +g('matLX').value || 100; matCfg.ly = +g('matLY').value || 100; matCfg.grosor = +g('matGrosor').value || 10; matCfg.origen = 'ii';
+        g('matAuto').style.display = 'none'; g('matManual').style.display = 'block'; g('notaMatAuto').style.display = 'none';
+        setTimeout(() => mostrarSnack(`Línea ${pm.linea}: medidas de la pieza (como en TpaCAD): ${fmtMedida(pm.lx)} × ${fmtMedida(pm.ly)}, grosor ${fmtMedida(pm.grosor)} mm. Material en manual, con el cero en la esquina inferior izquierda`), 400);
+    }    else if (matCfg.porPrograma) {     // el programa anterior traía las medidas y este no: vuelve a automático
+        const g = id => document.getElementById(id);
+        matCfg.porPrograma = false; matCfg.modo = 'auto'; g('matModo').value = 'auto';
+        g('matAuto').style.display = 'block'; g('matManual').style.display = 'none'; g('notaMatAuto').style.display = 'block';
+    }
+
 
     let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,minZ=Infinity,maxZ=-Infinity;
     puntosPlanos.forEach(p => {
@@ -3439,6 +3486,8 @@ function construirListadoCodigo(texto) {
         lineasCodigoEls[n] = div;
     });
     cont.appendChild(frag);
+    explicaciones = explicarPrograma(texto, gcodeMoves);
+    anotarAbsolutas();
 }
 
 // Clic en una línea: pausa y lleva la fresa al estado que deja esa línea
@@ -3765,7 +3814,12 @@ function revisarPrograma() {
     // 6) Material manual: cortar más hondo que el grosor o fuera del bloque
     if (matCfg.modo === 'manual' && material) {
         const hondo = gcodeMoves.find(m => m.tipo === 'corte' && m.z < -material.espesor - 1e-6);
-        if (hondo) add(hondo.linea, 'error', 'La fresa baja a Z' + (+hondo.z.toFixed(3)) + ' y el material solo tiene ' + (+material.espesor.toFixed(2)) + ' mm de grosor: cortaría la mesa o el tablero mártir.');
+        if (hondo) {
+            const zMin = Math.min(...gcodeMoves.filter(m => m.tipo === 'corte').map(m => m.z)), exceso = -zMin - material.espesor;
+            const mHondo = gcodeMoves.find(m => m.tipo === 'corte' && Math.abs(m.z - zMin) < 1e-6) || hondo;
+            if (exceso > 2 + 1e-6) add(mHondo.linea, 'error', 'La fresa baja a Z' + (+zMin.toFixed(3)) + ' y el material solo tiene ' + (+material.espesor.toFixed(2)) + ' mm de grosor: pasa ' + (+exceso.toFixed(2)) + ' mm por debajo y cortaría la mesa o el tablero mártir.');
+            else add(mHondo.linea, 'aviso', 'La fresa baja a Z' + (+zMin.toFixed(3)) + ', ' + (+exceso.toFixed(2)) + ' mm más que el grosor del material (' + (+material.espesor.toFixed(2)) + ' mm): muerde el tablero mártir. Es lo normal en un corte o un agujero pasante; comprueba que hay martiriño.');
+        }
         const fuera = puntosPlanos.find(p => p.tipo === 'corte' && p.z < -1e-6 &&
             (p.x < material.x0 - 1e-6 || p.x > material.x0 + material.w + 1e-6 || p.y < material.y0 - 1e-6 || p.y > material.y0 + material.h + 1e-6));
         if (fuera) add(gcodeMoves[fuera.movIdx].linea, 'aviso', 'El recorrido de corte sale del bloque de material: revisa el origen X0 Y0 o las medidas del bloque.');
@@ -3784,6 +3838,7 @@ function revisarPrograma() {
 }
 
 function mostrarRevision(res) {
+    ultimaRevision = res;
     // Marcas en el listado de código
     lineasCodigoEls.forEach(el => { if (el) { el.classList.remove('con-error', 'con-aviso'); el.removeAttribute('title'); } });
     res.forEach(r => {
@@ -3812,8 +3867,268 @@ function mostrarRevision(res) {
     if (nErr) document.getElementById('panelRevision').classList.remove('plegado');
 }
 
+// <explicar-linea>
+// ── 💬 Explicar la línea marcada y 📍 posición absoluta en las líneas en G91 ──
+// explicarPrograma(texto, moves) recorre el programa con el mismo estado modal que el intérprete
+// (G90/G91, G0…G3, ciclos, unidades) y deja, para cada línea, qué hace cada palabra en castellano
+// y, con los movimientos ya interpretados (gcodeMoves), de dónde a dónde va la fresa.
+const EXPL_G = {
+    0: 'movimiento rápido, sin cortar: la máquina va a su máxima velocidad.',
+    1: 'recta cortando, a la velocidad de avance F.',
+    2: 'arco en sentido horario (como las agujas del reloj), cortando.',
+    3: 'arco en sentido antihorario (al revés que las agujas del reloj), cortando.',
+    4: 'pausa: la máquina espera sin moverse el tiempo que indica P (o X).',
+    15: 'anula las coordenadas polares: X e Y vuelven a ser cartesianas.',
+    16: 'coordenadas polares: X es el radio e Y el ángulo en grados, desde el cero pieza.',
+    17: 'plano de trabajo XY (el de la planta). Es el habitual y en él se hacen los arcos.',
+    18: 'plano de trabajo XZ (no se simula: los arcos se dibujan en XY).',
+    19: 'plano de trabajo YZ (no se simula: los arcos se dibujan en XY).',
+    20: 'medidas en pulgadas (1 pulgada = 25,4 mm).',
+    21: 'medidas en milímetros.',
+    28: 'vuelta al punto de referencia de la máquina (depende del control; el simulador no mueve la fresa).',
+    30: 'vuelta a un segundo punto de referencia (no se simula).',
+    40: 'sin compensación de radio: el centro de la fresa pasa por las coordenadas escritas.',
+    41: 'compensación de radio a la izquierda: la fresa va desplazada su radio a la izquierda del sentido de avance.',
+    42: 'compensación de radio a la derecha: la fresa va desplazada su radio a la derecha del sentido de avance.',
+    43: 'activa la corrección de longitud de la herramienta.',
+    44: 'activa la corrección de longitud de la herramienta (en negativo).',
+    49: 'anula la corrección de longitud de la herramienta.',
+    53: 'esta línea se mide desde el cero de la máquina, no desde el cero pieza.',
+    61: 'parada exacta: la máquina frena del todo en cada esquina.',
+    64: 'mecanizado continuo: no frena del todo en las esquinas (las redondea un poco).',
+    70: 'medidas en pulgadas (controles antiguos).',
+    71: 'medidas en milímetros (controles antiguos y TpaCAD).',
+    73: 'ciclo de taladrado con rotura de viruta: baja de Q en Q retrocediendo un poco cada vez.',
+    80: 'anula el ciclo de taladrado.',
+    81: 'ciclo de taladrado simple: en cada X Y baja en rápido hasta R, taladra hasta Z y sale en rápido.',
+    82: 'ciclo de taladrado con pausa en el fondo (P), para dejar el fondo limpio.',
+    83: 'ciclo de taladrado con descarga de viruta: baja de Q en Q y sube hasta R entre una bajada y otra.',
+    85: 'ciclo de escariado: entra y sale cortando, a la velocidad F.',
+    86: 'ciclo de taladrado que para el husillo en el fondo y sale en rápido.',
+    89: 'ciclo de escariado con pausa en el fondo.',
+    90: 'coordenadas absolutas: cada X Y Z es un punto medido desde el cero pieza.',
+    91: 'coordenadas incrementales: cada X Y Z es lo que se mueve la fresa desde donde está.',
+    94: 'avance en milímetros por minuto.',
+    95: 'avance en milímetros por vuelta.',
+    98: 'al acabar cada taladro, vuelve al plano inicial (la altura desde la que empezó el ciclo).',
+    99: 'al acabar cada taladro, vuelve solo hasta el plano R (más rápido entre taladros cercanos).'
+};
+for (let g = 54; g <= 59; g++) EXPL_G[g] = 'usa el cero pieza número ' + (g - 53) + ' guardado en la máquina.';
+const EXPL_M = {
+    0: 'parada: el programa espera a que el operario pulse marcha.',
+    1: 'parada opcional (solo si está activada en la máquina).',
+    2: 'fin del programa.',
+    3: 'arranca el husillo en sentido horario, a las vueltas de S.',
+    4: 'arranca el husillo en sentido antihorario.',
+    5: 'para el husillo.',
+    6: 'cambio de herramienta: la máquina coge la fresa de la T.',
+    8: 'abre el refrigerante.',
+    9: 'cierra el refrigerante.',
+    30: 'fin del programa (y vuelve al principio).'
+};
+const fmtE = v => String(+(+v).toFixed(3));
+const ptE = (x, y, z) => 'X' + fmtE(x) + ' Y' + fmtE(y) + (z === undefined ? '' : ' Z' + fmtE(z));
+function alturaE(z) {
+    if (Math.abs(z) < 1e-9) return 'a la altura de la superficie de la pieza (Z0)';
+    return z < 0 ? fmtE(-z) + ' mm por debajo de la superficie, dentro del material' : fmtE(z) + ' mm por encima de la superficie';
+}
+
+function explicarPrograma(texto, moves) {
+    const movsPorLinea = {};
+    (moves || []).forEach(m => { (movsPorLinea[m.linea] = movsPorLinea[m.linea] || []).push(m); });
+    let absoluto = true, movimiento = null, ciclo = null, unidad = 1, polar = false, hayMov = false, fin = null, compPendiente = null;
+    return texto.split(/\r?\n/).map((linea, idx) => {
+        const n = idx + 1, f = [];      // f: { cod, txt }
+        const ex = { frases: f, incr: false, abs: null, resultado: null, notas: [] };
+        const com = (linea.match(/\(([^)]*)\)/g) || []).map(c => c.slice(1, -1).trim()).concat(linea.includes(';') ? [linea.slice(linea.indexOf(';') + 1).replace(/\([^)]*\)/g, '').trim()] : []).filter(Boolean);
+        let l = linea.replace(/\(.*?\)/g, '').split(';')[0].trim();
+        if (!l) {
+            if (com.length) f.push({ cod: '', txt: 'Línea de comentario: la máquina no la ejecuta. Sirve para explicar el programa a quien lo lee.' });
+            else f.push({ cod: '', txt: 'Línea vacía: la máquina no hace nada.' });
+            return ex;
+        }
+        if (l.startsWith('%')) { f.push({ cod: '%', txt: 'marca de principio o de final del archivo.' }); return ex; }
+        if (fin) ex.notas.push('Va después del fin de programa (' + fin + '): la máquina no la ejecuta.');
+        l = l.replace(/(\d),(\d)/g, '$1.$2').replace(/([A-Za-z])\s+(?=[-+.\d])/g, '$1').replace(/([-+])\s+(?=[.\d])/g, '$1');
+        const palabras = (l.match(/[A-Za-z][-+]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)/g) || []).map(p => ({ L: p[0].toUpperCase(), v: parseFloat(p.slice(1)), t: p.toUpperCase() }));
+        const letras = {}; palabras.forEach(p => { if (isFinite(p.v)) letras[p.L] = p.v; });
+        const gs = palabras.filter(p => p.L === 'G').map(p => Math.round(p.v));
+        const hayXYZ = ('X' in letras) || ('Y' in letras) || ('Z' in letras);
+        const movsL = movsPorLinea[n] || [];
+        // G70/G71 con X Y Z antes del primer movimiento: medidas del tablero (TpaCAD)
+        const medidas = (gs.includes(70) || gs.includes(71)) && !gs.some(g => g >= 0 && g <= 3) && !ciclo && !hayMov && movimiento === null && hayXYZ;
+        const absAntes = absoluto, movAntes = movimiento;
+        palabras.forEach(p => {
+            if (p.L === 'N') f.push({ cod: p.t, txt: 'número de línea (bloque). Solo sirve para numerar.' });
+            else if (p.L === 'O') f.push({ cod: p.t, txt: 'número del programa.' });
+            else if (p.L === 'G') {
+                const g = Math.round(p.v);
+                if (medidas && (g === 70 || g === 71)) {
+                    f.push({ cod: p.t, txt: 'medidas en ' + (g === 71 ? 'milímetros' : 'pulgadas') + '. Con X Y Z y antes de moverse, como en TpaCAD, son las medidas del tablero: no es un movimiento.' });
+                    return;
+                }
+                f.push({ cod: p.t, txt: EXPL_G[g] ? EXPL_G[g].charAt(0).toUpperCase() + EXPL_G[g].slice(1) : 'código que el simulador no conoce: se ignora.' });
+                if (g === 90) absoluto = true; else if (g === 91) absoluto = false;
+                else if (g === 20 || g === 70) unidad = 25.4; else if (g === 21 || g === 71) unidad = 1;
+                else if (g === 16) polar = true; else if (g === 15) polar = false;
+                else if (g >= 0 && g <= 3) { movimiento = g; ciclo = null; }
+                else if (g === 80) { ciclo = null; movimiento = null; }
+                else if ([73, 81, 82, 83, 85, 86, 89].includes(g)) ciclo = g;
+            }
+            else if (p.L === 'T') f.push({ cod: p.t, txt: 'herramienta número ' + fmtE(p.v) + (/M0?6(?![0-9])/i.test(l) ? ' (el M06 la pone en el cabezal).' : '.') });
+            else if (p.L === 'S') f.push({ cod: p.t, txt: 'el husillo gira a ' + fmtE(p.v) + ' vueltas por minuto (rpm).' });
+            else if (p.L === 'F') f.push({ cod: p.t, txt: 'velocidad de avance: ' + fmtE(p.v) + (unidad === 1 ? ' mm' : ' pulgadas') + ' por minuto. Vale para las líneas siguientes hasta que se cambie.' });
+            else if (p.L === 'M') {
+                const m = Math.round(p.v);
+                f.push({ cod: p.t, txt: EXPL_M[m] ? EXPL_M[m].charAt(0).toUpperCase() + EXPL_M[m].slice(1) : 'función auxiliar de la máquina (el simulador no hace nada con ella).' });
+                if ((m === 30 || m === 2) && !fin) fin = 'M' + String(m).padStart(2, '0') + ' en la línea ' + n;
+            }
+            else if (p.L === 'D') f.push({ cod: p.t, txt: 'número del corrector de radio de la herramienta.' });
+            else if (p.L === 'H') f.push({ cod: p.t, txt: 'número del corrector de longitud de la herramienta.' });
+            else if (p.L === 'P' && gs.includes(4)) f.push({ cod: p.t, txt: 'tiempo de la pausa (en segundos o en milésimas, según el control).' });
+            else if (p.L === 'P' && ciclo) f.push({ cod: p.t, txt: 'tiempo de la pausa en el fondo del taladro.' });
+            else if (p.L === 'Q' && ciclo) f.push({ cod: p.t, txt: 'profundidad de cada bajada: taladra de ' + fmtE(Math.abs(p.v)) + ' en ' + fmtE(Math.abs(p.v)) + ' mm.' });
+            else if (p.L === 'R' && ciclo) f.push({ cod: p.t, txt: 'plano de aproximación: hasta ' + (absoluto ? 'Z' + fmtE(p.v) : fmtE(p.v) + ' mm desde el plano inicial') + ' baja en rápido y desde ahí empieza a taladrar.' });
+            else if ('ABC'.includes(p.L)) f.push({ cod: p.t, txt: 'eje giratorio (no se simula).' });
+        });
+        const g4142 = gs.filter(g => g === 41 || g === 42).pop();
+        if (g4142 && !('X' in letras) && !('Y' in letras)) { compPendiente = g4142; ex.notas.push('La compensación empieza en el siguiente movimiento en X o Y (el de entrada).'); }
+        if (gs.includes(40)) compPendiente = null;
+        if (medidas) { f.push({ cod: ['X', 'Y', 'Z'].filter(k => k in letras).map(k => k + fmtE(letras[k])).join(' '), txt: 'largo (X), ancho (Y) y grosor (Z) del tablero. El simulador pone el material con estas medidas.' }); return ex; }
+        if (!hayXYZ) return ex;
+        if (!movsL.length && !ciclo) return ex;
+        hayMov = true;
+        ex.incr = !absoluto;
+        const m0 = movsL[0], mU = movsL[movsL.length - 1];
+        const ejes = ['X', 'Y', 'Z'].filter(k => k in letras);
+        const desc = ejes.map(k => k + fmtE(letras[k])).join(' ');
+        if (!gs.some(g => (g >= 0 && g <= 3) || [73, 81, 82, 83, 85, 86, 89].includes(g))) {
+            if (ciclo) f.push({ cod: '', txt: 'Sin G de movimiento y con el ciclo G' + ciclo + ' activo: hace otro taladro igual en este punto.' });
+            else if (movAntes === null) f.push({ cod: '', txt: 'Sin G de movimiento y sin ninguno antes: el simulador lo toma como G0 (rápido).' });
+            else f.push({ cod: '', txt: 'Sin G de movimiento: sigue valiendo el último, G' + movAntes + ' (' + ['rápido', 'recta', 'arco horario', 'arco antihorario'][movAntes] + ').' });
+        }
+        if (!absoluto && !gs.includes(91)) f.push({ cod: '', txt: 'Sigue en G91: cada número es lo que se mueve la fresa, no el punto al que va.' });
+        if (ciclo) {
+            if (!movsL.length) return ex;
+            const zFondo = Math.min(...movsL.map(m => m.z)), mC = movsL.find(m => m.tipo === 'corte'), zR = mC ? mC.fromZ : mU.z;
+            f.push({ cod: desc, txt: 'el punto del taladro' + ('Z' in letras ? ' y su profundidad' : '') + '.' });
+            ex.resultado = 'Taladra en ' + ptE(mU.x, mU.y) + ': va en rápido hasta encima, baja en rápido hasta Z' + fmtE(zR) + ', taladra hasta Z' + fmtE(zFondo) + ' (' + alturaE(zFondo) + ') y sale hasta Z' + fmtE(mU.z) + '.';
+            if (!absoluto) ex.abs = ptE(mU.x, mU.y);
+            return ex;
+        }
+        const zIni = m0.fromZ;
+        if (polar) f.push({ cod: desc, txt: 'en polares: radio ' + ('X' in letras ? fmtE(letras.X) : '(el mismo)') + ' y ángulo ' + ('Y' in letras ? fmtE(letras.Y) + '°' : '(el mismo)') + '.' });
+        else if (absoluto) {
+            const xy = ejes.filter(k => k !== 'Z');
+            if (xy.length) f.push({ cod: xy.map(k => k + fmtE(letras[k])).join(' '), txt: 'va al punto ' + xy.map(k => k + fmtE(letras[k])).join(' ') + ', medido desde el cero pieza.' });
+            if ('Z' in letras) {
+                const z = letras.Z * unidad;
+                f.push({ cod: 'Z' + fmtE(letras.Z), txt: (Math.abs(z - zIni) < 1e-9 ? 'se queda ' : z < zIni ? 'baja hasta quedar ' : 'sube hasta quedar ') + alturaE(z) + '.' });
+            }
+        } else {
+            const dir = { X: ['hacia la derecha', 'hacia la izquierda'], Y: ['hacia arriba (en la planta)', 'hacia abajo (en la planta)'], Z: ['sube', 'baja'] };
+            ejes.forEach(k => {
+                const v = letras[k];
+                if (Math.abs(v) < 1e-9) f.push({ cod: k + '0', txt: 'no se mueve en ' + k + '.' });
+                else if (k === 'Z') f.push({ cod: k + fmtE(v), txt: (v > 0 ? 'sube ' : 'baja ') + fmtE(Math.abs(v)) + ' mm desde donde está.' });
+                else f.push({ cod: k + fmtE(v), txt: 'se mueve ' + fmtE(Math.abs(v)) + ' mm ' + dir[k][v > 0 ? 0 : 1] + '.' });
+            });
+        }
+        // Arcos: centro, radio y grados que recorre
+        if (m0.arcoSinCentro) ex.notas.push('Al arco le falta el centro (I J) o el radio (R): el simulador lo hace como una recta.');
+        else if (m0.arco) {
+            let e = null; try { e = entidadDeMovimiento(m0); } catch (err) {}
+            if ('I' in letras || 'J' in letras) {
+                const I = letras.I || 0, J = letras.J || 0;
+                f.push({ cod: 'I' + fmtE(I) + ' J' + fmtE(J), txt: 'dónde está el centro del arco, contado desde el punto de partida (X' + fmtE(m0.fromX) + ' Y' + fmtE(m0.fromY) + '): ' +
+                    fmtE(m0.fromX) + (I < 0 ? ' − ' : ' + ') + fmtE(Math.abs(I)) + ' = ' + fmtE(m0.fromX + I * unidad) + ' en X y ' + fmtE(m0.fromY) + (J < 0 ? ' − ' : ' + ') + fmtE(Math.abs(J)) + ' = ' + fmtE(m0.fromY + J * unidad) + ' en Y. Se cuenta así también en G90.' });
+            } else if ('R' in letras) {
+                f.push({ cod: 'R' + fmtE(letras.R), txt: 'radio del arco: ' + fmtE(Math.abs(letras.R)) + ' mm. ' + (letras.R >= 0 ? 'R positivo: de los dos arcos posibles, el corto (180° o menos).' : 'R negativo: de los dos arcos posibles, el largo (más de 180°).') });
+            }
+            if (e) {
+                const grados = Math.abs(e.d) * 180 / Math.PI;
+                const completo = Math.abs(m0.x - m0.fromX) < 1e-6 && Math.abs(m0.y - m0.fromY) < 1e-6;
+                ex.notas.push((completo ? 'Círculo completo' : 'Arco') + ' de radio ' + fmtE(e.R) + ' con el centro en ' + ptE(e.cx, e.cy) + (completo ? '.' : ': recorre ' + fmtE(grados) + '°.'));
+                if (completo) ex.notas.push('Un círculo entero en una sola línea no lo aceptan todos los controles: es más seguro hacerlo en dos semicírculos.');
+            }
+        }
+        const tipo = movsL.some(m => m.tipo === 'corte') ? 'cortando' : 'en rápido';
+        const ini = ptE(m0.fromX, m0.fromY, m0.fromZ), finP = ptE(mU.x, mU.y, mU.z);
+        ex.resultado = ini === finP ? 'La fresa no cambia de sitio: sigue en ' + finP + '.' : 'La fresa va ' + tipo + ' de ' + ini + ' a ' + finP + '.';
+        if (!absoluto && !polar) {
+            const fin3 = { X: mU.x, Y: mU.y, Z: mU.z };
+            ex.sumas = ejes.map(k => { const d = letras[k] * unidad, a = fin3[k] - d; return k + ': ' + fmtE(a) + (d < 0 ? ' − ' : ' + ') + fmtE(Math.abs(d)) + ' = ' + fmtE(fin3[k]); });
+            ex.abs = ejes.map(k => k + fmtE(fin3[k])).join(' ');
+        }
+        if (compPendiente && (('X' in letras) || ('Y' in letras)) && !g4142) { ex.notas.push('Es el movimiento de entrada de la compensación G' + compPendiente + ': la fresa se va colocando a un lado del contorno mientras se mueve.'); compPendiente = null; }
+        if (g4142 && (('X' in letras) || ('Y' in letras))) ex.notas.push('Es el movimiento de entrada de la compensación: la fresa se va colocando a un lado del contorno mientras se mueve.');
+        if (gs.includes(40) && movsL.some(m => m.comp === 40)) ex.notas.push('Es el movimiento de salida de la compensación: la fresa vuelve a ir con su centro por el punto escrito.');
+        return ex;
+    });
+}
+
+let explicaciones = [], ultimaRevision = [];
+let verExplicacion = true, verAbsolutas = true;
+try { verExplicacion = localStorage.getItem('sim3d_explicar') !== '0'; verAbsolutas = localStorage.getItem('sim3d_absG91') !== '0'; } catch (e) {}
+
+// 📍 Al lado de cada línea en G91, el punto absoluto en el que queda la fresa
+function anotarAbsolutas() {
+    // Con líneas en G91, el panel de código se ensancha (si es estrecho) para que se vea la posición absoluta
+    if (verAbsolutas && explicaciones.some(e => e && e.abs)) {
+        const panel = document.getElementById('panelCodigo'), w = Math.min(440, window.innerWidth * 0.45);
+        if (panel && !panel.classList.contains('oculto') && panel.getBoundingClientRect().width < w - 1) { panel.style.width = w + 'px'; if (typeof onResizeViewport === 'function') onResizeViewport(); }
+    }
+    lineasCodigoEls.forEach((el, n) => {
+        if (!el) return;
+        const viejo = el.querySelector('.abs-g91'); if (viejo) viejo.remove();
+        const e = explicaciones[n - 1];
+        if (!verAbsolutas || !e || !e.abs) return;
+        const s = document.createElement('span');
+        s.className = 'abs-g91';
+        s.textContent = '→ ' + e.abs + '  ';
+        s.title = 'En G91 cada número es lo que se mueve la fresa. Aquí queda, en absolutas (desde el cero pieza), en ' + e.abs;
+        const txt = el.querySelector('.txt'), com = txt && txt.querySelector('.t-com');
+        if (com) txt.insertBefore(s, com); else (txt || el).appendChild(s);
+    });
+}
+
+function actualizarExplicacion(n) {
+    const caja = document.getElementById('panelExplicar');
+    if (!caja) return;
+    caja.classList.toggle('oculto', !verExplicacion || editando);
+    if (!verExplicacion) return;
+    const cuerpo = document.getElementById('cuerpoExplicar'), cab = document.getElementById('cabExplicar');
+    const e = n ? explicaciones[n - 1] : null;
+    if (!e) { cab.textContent = '💬 Qué hace cada línea'; cuerpo.innerHTML = '<p class="ex-vacio">Haz clic en una línea o avanza paso a paso (▶|) y aquí verás qué hace, explicado palabra por palabra.</p>'; return; }
+    const lineaTxt = (textoPrograma.split(/\r?\n/)[n - 1] || '').trim();
+    cab.textContent = '💬 Línea ' + n;
+    let h = '<div class="ex-codigo">' + colorearLinea(lineaTxt) + '</div><ul>';
+    e.frases.forEach(fr => { h += '<li>' + (fr.cod ? '<b>' + escaparHtml(fr.cod) + '</b> ' : '') + escaparHtml(fr.txt.charAt(0).toUpperCase() + fr.txt.slice(1)) + '</li>'; });
+    h += '</ul>';
+    if (e.sumas && e.sumas.length) h += '<div class="ex-sumas" title="En G91 se suma lo que se mueve a donde estaba la fresa"><b>📍 Dónde queda (en absolutas):</b> ' + e.sumas.map(escaparHtml).join(' · ') + '</div>';
+    if (e.resultado) h += '<div class="ex-res">' + escaparHtml(e.resultado) + '</div>';
+    e.notas.forEach(t => { h += '<div class="ex-nota">' + escaparHtml(t) + '</div>'; });
+    ultimaRevision.filter(r => r.linea === n).forEach(r => { h += '<div class="ex-rev ' + r.nivel + '">' + (r.nivel === 'error' ? '⛔ ' : '⚠️ ') + escaparHtml(r.msg) + '</div>'; });
+    cuerpo.innerHTML = h;
+}
+
+function toggleExplicar() {
+    verExplicacion = !verExplicacion;
+    try { localStorage.setItem('sim3d_explicar', verExplicacion ? '1' : '0'); } catch (e) {}
+    document.getElementById('btnExplicar').classList.toggle('activo', verExplicacion);
+    actualizarExplicacion(lineaResaltada);
+}
+function toggleAbsolutas() {
+    verAbsolutas = !verAbsolutas;
+    try { localStorage.setItem('sim3d_absG91', verAbsolutas ? '1' : '0'); } catch (e) {}
+    document.getElementById('btnAbsolutas').classList.toggle('activo', verAbsolutas);
+    anotarAbsolutas();
+}
+// </explicar-linea>
+
 function resaltarLineaCodigo(n) {
     if (n === lineaResaltada) return;
+    actualizarExplicacion(n);
     if (lineaResaltada && lineasCodigoEls[lineaResaltada]) lineasCodigoEls[lineaResaltada].classList.remove('activa');
     lineaResaltada = n;
     const el = n ? lineasCodigoEls[n] : null;
@@ -4615,9 +4930,15 @@ function mostrarModoEdicion(v) {
     editando = v;
     ['barraEdicion', 'zonaEditor'].forEach(id => document.getElementById(id).classList.toggle('oculto', !v));
     document.getElementById('listaCodigo').classList.toggle('oculto', v);
+    actualizarExplicacion(lineaResaltada);
     document.getElementById('btnEditarCodigo').classList.toggle('activo', v);
     document.getElementById('btnEditarCodigo').textContent = v ? '👁️ Ver' : '✏️ Editar';
 }
+(function () {
+    const ini = () => { const a = document.getElementById('btnExplicar'), b = document.getElementById('btnAbsolutas');
+        if (a) a.classList.toggle('activo', verExplicacion); if (b) b.classList.toggle('activo', verAbsolutas); actualizarExplicacion(lineaResaltada); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ini); else ini();
+})();
 function toggleEdicionCodigo() {
     if (!editando) {
         if (document.getElementById('panelCodigo').classList.contains('oculto')) togglePanel('codigo');

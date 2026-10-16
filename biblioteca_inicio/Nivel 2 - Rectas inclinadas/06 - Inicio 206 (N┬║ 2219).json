@@ -50,7 +50,7 @@
  "trazadoTipoActual": "exterior",
  "entryIdx": 0,
  "mec": null,
- "uid": "kmv7zycsckjyd",
+ "uid": "kmv9gofl2kp7v",
  "estrategia": "plano",
  "wcs": {
   "x": 0,
@@ -107,7 +107,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7zycscl9ri"
+   "uid": "kmv9gofl2lw76"
   }
  ],
  "calcador": {
@@ -188,8 +188,8 @@
       }
      ]
     },
-    "grupo": "gmv7zycsc47u0",
-    "uid": "kmv7zycsckjyd"
+    "grupo": "gmv9gofl242zm",
+    "uid": "kmv9gofl2kp7v"
    },
    {
     "pts": [
@@ -261,8 +261,8 @@
       }
      ]
     },
-    "grupo": "gmv7zycsc47u0",
-    "uid": "kmv7zycscl9ri"
+    "grupo": "gmv9gofl242zm",
+    "uid": "kmv9gofl2lw76"
    }
   ],
   "cotasAjuste": {},

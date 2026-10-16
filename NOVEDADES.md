@@ -4,9 +4,24 @@ La versión de la suite es **año.mes** (por ejemplo, 2026.10). Cada programa co
 
 ## Suite CNC 2026.10
 
-Versiones de los programas: **Calcador v92 · Corrector v40 · Simulador 3D V40 · Calculadora de taller v5 · Anidador de tableros v8**.
+Versiones de los programas: **Calcador v93 · Corrector v41 · Simulador 3D V42 · Calculadora de taller v5 · Anidador de tableros v8**.
+
+### Simulador 3D V42: qué hace cada línea y dónde queda la fresa en G91
+- **💬 Explicar la línea**: debajo del programa, la línea marcada (al hacer clic o al avanzar línea a línea) explicada en castellano palabra por palabra: los códigos G y M, F, S, T, y qué significan los números X, Y, Z (en G90, el punto al que va; en G91, cuánto se mueve y hacia dónde). Dice de dónde a dónde va la fresa, si corta o va en rápido, y avisa de lo que sigue valiendo de líneas anteriores (el G1, el G91). En los arcos, el centro (con I J o con R), el radio y los grados; en los taladros, el plano R, el fondo y la salida. Si la línea tiene un error o un aviso de la revisión, sale también.
+- **📍 Posición absoluta en G91**: al lado de cada línea en incrementales, el punto en el que queda la fresa (→ X105 Y75), y en la explicación, la suma (Y: 35 + 40 = 75). Si hay líneas en G91, el panel del programa se ensancha para que se vea.
+- Los dos se encienden y se apagan con sus botones, en la cabecera del programa, y el Simulador recuerda cómo se dejan. La guía del Simulador lo explica en el capítulo 4.
+
+### Posición de los agujeros en las cotas (Calcador v93, Corrector v41)
+- Corregido: los agujeros que no son redondos ni ranuras (rectangulares, con chaflanes…) se acotaban solo con sus medidas, no con dónde están, y no se podían sacar del plano las coordenadas de sus puntos. Ahora se acota su **esquina inferior izquierda** (su borde izquierdo y su borde de abajo) desde los bordes de la pieza, como el centro de los taladros. Con clic derecho en esas cotas se mueve el agujero.
+- La biblioteca de inicio y los programas resueltos se han rehecho con las cotas nuevas.
+
+### Simulador 3D V41: las medidas del tablero, como en TpaCAD
+- Una línea `G71 X… Y… Z…` antes del primer movimiento (así da TpaCAD las medidas del tablero: largo, ancho y grosor) ya no es un movimiento: el Simulador pone el material en manual con esas medidas y el cero en la esquina inferior izquierda. Si el siguiente programa no las trae, vuelve a automático.
+- Bajar hasta 2 mm más que el grosor del tablero (un corte o un agujero pasante que muerde el martiriño) es ahora un aviso; más de 2 mm sigue siendo un error.
 
 ### Apuntes y manuales
+- Apuntes nuevos: **Programas resueltos** (`programas_resueltos.html` / `.pdf`, 36 páginas): las letras de una línea, G90, rectas, exterior e interior, G2 y G3, círculos en dos semicírculos, G91 (los mismos ocho ejercicios), mixta y pasadas de profundidad (con la Z siempre en G90). Cada ejercicio con su plano numerado, la tabla de puntos y el programa comentado línea a línea; los programas, en `herramientas_desarrollo/manuales/resueltos/programas/`, comprobados en el Simulador (100 % del contorno).
+- Borradores para revisar, aparte: **Taladros: los ciclos fijos** (`taladros.html` / `.pdf`: G81, G82, G83, G73, G80, planos R e inicial, G98/G99, agujeros pasantes y cómo lo lee TpaCAD) y **Programas ISO para TpaCAD** (`iso_tpacad.html` / `.pdf`, según el manual del importador ISO de TpaCAD, con un programa de prueba en `herramientas_desarrollo/manuales/tpacad/pieza_tpacad.nc`).
 - Apuntes ISO: capítulo nuevo, **6 Arcos con el centro fuera de la línea: Pitágoras para I y J** (los siguientes pasan a ser del 7 al 13). Es el contenido de los apuntes de los arcos, sin su repaso de G2 y G3, que ya está en el capítulo 5.
 - Apuntes aparte: **Arcos con el centro fuera de la línea** (`arcos_pitagoras.html` / `.pdf`): la misma pieza con el centro de la muesca en la línea y 5 mm más abajo, superpuestas; el triángulo rectángulo y Pitágoras para sacar I, J y los puntos del arco, según venga acotado el plano; y un repaso de G2 y G3.
 - Apuntes ISO y de los arcos: **por qué R positivo y R negativo**. Con el inicio, el final y el radio hay dos centros posibles (dibujo) y los dos dan un G2; el signo elige el arco corto o el largo (convención de Fanuc). Los errores que provoca (olvidar el menos, arcos de casi 180°, el círculo completo) y una regla práctica: R para arcos claramente menores de media vuelta, I J para el resto.

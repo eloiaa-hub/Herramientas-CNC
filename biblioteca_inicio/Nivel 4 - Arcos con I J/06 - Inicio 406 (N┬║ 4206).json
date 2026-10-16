@@ -44,7 +44,7 @@
  "trazadoTipoActual": "exterior",
  "entryIdx": 0,
  "mec": null,
- "uid": "kmv7zycwg1pove",
+ "uid": "kmv9gofot1p50u",
  "estrategia": "plano",
  "wcs": {
   "x": 0,
@@ -83,7 +83,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7zycwg1qkw6"
+   "uid": "kmv9gofot1qe27"
   },
   {
    "vertices": [
@@ -128,7 +128,7 @@
    "tipo": "interior",
    "entryIdx": 0,
    "mec": null,
-   "uid": "kmv7zycwg1rqfp"
+   "uid": "kmv9gofot1ry6e"
   }
  ],
  "calcador": {
@@ -176,8 +176,8 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "grupo": "gmv7zycwgkjim",
-    "uid": "kmv7zycwg1pove"
+    "grupo": "gmv9gofotkmg7",
+    "uid": "kmv9gofot1p50u"
    },
    {
     "pts": [
@@ -216,8 +216,8 @@
      "w": 30,
      "rot": 0
     },
-    "grupo": "gmv7zycwgkjim",
-    "uid": "kmv7zycwg1qkw6"
+    "grupo": "gmv9gofotkmg7",
+    "uid": "kmv9gofot1qe27"
    },
    {
     "pts": [
@@ -256,8 +256,8 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "grupo": "gmv7zycwgkjim",
-    "uid": "kmv7zycwg1rqfp"
+    "grupo": "gmv9gofotkmg7",
+    "uid": "kmv9gofot1ry6e"
    }
   ],
   "cotasAjuste": {},

@@ -56,7 +56,7 @@
  "trazadoTipoActual": "exterior",
  "entryIdx": 0,
  "mec": null,
- "uid": "kmv7zycw31idu6",
+ "uid": "kmv9gofoi1iuq8",
  "estrategia": "plano",
  "wcs": {
   "x": 0,
@@ -119,7 +119,7 @@
     ],
     "cerrado": true,
     "tipo": "auto",
-    "uid": "kmv7zycw31idu6"
+    "uid": "kmv9gofoi1iuq8"
    }
   ],
   "cotasAjuste": {},
