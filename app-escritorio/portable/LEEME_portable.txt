@@ -1,0 +1,41 @@
+SIMULADOR G-CODE 3D — Suite CNC (Eloi A.A.)
+Versión de escritorio PORTABLE
+===========================================
+
+CÓMO SE USA
+- Abre Simulador3D.exe. No hace falta instalar nada.
+- Puedes copiar esta carpeta entera a un USB o a otro ordenador:
+  todo viaja con ella.
+
+LA CARPETA «datos»
+- Se crea sola la primera vez que abres la app.
+- Guarda tus ajustes, la base de herramientas y las copias de
+  recuperación (autoguardado). No la borres si quieres conservarlos.
+- Si la carpeta está en un sitio donde no se puede escribir
+  (por ejemplo, un USB protegido), la app usa la carpeta de tu usuario.
+
+ARCHIVOS .sim3d (PROYECTOS)
+- Un proyecto .sim3d guarda en un solo archivo el programa G-code, el
+  plano del ejercicio, la herramienta y el material.
+- Menú 🗂️ Archivo → «Guardar como…» y elige el tipo de archivo.
+- Ctrl+S guarda en el mismo archivo que tienes abierto (.sim3d o .nc).
+- Para la máquina sigue haciendo falta el .nc:
+  Archivo → «Exportar solo el G-code (.nc)…».
+
+ABRIR CON DOBLE CLIC
+- Menú 🗂️ Archivo → «Asociar archivos con esta app…».
+- Solo afecta a tu usuario y no pide permisos de administrador.
+- Si mueves o borras la carpeta, quita antes la asociación desde el
+  mismo menú (o vuelve a asociar desde la nueva ubicación).
+
+ORDENADORES SIN WEBVIEW2 (Windows antiguos)
+- Windows 10 y 11 ya lo traen. Si la app no arranca en un equipo,
+  descarga el «WebView2 Fixed Version Runtime» de Microsoft,
+  descomprímelo y renombra su carpeta a «webview2», junto a
+  Simulador3D.exe. La app lo usará automáticamente.
+
+AVISO DE WINDOWS «Windows protegió su PC»
+- Aparece porque el programa no está firmado con un certificado de
+  pago. Pulsa «Más información» → «Ejecutar de todas formas».
+
+Licencia: EUPL-1.2

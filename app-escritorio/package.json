@@ -1,0 +1,17 @@
+{
+  "name": "simulador-3d-escritorio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Simulador G-Code 3D (Suite CNC) como app de escritorio con Tauri",
+  "type": "module",
+  "scripts": {
+    "preparar": "node scripts/preparar.mjs",
+    "dev": "tauri dev",
+    "portable": "tauri build --no-bundle",
+    "appimage": "tauri build --bundles appimage",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.0"
+  }
+}
