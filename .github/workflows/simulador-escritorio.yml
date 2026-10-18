@@ -102,7 +102,7 @@ jobs:
           body: |
             **Simulador G-Code 3D (Suite CNC) — versión de escritorio portable**
 
-            · **Windows:** descarga `Simulador3D_portable_windows_x64.zip`, descomprímelo donde quieras (también en un USB) y abre `Simulador3D.exe`.
+            · **Windows:** descarga `Simulador3D_portable_windows_x64.zip`. Antes de descomprimirlo: clic derecho → **Propiedades** → marca **Desbloquear** → Aceptar (así Windows no muestra la pantalla azul). Después «Extraer todo…» donde quieras (también en un USB) y abre `Simulador3D.exe`.
             · **Linux:** descarga el `.AppImage`, dale permiso de ejecución (clic derecho → Propiedades → Permitir ejecutar) y ábrelo.
 
             Los datos se guardan en la carpeta `datos/` junto a la app. Menú 🗂️ Archivo → «Asociar archivos…» para abrir los `.sim3d` con doble clic.
