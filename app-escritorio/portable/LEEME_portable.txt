@@ -41,8 +41,10 @@ ORDENADORES SIN WEBVIEW2 (Windows antiguos)
   descomprímelo y renombra su carpeta a «webview2», junto a
   Simulador3D.exe. La app lo usará automáticamente.
 
-AVISO DE WINDOWS «Windows protegió su PC»
-- Aparece porque el programa no está firmado con un certificado de
-  pago. Pulsa «Más información» → «Ejecutar de todas formas».
+AVISO DE WINDOWS «Windows protegió su PC» (pantalla azul)
+- Para que NO aparezca: ANTES de descomprimir, clic derecho en el ZIP
+  → Propiedades → marca «Desbloquear» (abajo) → Aceptar → «Extraer todo…».
+- Si ya ha aparecido: «Más información» → «Ejecutar de todas formas».
+  Solo pasa la primera vez.
 
 Licencia: EUPL-1.2
