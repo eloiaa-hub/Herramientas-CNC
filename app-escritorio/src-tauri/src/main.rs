@@ -26,9 +26,29 @@ const TITULO: &str = "Simulador G-Code 3D — Suite CNC";
 const MAX_ARCHIVO: u64 = 60 * 1024 * 1024;
 const ARCHIVO_RECUPERACION: &str = "recuperacion.sim3d";
 
+/// Registro de diagnóstico en datos/registro.txt (se reinicia en cada arranque).
+static REGISTRO: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+fn registrar_linea(texto: &str) {
+    use std::io::Write;
+    let ruta = REGISTRO.lock().unwrap().clone();
+    if let Some(r) = ruta {
+        if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(r) {
+            let t = std::time::SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0);
+            let _ = writeln!(f, "[{}.{:03}] {}", (t / 1000) % 100_000, t % 1000, texto);
+        }
+    }
+}
+
+/// La página avisa con registrar("load…") cuando termina de cargar.
+static PAGINA_CARGADA: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+const SEGUNDOS_ESPERA_PAGINA: u64 = 25;
+
 struct Estado {
     archivo_inicial: Mutex<Option<String>>,
     datos: PathBuf,
+    webview: PathBuf,
+    avisos: Vec<String>,
     portable: bool,
     ventanas: AtomicUsize,
 }
@@ -93,6 +113,14 @@ fn cuerpo_binario<'a>(req: &'a Request<'_>) -> Result<&'a [u8], String> {
 // ─────────────────────────── Comandos para la página ───────────────────────────
 
 #[tauri::command]
+fn registrar(texto: String) {
+    if texto.starts_with("load") {
+        PAGINA_CARGADA.store(true, Ordering::Relaxed);
+    }
+    registrar_linea(&format!("página: {}", texto.chars().take(2000).collect::<String>()));
+}
+
+#[tauri::command]
 fn archivo_inicial(estado: State<Estado>) -> Option<String> {
     estado.archivo_inicial.lock().unwrap().take()
 }
@@ -153,6 +181,8 @@ struct InfoApp {
     version: String,
     portable: bool,
     datos: String,
+    webview: String,
+    avisos: Vec<String>,
     ejecutable: String,
     sistema: &'static str,
     asociado: bool,
@@ -165,6 +195,8 @@ fn info_app(app: AppHandle, estado: State<Estado>) -> InfoApp {
         version: app.package_info().version.to_string(),
         portable: estado.portable,
         datos: estado.datos.to_string_lossy().into_owned(),
+        webview: estado.webview.to_string_lossy().into_owned(),
+        avisos: estado.avisos.clone(),
         ejecutable: exe.to_string_lossy().into_owned(),
         sistema: std::env::consts::OS,
         asociado: asociacion::estado(&exe),
@@ -223,7 +255,7 @@ fn abrir_ventana(app: AppHandle, estado: State<Estado>, pagina: String, titulo: 
     }
     let n = estado.ventanas.fetch_add(1, Ordering::Relaxed);
     let titulo = titulo.filter(|t| !t.trim().is_empty()).unwrap_or_else(|| TITULO.into());
-    crear_ventana(&app, &format!("doc{n}"), &pagina, &titulo, &estado.datos)
+    crear_ventana(&app, &format!("doc{n}"), &pagina, &titulo, &estado.webview)
         .map(|_| ())
         .map_err(|e| e.to_string())
 }
@@ -233,20 +265,28 @@ fn crear_ventana(
     etiqueta: &str,
     pagina: &str,
     titulo: &str,
-    datos: &Path,
+    webview: &Path,
 ) -> tauri::Result<tauri::WebviewWindow> {
     let b = WebviewWindowBuilder::new(app, etiqueta, WebviewUrl::App(pagina.into()))
         .title(titulo)
         .inner_size(1360.0, 860.0)
         .min_inner_size(820.0, 560.0)
-        .center();
+        .center()
+        .on_page_load(|w, p| {
+            registrar_linea(&format!("ventana «{}»: {:?} {}", w.label(), p.event(), p.url()));
+        });
     // Toda la memoria de la página (localStorage) va a la carpeta de datos:
     // en modo portable viaja con la app.
     #[cfg(any(windows, target_os = "linux"))]
-    let b = b.data_directory(datos.join("webview"));
+    let b = b.data_directory(webview.to_path_buf());
     #[cfg(not(any(windows, target_os = "linux")))]
-    let _ = datos;
-    b.build()
+    let _ = webview;
+    let r = b.build();
+    match &r {
+        Ok(_) => registrar_linea(&format!("ventana «{etiqueta}» creada ({pagina})")),
+        Err(e) => registrar_linea(&format!("ERROR al crear la ventana «{etiqueta}»: {e}")),
+    }
+    r
 }
 
 #[cfg(test)]
@@ -284,6 +324,7 @@ mod pruebas {
 }
 
 fn main() {
+    std::panic::set_hook(Box::new(|info| registrar_linea(&format!("PÁNICO: {info}"))));
     portable::usar_webview2_incluido();
 
     let args: Vec<String> = std::env::args().collect();
@@ -305,17 +346,65 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .setup(move |app| {
             let alternativa = app.path().app_local_data_dir().ok();
-            let (datos, es_portable) = portable::carpeta_datos(|| alternativa);
+            let (datos, es_portable) = portable::carpeta_datos(|| alternativa.clone());
+            let _ = fs::write(datos.join("registro.txt"), "");
+            *REGISTRO.lock().unwrap() = Some(datos.join("registro.txt"));
+            registrar_linea(&format!(
+                "Simulador 3D {} · {} {} · portable={} · datos={} · exe={:?} · WEBVIEW2_BROWSER_EXECUTABLE_FOLDER={:?}",
+                app.package_info().version, std::env::consts::OS, std::env::consts::ARCH, es_portable,
+                datos.display(), std::env::current_exe().ok(), std::env::var_os("WEBVIEW2_BROWSER_EXECUTABLE_FOLDER")
+            ));
+            registrar_linea(&format!("archivo inicial: {:?}", inicial));
+            let (webview, motivo) = portable::carpeta_webview(&datos, alternativa);
+            registrar_linea(&format!("perfil del motor web: {}", webview.display()));
+            if let Some(m) = &motivo {
+                registrar_linea(&format!("AVISO: {m}"));
+            }
+            let mut avisos = Vec::new();
+            if portable::en_carpeta_temporal() {
+                registrar_linea("AVISO: se está ejecutando desde la carpeta temporal (¿dentro del ZIP?)");
+                avisos.push("Parece que has abierto el simulador DENTRO del archivo ZIP, sin descomprimirlo.\n\n\
+                    Funciona, pero al cerrarlo Windows borrará tus ajustes y las copias de recuperación.\n\n\
+                    Cierra la app, haz clic derecho en el ZIP → «Extraer todo…» y abre Simulador3D.exe desde la carpeta extraída."
+                    .to_string());
+            }
+            // Red de seguridad: si la página no carga, que no quede una ventana en blanco sin explicación
+            {
+                use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
+                let h = app.handle().clone();
+                let registro = datos.join("registro.txt");
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_secs(SEGUNDOS_ESPERA_PAGINA));
+                    if PAGINA_CARGADA.load(Ordering::Relaxed) {
+                        return;
+                    }
+                    registrar_linea(&format!("ERROR: la página no ha terminado de cargar en {SEGUNDOS_ESPERA_PAGINA} s"));
+                    h.dialog()
+                        .message(format!(
+                            "El simulador no ha podido mostrar su ventana.\n\n\
+                             Prueba a mover la carpeta de la app a una ruta corta, por ejemplo C:\\Simulador3D, \
+                             y vuelve a abrirla.\n\n\
+                             Si sigue sin funcionar, envía este archivo a tu profesor:\n{}",
+                            registro.display()
+                        ))
+                        .title("Simulador 3D")
+                        .kind(MessageDialogKind::Warning)
+                        .show(|_| {});
+                });
+            }
             app.manage(Estado {
                 archivo_inicial: Mutex::new(inicial.clone()),
                 datos: datos.clone(),
+                webview: webview.clone(),
+                avisos,
                 portable: es_portable,
                 ventanas: AtomicUsize::new(1),
             });
-            crear_ventana(app.handle(), VENTANA_PRINCIPAL, PAGINA_PRINCIPAL, TITULO, &datos)?;
+            crear_ventana(app.handle(), VENTANA_PRINCIPAL, PAGINA_PRINCIPAL, TITULO, &webview)?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            registrar,
             archivo_inicial,
             leer_archivo,
             escribir_texto,
@@ -332,5 +421,8 @@ fn main() {
             abrir_ventana,
         ])
         .run(tauri::generate_context!())
-        .expect("error al iniciar el Simulador 3D");
+        .unwrap_or_else(|e| {
+            registrar_linea(&format!("ERROR al iniciar: {e}"));
+            panic!("error al iniciar el Simulador 3D: {e}");
+        });
 }

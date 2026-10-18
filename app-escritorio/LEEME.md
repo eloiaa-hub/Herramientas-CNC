@@ -64,6 +64,14 @@ npm run dev        ← abre la app en modo desarrollo
 npm run portable   ← crea src-tauri/target/release/Simulador3D(.exe)
 ```
 
+## Diagnóstico y rutas largas (Windows)
+
+- En cada arranque se escribe `datos/registro.txt`. Recoge la versión, las carpetas usadas, la carga de la página y cualquier error de JavaScript. Si a un alumno no le funciona, que te envíe ese archivo.
+- El motor web de Windows (WebView2) **deja la página en blanco** si su carpeta de perfil está en una ruta muy larga, porque se pasa del límite de 260 caracteres de Windows. Si la ruta de `datos\webview` supera los 120 caracteres, la app guarda ese perfil en la carpeta local del usuario. El resto de `datos/` sigue junto al `.exe`.
+- Si la app se abre **dentro del ZIP** sin descomprimir, avisa de que hay que extraerlo, porque si no se perderían los datos.
+- Si la página no ha cargado en 25 s, aparece un mensaje de Windows con instrucciones y la ruta de `registro.txt`.
+- F12 abre las herramientas de desarrollador (activadas en esta versión de pruebas).
+
 ## Formato `.sim3d`
 
 Es JSON, legible con cualquier editor:

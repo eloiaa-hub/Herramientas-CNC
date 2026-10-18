@@ -90,3 +90,40 @@ pub fn escribir_atomico(ruta: &Path, datos: &[u8]) -> Result<(), String> {
     }
     Ok(())
 }
+
+/// Longitud máxima de la carpeta del perfil del motor web en Windows.
+/// WebView2 (Chromium) crea archivos muy anidados dentro de su perfil
+/// (…\EBWebView\Default\Local Storage\leveldb\…). Con rutas largas se supera el
+/// límite de 260 caracteres de Windows y la página queda EN BLANCO sin avisar.
+pub const MAX_RUTA_WEBVIEW: usize = 120;
+
+/// Carpeta del perfil del motor web (localStorage, caché…) y, si no se pudo
+/// usar la de `datos/`, el motivo.
+pub fn carpeta_webview(datos: &Path, local: Option<PathBuf>) -> (PathBuf, Option<String>) {
+    let w = datos.join("webview");
+    let largo = w.to_string_lossy().chars().count();
+    if cfg!(windows) && largo > MAX_RUTA_WEBVIEW {
+        let corta = local.unwrap_or_else(std::env::temp_dir).join("webview");
+        let _ = fs::create_dir_all(&corta);
+        let motivo = format!(
+            "la carpeta de la app tiene una ruta muy larga ({largo} caracteres): \
+             la memoria del motor web se guarda en {}",
+            corta.display()
+        );
+        return (corta, Some(motivo));
+    }
+    (w, None)
+}
+
+/// ¿Se está ejecutando desde la carpeta temporal? Es lo que pasa en Windows al
+/// abrir el .exe con doble clic DENTRO del ZIP sin descomprimirlo: al cerrar,
+/// Windows borra esa carpeta y con ella los datos y autoguardados.
+pub fn en_carpeta_temporal() -> bool {
+    if !cfg!(windows) {
+        return false;
+    }
+    let (Ok(exe), tmp) = (std::env::current_exe(), std::env::temp_dir()) else { return false };
+    let a = exe.to_string_lossy().to_lowercase();
+    let b = tmp.to_string_lossy().to_lowercase();
+    !b.is_empty() && a.starts_with(b.trim_end_matches('\\'))
+}

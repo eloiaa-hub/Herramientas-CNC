@@ -33,6 +33,13 @@ fs.mkdirSync(path.join(destino, 'tauri'), { recursive: true });
 fs.copyFileSync(path.join(raiz, 'puente', 'puente.js'), path.join(destino, 'tauri', 'puente.js'));
 
 const ETIQUETA = '<script src="tauri/puente.js"></script>';
+// Diagnóstico: se pone lo primero del <head> para anotar en datos/registro.txt
+// cualquier error de la página, incluso de los scripts del propio simulador.
+const DIAGNOSTICO = `<script>(function(){var T=window.__TAURI__;function r(m){try{T&&T.core&&T.core.invoke('registrar',{texto:String(m)})}catch(e){}}
+window.__registrar=r;r('inicio '+location.href+' · '+navigator.userAgent+' · tauri='+(!!T));
+window.addEventListener('error',function(e){var t=e.target;r('ERROR '+(e.message||'')+(t&&t!==window&&(t.src||t.href)?' recurso: '+(t.src||t.href):'')+' @'+(e.filename||'')+':'+(e.lineno||'')+':'+(e.colno||''))},true);
+window.addEventListener('unhandledrejection',function(e){r('PROMESA RECHAZADA '+(e.reason&&(e.reason.stack||e.reason.message)||e.reason))});
+document.addEventListener('DOMContentLoaded',function(){r('DOMContentLoaded')});window.addEventListener('load',function(){r('load · puente='+(!!window.__suiteCNC))});})();</script>`;
 function copiar(nombre, obligatorio) {
     const de = path.join(origen, nombre);
     if (!fs.existsSync(de)) {
@@ -43,6 +50,10 @@ function copiar(nombre, obligatorio) {
     const a = path.join(destino, nombre);
     if (/\.html?$/i.test(nombre)) {
         let html = fs.readFileSync(de, 'utf8');
+        // justo después de <meta charset> (o de <head>), para no alejar el charset del principio
+        let h = html.search(/<meta[^>]+charset[^>]*>/i);
+        if (h < 0) h = html.search(/<head[^>]*>/i);
+        if (h >= 0) { const fin = html.indexOf('>', h) + 1; html = html.slice(0, fin) + DIAGNOSTICO + html.slice(fin); }
         const i = html.lastIndexOf('</body>');
         html = i >= 0 ? html.slice(0, i) + ETIQUETA + '\n' + html.slice(i) : html + '\n' + ETIQUETA + '\n';
         fs.writeFileSync(a, html);

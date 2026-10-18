@@ -430,6 +430,7 @@ async function acercaDe() {
             ? '✅ Modo portable: todo se guarda en la carpeta «datos», junto a la app. Puedes copiar la carpeta completa a un USB o a otro ordenador.'
             : 'Modo instalado: los datos se guardan en la carpeta de tu usuario.')
         + '\n\nCarpeta de datos:\n' + i.datos
+        + (i.webview && i.webview.indexOf(i.datos) !== 0 ? '\n\nMemoria del motor web (la ruta de la app es muy larga):\n' + i.webview : '')
         + '\n\nArchivos .sim3d asociados: ' + (i.asociado ? 'sí' : 'no')
         + '\n\nLa simulación es la misma que la del simulador3d.html de la suite. Licencia EUPL-1.2.',
         [{ id: 'ok', texto: 'Aceptar', principal: true }]);
@@ -544,6 +545,10 @@ window.addEventListener('load', () => setTimeout(async () => {
     T.event.listen('abrir-archivo', ev => abrirRuta(ev.payload));
     let inicial = null;
     try { inicial = await invoke('archivo_inicial'); } catch (e) {}
+    try {
+        const info = await invoke('info_app');
+        for (const a of info.avisos || []) await preguntar('Aviso', a, [{ id: 'ok', texto: 'Entendido', principal: true }]);
+    } catch (e) {}
     if (inicial) await abrirRuta(inicial, false);
     else await ofrecerRecuperacion();
 }, 500));

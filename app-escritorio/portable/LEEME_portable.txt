@@ -28,6 +28,13 @@ ABRIR CON DOBLE CLIC
 - Si mueves o borras la carpeta, quita antes la asociación desde el
   mismo menú (o vuelve a asociar desde la nueva ubicación).
 
+SI LA VENTANA SALE EN BLANCO O NO ARRANCA
+- Descomprime el ZIP antes de abrir la app (clic derecho → «Extraer todo…»).
+- Ponla en una ruta corta, por ejemplo C:\Simulador3D o D:\Simulador3D.
+  (La app ya se adapta sola a las rutas largas, pero cuanto más corta, mejor.)
+- En la carpeta «datos» hay un archivo «registro.txt» con lo que ha pasado
+  al arrancar: envíaselo a tu profesor.
+
 ORDENADORES SIN WEBVIEW2 (Windows antiguos)
 - Windows 10 y 11 ya lo traen. Si la app no arranca en un equipo,
   descarga el «WebView2 Fixed Version Runtime» de Microsoft,
