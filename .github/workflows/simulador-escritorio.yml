@@ -1,0 +1,111 @@
+# Compila el Simulador 3D como app de escritorio portable:
+#   · Windows: ZIP con Simulador3D.exe (se descomprime y funciona, sin instalar)
+#   · Linux:   un único archivo .AppImage
+#
+# Cuándo se ejecuta:
+#   · Al publicar una etiqueta que empiece por "simulador-v" (p. ej. simulador-v0.1.0):
+#     compila y crea una "Release" en GitHub con los dos archivos para descargar.
+#   · A mano, desde la pestaña Actions → «Simulador 3D (escritorio)» → Run workflow:
+#     compila y deja los archivos como "artifacts" de esa ejecución.
+#
+# Este archivo debe estar en .github/workflows/ en la RAÍZ del repositorio.
+# El proyecto de la app está en la carpeta app-escritorio/.
+
+name: Simulador 3D (escritorio)
+
+on:
+  push:
+    tags: ['simulador-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: app-escritorio
+
+jobs:
+  windows:
+    name: Windows (portable .zip)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app-escritorio/src-tauri
+
+      - run: npm ci
+      - name: Compilar
+        run: npx tauri build --no-bundle
+
+      - name: Empaquetar la carpeta portable
+        shell: pwsh
+        run: |
+          $dir = "Simulador3D"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Copy-Item src-tauri/target/release/Simulador3D.exe $dir/
+          Copy-Item portable/LEEME_portable.txt "$dir/LEEME.txt"
+          Compress-Archive -Path $dir -DestinationPath Simulador3D_portable_windows_x64.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable
+          path: app-escritorio/Simulador3D_portable_windows_x64.zip
+
+  linux:
+    name: Linux (AppImage)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias del sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev patchelf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app-escritorio/src-tauri
+
+      - run: npm ci
+      - name: Pruebas de la parte Rust
+        run: node scripts/preparar.mjs && cargo test --release --manifest-path src-tauri/Cargo.toml
+      - name: Compilar AppImage
+        run: npx tauri build --bundles appimage
+      - name: Renombrar
+        run: cp src-tauri/target/release/bundle/appimage/*.AppImage Simulador3D_portable_linux_x86_64.AppImage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: app-escritorio/Simulador3D_portable_linux_x86_64.AppImage
+
+  publicar:
+    name: Publicar en Releases
+    if: startsWith(github.ref, 'refs/tags/simulador-v')
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Simulador 3D — escritorio ${{ github.ref_name }}
+          body: |
+            **Simulador G-Code 3D (Suite CNC) — versión de escritorio portable**
+
+            · **Windows:** descarga `Simulador3D_portable_windows_x64.zip`, descomprímelo donde quieras (también en un USB) y abre `Simulador3D.exe`.
+            · **Linux:** descarga el `.AppImage`, dale permiso de ejecución (clic derecho → Propiedades → Permitir ejecutar) y ábrelo.
+
+            Los datos se guardan en la carpeta `datos/` junto a la app. Menú 🗂️ Archivo → «Asociar archivos…» para abrir los `.sim3d` con doble clic.
+          files: |
+            Simulador3D_portable_windows_x64.zip
+            Simulador3D_portable_linux_x86_64.AppImage
