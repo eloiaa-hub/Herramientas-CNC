@@ -30,8 +30,8 @@ jobs:
     name: Windows (portable .zip)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - uses: dtolnay/rust-toolchain@stable
@@ -52,7 +52,7 @@ jobs:
           Copy-Item portable/LEEME_portable.txt "$dir/LEEME.txt"
           Compress-Archive -Path $dir -DestinationPath Simulador3D_portable_windows_x64.zip -Force
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: windows-portable
           path: app-escritorio/Simulador3D_portable_windows_x64.zip
@@ -61,12 +61,12 @@ jobs:
     name: Linux (AppImage)
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Dependencias del sistema
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev libayatana-appindicator3-dev patchelf
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - uses: dtolnay/rust-toolchain@stable
@@ -82,7 +82,7 @@ jobs:
       - name: Renombrar
         run: cp src-tauri/target/release/bundle/appimage/*.AppImage Simulador3D_portable_linux_x86_64.AppImage
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: linux-appimage
           path: app-escritorio/Simulador3D_portable_linux_x86_64.AppImage
@@ -93,10 +93,10 @@ jobs:
     needs: [windows, linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           merge-multiple: true
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           name: Simulador 3D — escritorio ${{ github.ref_name }}
           body: |
